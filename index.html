@@ -1,0 +1,1061 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<title>Jumpseat</title>
+<meta name="claude:viewport-fit-sides" content="cover">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Big+Shoulders+Display:wght@600;800;900&family=Figtree:wght@400;500;600;700&family=IBM+Plex+Mono:wght@500;600&display=swap">
+<style>
+/* Layout: one boarding-pass card centered on a tarmac-grey field; split-flap tiles carry the code, wayfinding yellow marks the one action that matters. */
+:root {
+  --bg: #E4E9ED; --card: #FBFCFD; --ink: #13202B; --muted: #5A6A77; --line: #CBD4DB;
+  --sign: #F5B700; --sign-ink: #1B1500;
+  --tile: #1A252F; --tile-2: #222F3A; --tile-ink: #F3EFE2;
+  --ok: #1D8549; --ok-bg: #E1F2E7; --bad: #BF3428; --bad-bg: #FAE5E2;
+  --chip: #EEF2F5;
+  --f-display: "Big Shoulders Display", "Arial Narrow", "Roboto Condensed", sans-serif;
+  --f-body: "Figtree", system-ui, -apple-system, "Segoe UI", sans-serif;
+  --f-mono: "IBM Plex Mono", ui-monospace, "SF Mono", Menlo, monospace;
+}
+@media (prefers-color-scheme: dark) { :root:not([data-theme="light"]) {
+  --bg: #0C1318; --card: #151F27; --ink: #E3E9EE; --muted: #90A0AD; --line: #283541;
+  --sign: #F5B700; --sign-ink: #1B1500;
+  --tile: #091015; --tile-2: #111A21; --tile-ink: #F3EFE2;
+  --ok: #4BC17C; --ok-bg: #12301F; --bad: #EE6E5D; --bad-bg: #3A1915;
+  --chip: #1C2832; color-scheme: dark } }
+:root[data-theme="dark"] {
+  --bg: #0C1318; --card: #151F27; --ink: #E3E9EE; --muted: #90A0AD; --line: #283541;
+  --sign: #F5B700; --sign-ink: #1B1500;
+  --tile: #091015; --tile-2: #111A21; --tile-ink: #F3EFE2;
+  --ok: #4BC17C; --ok-bg: #12301F; --bad: #EE6E5D; --bad-bg: #3A1915;
+  --chip: #1C2832; color-scheme: dark }
+
+* { box-sizing: border-box; }
+body {
+  background: var(--bg); color: var(--ink); font-family: var(--f-body); font-size: 15px; line-height: 1.45;
+  padding-left: max(16px, env(safe-area-inset-left, 0px)); padding-right: max(16px, env(safe-area-inset-right, 0px));
+  padding-block: 20px 32px;
+}
+.wrap { max-width: 520px; margin: 0 auto; display: grid; gap: 14px; }
+header.top { display: flex; align-items: center; justify-content: space-between; gap: 12px; }
+/* Logo: a row of split-flap modules. Letters advance through the alphabet in order, the way a real flap unit does. */
+.brand { display: flex; gap: 3px; padding: 5px; background: var(--tile); border-radius: 7px; cursor: pointer; border: 0; box-shadow: 0 1px 0 rgba(0,0,0,.25); }
+.brand .f {
+  position: relative; width: 22px; height: 30px; border-radius: 3px; display: grid; place-items: center; overflow: hidden;
+  background: linear-gradient(var(--tile-2) 0 50%, #070C10 50% 100%);
+  color: var(--sign); font-family: var(--f-display); font-weight: 800; font-size: 23px; line-height: 1;
+  text-shadow: 0 0 6px rgba(245,183,0,.35);
+}
+.brand .f::before { content: ""; position: absolute; left: 0; right: 0; top: calc(50% - 1px); height: 2px; background: var(--tile); z-index: 1; }
+.brand .f::after { content: ""; position: absolute; left: 1px; right: 1px; top: calc(50% - 2px); height: 4px; z-index: 2;
+  background: radial-gradient(circle at 0 50%, #3A4651 1.5px, transparent 2px), radial-gradient(circle at 100% 50%, #3A4651 1.5px, transparent 2px); }
+.brand .f.tick span { animation: tick 70ms ease-out; display: block; }
+@keyframes tick { 0% { transform: scaleY(.15) translateY(-40%); } 100% { transform: none; } }
+@media (max-width: 360px) { .brand .f { width: 19px; height: 27px; font-size: 20px; } }
+.top small { font-family: var(--f-mono); font-size: 11px; color: var(--muted); letter-spacing: .08em; text-transform: uppercase; }
+
+/* Boarding pass */
+.pass { background: var(--card); border: 1px solid var(--line); border-radius: 14px; position: relative; overflow: hidden; }
+.pass .sec { padding: 18px 18px; }
+.perf { position: relative; height: 0; border-top: 2px dashed var(--line); margin: 0 14px; }
+.perf::before, .perf::after { content: ""; position: absolute; top: -12px; width: 22px; height: 22px; border-radius: 50%; background: var(--bg); border: 1px solid var(--line); }
+.perf::before { left: -26px; } .perf::after { right: -26px; }
+.label { font-family: var(--f-mono); font-size: 10.5px; letter-spacing: .12em; text-transform: uppercase; color: var(--muted); }
+
+/* Split-flap tiles */
+.tiles { display: flex; justify-content: center; gap: 8px; perspective: 600px; }
+.tile {
+  width: min(26vw, 96px); aspect-ratio: 3 / 4; max-width: 100%; border-radius: 8px; position: relative;
+  background: linear-gradient(var(--tile-2) 0 50%, var(--tile) 50% 100%);
+  color: var(--tile-ink); display: grid; place-items: center;
+  font-family: var(--f-display); font-weight: 800; font-size: min(18vw, 74px); line-height: 1;
+  box-shadow: inset 0 -2px 0 rgba(0,0,0,.35);
+}
+.tile::after { content: ""; position: absolute; left: 0; right: 0; top: 50%; height: 2px; background: var(--bg); opacity: .9; }
+.tile.flip { animation: flip .42s cubic-bezier(.3,.7,.3,1) both; }
+@keyframes flip { 0% { transform: rotateX(-88deg); } 70% { transform: rotateX(8deg); } 100% { transform: rotateX(0); } }
+.tile.blank { color: var(--sign); }
+
+/* Setup */
+.hero { display: grid; gap: 14px; }
+.hero h1 { font-family: var(--f-display); font-weight: 800; font-size: 34px; line-height: 1; margin: 0; text-wrap: balance; text-transform: uppercase; }
+.hero p { margin: 0; color: var(--muted); max-width: 60ch; }
+.field { display: grid; gap: 8px; }
+.chips { display: flex; flex-wrap: wrap; gap: 8px; }
+.chip {
+  font: 600 14px/1.2 var(--f-body); color: var(--ink); background: var(--chip); border: 1px solid var(--line);
+  border-radius: 999px; padding: 9px 14px; cursor: pointer; display: inline-flex; gap: 8px; align-items: baseline;
+}
+.chip em { font-style: normal; font-family: var(--f-mono); font-size: 11px; color: var(--muted); }
+.chip[aria-pressed="true"] { background: var(--ink); color: var(--card); border-color: var(--ink); }
+.chip[aria-pressed="true"] em { color: var(--card); opacity: .7; }
+.chip:disabled { opacity: .45; cursor: not-allowed; }
+.stack { display: grid; gap: 16px; }
+.btn {
+  font: 800 20px/1 var(--f-display); text-transform: uppercase; letter-spacing: .06em;
+  background: var(--sign); color: var(--sign-ink); border: 0; border-radius: 10px; padding: 16px 18px; cursor: pointer; width: 100%;
+  display: flex; justify-content: space-between; align-items: center;
+}
+.btn.ghost { background: transparent; color: var(--ink); border: 1px solid var(--line); }
+.btn:active { transform: translateY(1px); }
+:focus-visible { outline: 3px solid var(--sign); outline-offset: 2px; }
+.toggle { display: flex; align-items: center; gap: 10px; cursor: pointer; font-weight: 500; }
+.toggle input { width: 20px; height: 20px; accent-color: var(--ink); }
+.hint { font-size: 13px; color: var(--muted); }
+
+/* Play */
+.hud { display: flex; justify-content: space-between; gap: 10px; font-family: var(--f-mono); font-size: 12px; letter-spacing: .06em; text-transform: uppercase; color: var(--muted); font-variant-numeric: tabular-nums; flex-wrap: wrap; }
+.hud b { color: var(--ink); font-weight: 600; }
+.clock { height: 5px; background: var(--chip); }
+.clock i { display: block; height: 100%; width: 100%; background: var(--sign); transform-origin: left; }
+.clock.low i { background: var(--bad); }
+.prompt { text-align: center; display: grid; gap: 12px; }
+.prompt .q { font-family: var(--f-mono); font-size: 12px; letter-spacing: .12em; text-transform: uppercase; color: var(--muted); }
+.city { font-family: var(--f-display); font-weight: 800; font-size: 36px; line-height: 1; text-transform: uppercase; text-wrap: balance; }
+.city small { display: block; font-family: var(--f-body); font-weight: 500; font-size: 15px; text-transform: none; color: var(--muted); margin-top: 6px; }
+.opts { display: grid; gap: 8px; }
+.opts.codes { grid-template-columns: 1fr 1fr; }
+.opt {
+  text-align: left; display: grid; grid-template-columns: 26px 1fr; gap: 12px; align-items: center;
+  background: var(--card); border: 1px solid var(--line); border-radius: 10px; padding: 12px 14px;
+  color: var(--ink); font: inherit; cursor: pointer; min-width: 0;
+}
+.opt .k { font-family: var(--f-mono); font-size: 11px; width: 26px; height: 26px; border-radius: 6px; display: grid; place-items: center; background: var(--chip); color: var(--muted); }
+.opt .t { min-width: 0; }
+.opt .t b { display: block; font-weight: 700; font-size: 16px; }
+.opt .t span { display: block; font-size: 13px; color: var(--muted); }
+.opts.codes .opt .t b { font-family: var(--f-display); font-weight: 800; font-size: 30px; letter-spacing: .08em; line-height: 1; }
+.opt:hover:not(:disabled) { border-color: var(--ink); }
+.opt:disabled { cursor: default; }
+.opt.right { background: var(--ok-bg); border-color: var(--ok); }
+.opt.right .k { background: var(--ok); color: var(--card); }
+.opt.wrong { background: var(--bad-bg); border-color: var(--bad); }
+.opt.wrong .k { background: var(--bad); color: var(--card); }
+.opt.dim { opacity: .5; }
+.opt .tag { grid-column: 2; font-family: var(--f-mono); font-size: 11px; letter-spacing: .06em; color: var(--muted); }
+.reveal { display: grid; gap: 10px; }
+.verdict { font-family: var(--f-display); font-weight: 800; font-size: 22px; text-transform: uppercase; letter-spacing: .04em; }
+.verdict.ok { color: var(--ok); } .verdict.bad { color: var(--bad); }
+.note { border-left: 3px solid var(--sign); padding: 2px 0 2px 12px; font-size: 14px; }
+.note .label { display: block; margin-bottom: 2px; }
+
+/* Results */
+.stats { display: grid; grid-template-columns: repeat(3, minmax(0,1fr)); gap: 10px; }
+.stat b { display: block; font-family: var(--f-display); font-weight: 800; font-size: 34px; line-height: 1; font-variant-numeric: tabular-nums; }
+.rank { font-family: var(--f-display); font-weight: 900; font-size: 40px; text-transform: uppercase; line-height: 1; }
+.misslist { display: grid; gap: 6px; margin: 0; padding: 0; list-style: none; }
+.misslist li { display: grid; grid-template-columns: 52px 1fr; gap: 10px; align-items: baseline; padding-block: 6px; border-bottom: 1px solid var(--line); }
+.misslist li:last-child { border-bottom: 0; }
+.misslist code { font-family: var(--f-display); font-weight: 800; font-size: 22px; letter-spacing: .06em; }
+.misslist span { font-size: 14px; }
+.misslist small { display: block; color: var(--muted); font-size: 12.5px; }
+.row { display: flex; gap: 10px; flex-wrap: wrap; }
+.row > * { flex: 1 1 180px; }
+
+
+/* Daily bar */
+.daily { display: flex; flex-wrap: wrap; gap: 6px 14px; font-family: var(--f-mono); font-size: 11.5px; letter-spacing: .06em; text-transform: uppercase; color: var(--muted); font-variant-numeric: tabular-nums; }
+.daily b { color: var(--ink); font-weight: 600; }
+.meter { flex-basis: 100%; height: 6px; border-radius: 3px; background: var(--chip); overflow: hidden; }
+.meter i { display: block; height: 100%; background: var(--sign); }
+
+/* Typed answer */
+.typer { display: grid; grid-template-columns: 1fr auto; gap: 8px; }
+.typer input {
+  font: 800 26px/1 var(--f-display); letter-spacing: .3em; text-transform: uppercase; text-align: center;
+  background: var(--chip); color: var(--ink); border: 1px solid var(--line); border-radius: 10px; padding: 12px 10px; min-width: 0; width: 100%;
+}
+.typer input::placeholder { color: var(--muted); opacity: .6; letter-spacing: .3em; }
+.typer .btn { width: auto; font-size: 18px; padding: 12px 18px; }
+.typer input:disabled { opacity: .6; }
+
+/* Pairing strip */
+.trip { display: grid; gap: 10px; text-align: left; background: var(--chip); border: 1px solid var(--line); border-radius: 10px; padding: 12px; }
+.trip-head { display: flex; justify-content: space-between; gap: 8px; flex-wrap: wrap; }
+.day { display: grid; grid-template-columns: 46px 1fr; gap: 8px; align-items: start; }
+.legs { display: flex; flex-wrap: wrap; align-items: center; gap: 4px 6px; min-width: 0; }
+.stn { font-family: var(--f-display); font-weight: 800; font-size: 21px; letter-spacing: .05em; line-height: 1; padding: 4px 7px 3px; border-radius: 5px; background: var(--card); border: 1px solid var(--line); }
+.stn.cityname { font-family: var(--f-body); font-weight: 600; font-size: 13.5px; letter-spacing: 0; padding: 6px 8px; }
+.stn.hl { background: var(--sign); color: var(--sign-ink); border-color: var(--sign); }
+.arr { color: var(--muted); font-size: 13px; }
+.ron { font-family: var(--f-mono); font-size: 10px; letter-spacing: .1em; color: var(--muted); border: 1px dashed var(--muted); border-radius: 4px; padding: 2px 5px; }
+
+/* Map */
+.maphead { display: flex; justify-content: space-between; align-items: baseline; gap: 10px; flex-wrap: wrap; }
+.maphead h2 { margin: 0; font-family: var(--f-display); font-weight: 800; font-size: 24px; text-transform: uppercase; line-height: 1; }
+.mapwrap { overflow-x: auto; margin-inline: -6px; }
+#map { display: block; width: 100%; min-width: 320px; height: auto; }
+#map .grat { stroke: var(--line); stroke-width: 1; stroke-dasharray: 2 4; fill: none; }
+#map .inset { stroke: var(--line); fill: none; }
+#map .rlabel { font-family: var(--f-mono); font-size: 11px; letter-spacing: .3em; fill: var(--muted); opacity: .45; }
+#map .ilabel { font-family: var(--f-mono); font-size: 8.5px; letter-spacing: .15em; fill: var(--muted); }
+#map .hit { fill: transparent; cursor: pointer; }
+#map .sel { font-family: var(--f-display); font-weight: 800; font-size: 15px; fill: var(--ink); stroke: var(--card); stroke-width: 4px; paint-order: stroke; }
+.d-un { fill: var(--card); stroke: var(--muted); stroke-width: 1.2; }
+.d-learn { fill: var(--sign); fill-opacity: .35; stroke: var(--sign); stroke-width: 1.4; }
+.d-mast { fill: var(--sign); stroke: var(--ink); stroke-width: 1.2; }
+.d-bad { fill: var(--bad-bg); stroke: var(--bad); stroke-width: 1.6; }
+.d-selring { fill: none; stroke: var(--ink); stroke-width: 1.5; }
+.legend { display: flex; flex-wrap: wrap; gap: 6px 14px; font-size: 13px; }
+.legend span { display: inline-flex; align-items: center; gap: 6px; font-variant-numeric: tabular-nums; }
+.legend svg { width: 12px; height: 12px; }
+.mapinfo { font-size: 14px; min-height: 1.45em; }
+.mapinfo b { font-family: var(--f-display); font-weight: 800; font-size: 18px; letter-spacing: .05em; }
+@media (prefers-reduced-motion: reduce) { .tile.flip { animation: none; } .clock i { transition: none !important; } .brand .f.tick span { animation: none; } }
+</style>
+</head>
+<body>
+
+
+<div class="wrap">
+  <header class="top">
+    <button class="brand" id="logo" aria-label="Jumpseat">
+      <span class="f"><span>J</span></span><span class="f"><span>U</span></span><span class="f"><span>M</span></span><span class="f"><span>P</span></span><span class="f"><span>S</span></span><span class="f"><span>E</span></span><span class="f"><span>A</span></span><span class="f"><span>T</span></span>
+    </button>
+    <small id="bestLbl">Best —</small>
+  </header>
+
+  <!-- SETUP -->
+  <section id="setup" class="pass">
+    <div class="sec hero">
+      <div class="daily" id="dailyBar">
+        <span>Today <b id="dToday">0/10</b></span>
+        <span>Streak <b id="dStreak">0 days</b></span>
+        <span>Due for review <b id="dDue">0</b></span>
+        <div class="meter"><i id="dMeter" style="width:0%"></i></div>
+      </div>
+      <div class="tiles" aria-hidden="true">
+        <div class="tile">I</div><div class="tile">N</div><div class="tile">D</div>
+      </div>
+      <h1>Learn the board before you work the cabin</h1>
+      <p>Ten cards a day keeps the streak alive. Codes you get right come back after 1, 3, 7, 14 and 30 days. Codes you miss come back tomorrow. Three correct reviews in a row marks an airport as mastered on your map.</p>
+    </div>
+    <div class="perf"></div>
+    <div class="sec stack">
+      <div class="field">
+        <span class="label">Your airline</span>
+        <div class="chips" id="airDecks"></div>
+        <span class="hint" id="deckHint" hidden></span>
+      </div>
+      <div class="field">
+        <span class="label">Or study by region</span>
+        <div class="chips" id="decks"></div>
+      </div>
+      <div class="field">
+        <span class="label">Practice</span>
+        <div class="chips" id="modes"></div>
+        <span class="hint" id="modeHint"></span>
+      </div>
+      <div class="field">
+        <span class="label">Level</span>
+        <div class="chips" id="levels"></div>
+        <span class="hint" id="levelHint"></span>
+      </div>
+      <label class="toggle" for="clockOn"><input type="checkbox" id="clockOn" checked> Boarding clock</label>
+      <button class="btn" id="startBtn"><span>Start round</span><span aria-hidden="true">→</span></button>
+      <span class="hint">Keyboard: 1–4 to answer, Enter for the next card.</span>
+    </div>
+  </section>
+
+  <!-- MAP -->
+  <section id="mapCard" class="pass">
+    <div class="sec stack">
+      <div class="maphead">
+        <h2 id="mapTitle">Network progress</h2>
+        <span class="label" id="mapSub"></span>
+      </div>
+      <div class="mapwrap"><svg id="map" viewBox="0 0 600 450" role="img" aria-label="Map of airports colored by how well you know them"></svg></div>
+      <div class="legend" id="legend"></div>
+      <div class="mapinfo" id="mapInfo">Tap an airport to see where you stand.</div>
+    </div>
+  </section>
+
+  <!-- PLAY -->
+  <section id="play" class="pass" hidden>
+    <div class="clock" id="clock"><i id="clockBar"></i></div>
+    <div class="sec stack">
+      <div class="hud">
+        <span style="flex-basis:100%"><b id="hDeck">Major hubs</b></span>
+        <span>Card <b id="hCard">1</b> · <b id="hLeft">14</b> left</span>
+        <span>Streak <b id="hStreak">0</b></span>
+        <span>Score <b id="hScore">0</b></span>
+      </div>
+      <div class="prompt">
+        <div class="q" id="pQ">Which airport is this?</div>
+        <div id="pTrip" hidden></div>
+        <div class="city" id="pCity" hidden></div>
+        <div class="tiles" id="pTiles"></div>
+      </div>
+    </div>
+    <div class="perf"></div>
+    <div class="sec stack">
+      <div class="opts" id="opts"></div>
+      <div class="reveal" id="reveal" hidden>
+        <div class="verdict" id="verdict"></div>
+        <div id="revealBody"></div>
+        <button class="btn" id="nextBtn"><span>Next card</span><span aria-hidden="true">→</span></button>
+      </div>
+      <button class="btn ghost" id="quitBtn" style="font-size:15px;padding:10px 14px"><span>End round</span><span aria-hidden="true">×</span></button>
+    </div>
+  </section>
+
+  <!-- RESULTS -->
+  <section id="results" class="pass" hidden>
+    <div class="sec stack">
+      <span class="label">Round complete</span>
+      <div class="rank" id="rRank">Purser</div>
+      <div class="stats">
+        <div class="stat"><span class="label">Score</span><b id="rScore">0</b></div>
+        <div class="stat"><span class="label">First try</span><b id="rAcc">0%</b></div>
+        <div class="stat"><span class="label">Best streak</span><b id="rStreak">0</b></div>
+      </div>
+      <div class="daily" id="rDaily"></div>
+    </div>
+    <div class="perf"></div>
+    <div class="sec stack">
+      <span class="label" id="rMissLbl">Missed this round</span>
+      <ul class="misslist" id="rMiss"></ul>
+      <div class="row">
+        <button class="btn" id="againBtn"><span>Fly again</span><span aria-hidden="true">↻</span></button>
+        <button class="btn ghost" id="menuBtn"><span>Change deck</span><span aria-hidden="true">←</span></button>
+      </div>
+    </div>
+  </section>
+</div>
+
+<script>
+// [code, city, airport, region, tier, group, metro]
+const RAW = [
+ ["ATL","Atlanta","Hartsfield-Jackson","GA",1,"US"],
+ ["ORD","Chicago","O'Hare","IL",1,"US","CHI"],
+ ["MDW","Chicago","Midway","IL",2,"US","CHI"],
+ ["DFW","Dallas/Fort Worth","DFW International","TX",1,"US","DFW"],
+ ["DAL","Dallas","Love Field","TX",2,"US","DFW"],
+ ["IAH","Houston","Bush Intercontinental","TX",1,"US","HOU"],
+ ["HOU","Houston","Hobby","TX",2,"US","HOU"],
+ ["AUS","Austin","Austin-Bergstrom","TX",1,"US"],
+ ["SAT","San Antonio","San Antonio Intl","TX",2,"US"],
+ ["ELP","El Paso","El Paso Intl","TX",2,"US"],
+ ["DEN","Denver","Denver Intl","CO",1,"US"],
+ ["COS","Colorado Springs","Colorado Springs","CO",2,"US"],
+ ["ASE","Aspen","Aspen/Pitkin County","CO",2,"US"],
+ ["EGE","Vail","Eagle County Regional","CO",2,"US"],
+ ["LAX","Los Angeles","Los Angeles Intl","CA",1,"US","LA"],
+ ["BUR","Burbank","Hollywood Burbank","CA",2,"US","LA"],
+ ["LGB","Long Beach","Long Beach","CA",2,"US","LA"],
+ ["ONT","Ontario","Ontario Intl","CA",2,"US","LA"],
+ ["SNA","Santa Ana","John Wayne (Orange County)","CA",2,"US","LA"],
+ ["PSP","Palm Springs","Palm Springs Intl","CA",2,"US"],
+ ["SAN","San Diego","San Diego Intl","CA",1,"US"],
+ ["SFO","San Francisco","San Francisco Intl","CA",1,"US","SFB"],
+ ["OAK","Oakland","Oakland Intl","CA",2,"US","SFB"],
+ ["SJC","San Jose","Mineta San José","CA",2,"US","SFB"],
+ ["SMF","Sacramento","Sacramento Intl","CA",2,"US"],
+ ["FAT","Fresno","Fresno Yosemite","CA",2,"US"],
+ ["SBA","Santa Barbara","Santa Barbara","CA",2,"US"],
+ ["MRY","Monterey","Monterey Regional","CA",2,"US"],
+ ["SEA","Seattle","Seattle-Tacoma","WA",1,"US"],
+ ["GEG","Spokane","Spokane Intl","WA",2,"US"],
+ ["PDX","Portland","Portland Intl","OR",1,"US"],
+ ["BOI","Boise","Boise","ID",2,"US"],
+ ["RNO","Reno","Reno-Tahoe","NV",2,"US"],
+ ["LAS","Las Vegas","Harry Reid","NV",1,"US"],
+ ["PHX","Phoenix","Sky Harbor","AZ",1,"US"],
+ ["TUS","Tucson","Tucson Intl","AZ",2,"US"],
+ ["ABQ","Albuquerque","Albuquerque Sunport","NM",2,"US"],
+ ["SLC","Salt Lake City","Salt Lake City Intl","UT",1,"US"],
+ ["BZN","Bozeman","Bozeman Yellowstone","MT",2,"US"],
+ ["JAC","Jackson","Jackson Hole","WY",2,"US"],
+ ["MSP","Minneapolis","Minneapolis–St. Paul","MN",1,"US"],
+ ["DTW","Detroit","Detroit Metro Wayne County","MI",1,"US"],
+ ["GRR","Grand Rapids","Gerald R. Ford","MI",2,"US"],
+ ["MKE","Milwaukee","Milwaukee Mitchell","WI",2,"US"],
+ ["MSN","Madison","Dane County Regional","WI",2,"US"],
+ ["IND","Indianapolis","Indianapolis Intl","IN",1,"US"],
+ ["CMH","Columbus","John Glenn Columbus","OH",2,"US"],
+ ["CLE","Cleveland","Cleveland Hopkins","OH",2,"US"],
+ ["CVG","Cincinnati","Cincinnati/Northern Kentucky","KY",2,"US"],
+ ["SDF","Louisville","Muhammad Ali Intl","KY",2,"US"],
+ ["STL","St. Louis","Lambert","MO",1,"US"],
+ ["MCI","Kansas City","Kansas City Intl","MO",1,"US"],
+ ["OMA","Omaha","Eppley Airfield","NE",2,"US"],
+ ["DSM","Des Moines","Des Moines Intl","IA",2,"US"],
+ ["ICT","Wichita","Eisenhower National","KS",2,"US"],
+ ["OKC","Oklahoma City","Will Rogers","OK",2,"US"],
+ ["TUL","Tulsa","Tulsa Intl","OK",2,"US"],
+ ["LIT","Little Rock","Clinton National","AR",2,"US"],
+ ["XNA","Bentonville","Northwest Arkansas National","AR",2,"US"],
+ ["MSY","New Orleans","Louis Armstrong","LA",1,"US"],
+ ["MEM","Memphis","Memphis Intl","TN",2,"US"],
+ ["BNA","Nashville","Nashville Intl","TN",1,"US"],
+ ["TYS","Knoxville","McGhee Tyson","TN",2,"US"],
+ ["CHA","Chattanooga","Chattanooga Metropolitan","TN",2,"US"],
+ ["BHM","Birmingham","Birmingham-Shuttlesworth","AL",2,"US"],
+ ["CLT","Charlotte","Charlotte Douglas","NC",1,"US"],
+ ["RDU","Raleigh/Durham","Raleigh-Durham Intl","NC",1,"US"],
+ ["GSP","Greenville","Greenville-Spartanburg","SC",2,"US"],
+ ["CHS","Charleston","Charleston Intl","SC",2,"US"],
+ ["MYR","Myrtle Beach","Myrtle Beach Intl","SC",2,"US"],
+ ["SAV","Savannah","Savannah/Hilton Head","GA",2,"US"],
+ ["MIA","Miami","Miami Intl","FL",1,"US","SFL"],
+ ["FLL","Fort Lauderdale","Fort Lauderdale-Hollywood","FL",1,"US","SFL"],
+ ["PBI","West Palm Beach","Palm Beach Intl","FL",2,"US","SFL"],
+ ["MCO","Orlando","Orlando Intl","FL",1,"US"],
+ ["TPA","Tampa","Tampa Intl","FL",1,"US"],
+ ["RSW","Fort Myers","Southwest Florida Intl","FL",2,"US"],
+ ["SRQ","Sarasota","Sarasota-Bradenton","FL",2,"US"],
+ ["JAX","Jacksonville","Jacksonville Intl","FL",2,"US"],
+ ["PNS","Pensacola","Pensacola Intl","FL",2,"US"],
+ ["JFK","New York","John F. Kennedy","NY",1,"US","NYC"],
+ ["LGA","New York","LaGuardia","NY",1,"US","NYC"],
+ ["EWR","Newark","Newark Liberty","NJ",1,"US","NYC"],
+ ["BUF","Buffalo","Buffalo Niagara","NY",2,"US"],
+ ["ROC","Rochester","Greater Rochester","NY",2,"US"],
+ ["SYR","Syracuse","Syracuse Hancock","NY",2,"US"],
+ ["ALB","Albany","Albany Intl","NY",2,"US"],
+ ["PHL","Philadelphia","Philadelphia Intl","PA",1,"US"],
+ ["PIT","Pittsburgh","Pittsburgh Intl","PA",2,"US"],
+ ["IAD","Washington","Dulles","VA",1,"US","WAS"],
+ ["DCA","Washington","Reagan National","VA",1,"US","WAS"],
+ ["BWI","Baltimore","Baltimore/Washington","MD",1,"US","WAS"],
+ ["RIC","Richmond","Richmond Intl","VA",2,"US"],
+ ["ORF","Norfolk","Norfolk Intl","VA",2,"US"],
+ ["BOS","Boston","Logan","MA",1,"US"],
+ ["BDL","Hartford","Bradley Intl","CT",2,"US"],
+ ["PVD","Providence","T.F. Green","RI",2,"US"],
+ ["MHT","Manchester","Manchester-Boston Regional","NH",2,"US"],
+ ["PWM","Portland","Portland Intl Jetport","ME",2,"US"],
+ ["HNL","Honolulu","Daniel K. Inouye","HI",1,"US","HI"],
+ ["OGG","Kahului","Kahului (Maui)","HI",2,"US","HI"],
+ ["KOA","Kona","Ellison Onizuka Kona","HI",2,"US","HI"],
+ ["LIH","Lihue","Lihue (Kauai)","HI",2,"US","HI"],
+ ["ANC","Anchorage","Ted Stevens","AK",2,"US"],
+ ["YYZ","Toronto","Pearson","ON",1,"CA","TOR"],
+ ["YTZ","Toronto","Billy Bishop City","ON",2,"CA","TOR"],
+ ["YOW","Ottawa","Macdonald-Cartier","ON",2,"CA"],
+ ["YUL","Montréal","Trudeau","QC",1,"CA"],
+ ["YQB","Québec City","Jean Lesage","QC",2,"CA"],
+ ["YVR","Vancouver","Vancouver Intl","BC",1,"CA"],
+ ["YYJ","Victoria","Victoria Intl","BC",2,"CA"],
+ ["YLW","Kelowna","Kelowna Intl","BC",2,"CA"],
+ ["YYC","Calgary","Calgary Intl","AB",1,"CA"],
+ ["YEG","Edmonton","Edmonton Intl","AB",2,"CA"],
+ ["YWG","Winnipeg","Richardson","MB",2,"CA"],
+ ["YXE","Saskatoon","Diefenbaker","SK",2,"CA"],
+ ["YQR","Regina","Regina Intl","SK",2,"CA"],
+ ["YHZ","Halifax","Stanfield","NS",2,"CA"],
+ ["YYT","St. John's","St. John's Intl","NL",2,"CA"],
+ ["MEX","Mexico City","Benito Juárez","Mexico",1,"MX"],
+ ["CUN","Cancún","Cancún Intl","Mexico",1,"MX"],
+ ["GDL","Guadalajara","Miguel Hidalgo","Mexico",2,"MX"],
+ ["MTY","Monterrey","Monterrey Intl","Mexico",2,"MX"],
+ ["SJD","Los Cabos","San José del Cabo","Mexico",2,"MX"],
+ ["PVR","Puerto Vallarta","Licenciado Gustavo Díaz Ordaz","Mexico",2,"MX"],
+ ["TIJ","Tijuana","Tijuana Intl","Mexico",2,"MX"],
+ ["SJU","San Juan","Luis Muñoz Marín","Puerto Rico",1,"CB"],
+ ["STT","St. Thomas","Cyril E. King","USVI",2,"CB"],
+ ["NAS","Nassau","Lynden Pindling","Bahamas",2,"CB"],
+ ["MBJ","Montego Bay","Sangster Intl","Jamaica",2,"CB"],
+ ["PUJ","Punta Cana","Punta Cana Intl","Dominican Rep.",2,"CB"],
+ ["SXM","St. Maarten","Princess Juliana","Sint Maarten",2,"CB"],
+ ["AUA","Aruba","Queen Beatrix","Aruba",2,"CB"],
+ ["SJO","San José","Juan Santamaría","Costa Rica",2,"CB"],
+ ["LIR","Liberia","Guanacaste","Costa Rica",2,"CB"],
+ ["BZE","Belize City","Philip S. W. Goldson","Belize",2,"CB"],
+ ["GCM","Grand Cayman","Owen Roberts","Cayman Islands",2,"CB"],
+ ["AMA","Amarillo","Rick Husband","TX",2,"US"],
+ ["CRP","Corpus Christi","Corpus Christi Intl","TX",2,"US"],
+ ["LBB","Lubbock","Preston Smith","TX",2,"US"],
+ ["MAF","Midland","Midland Intl","TX",2,"US"],
+ ["JAN","Jackson","Jackson-Medgar Wiley Evers","MS",2,"US"],
+ ["ITO","Hilo","Hilo Intl","HI",2,"US","HI"],
+ ["ECP","Panama City Beach","Northwest Florida Beaches","FL",2,"US"],
+ ["HDN","Steamboat Springs","Yampa Valley","CO",2,"US"],
+ ["MTJ","Montrose","Montrose Regional","CO",2,"US"],
+ ["STS","Santa Rosa","Charles M. Schulz–Sonoma County","CA",2,"US"]
+];
+const NOTES = {
+ ORD:"From Orchard Field, the airport's original name.",
+ MDW:"Midway. Chicago's main hub is ORD.",
+ MCO:"From McCoy Air Force Base, which once shared the field.",
+ MSY:"From Moisant Stock Yards. The field was named for aviator John Moisant.",
+ MCI:"Mid-Continent International.",
+ BNA:"From Berry Field, NAshville.",
+ SDF:"From Standiford Field.",
+ GEG:"From Geiger Field.",
+ OGG:"Honors Maui aviator Bertram Hogg.",
+ CVG:"The airport sits across the river in Covington, Kentucky.",
+ IAH:"Intercontinental Airport of Houston. Hobby is HOU.",
+ HOU:"Hobby. Bush Intercontinental is IAH.",
+ IAD:"International Airport Dulles. Reagan National is DCA.",
+ DCA:"District of Columbia Airport. Dulles is IAD.",
+ BWI:"Baltimore/Washington. The third DC-area airport after IAD and DCA.",
+ EWR:"US codes starting with N were reserved for the Navy, so Newark became EWR.",
+ LAX:"The X is filler, added when codes grew from two letters to three.",
+ PDX:"The X is filler, the same story as LAX. Portland, Maine is PWM.",
+ PWM:"Portland, Maine. Portland, Oregon is PDX.",
+ DTW:"Detroit Wayne County.",
+ RSW:"Regional SouthWest, from the old Southwest Florida Regional name.",
+ TYS:"From McGhee Tyson Airport.",
+ XNA:"Northwest Arkansas. Serves Bentonville, Fayetteville and Rogers.",
+ SNA:"Coded for Santa Ana. Crews often call it John Wayne.",
+ BDL:"Bradley International, serving Hartford and Springfield.",
+ YYZ:"Canadian codes start with Y. Toronto's island airport is YTZ.",
+ YTZ:"Billy Bishop on the Toronto Islands. Pearson is YYZ.",
+ YUL:"Canadian codes start with Y.",
+ DAL:"Love Field. The big hub is DFW.",
+ SJD:"San José del Cabo, the Los Cabos airport.",
+ SJC:"San Jose, California. SJO is Costa Rica and SJU is Puerto Rico.",
+ SJO:"San José, Costa Rica. SJC is California and SJU is Puerto Rico.",
+ SJU:"San Juan. Don't mix it up with SJC or SJO.",
+ EGE:"Eagle County, the gateway to Vail.",
+ ONT:"Ontario, California. Not the Canadian province.",
+ JFK:"Named for President John F. Kennedy.",
+ LGA:"LaGuardia. JFK and EWR serve the same area.",
+ MIA:"Fort Lauderdale (FLL) and Palm Beach (PBI) serve the same region.",
+ BUR:"Burbank. Its old name was Bob Hope Airport.",
+ CHS:"Charleston, South Carolina.",
+ PBI:"Palm Beach International.",
+ AUS:"Austin. Don't confuse with AUA, Aruba.",
+ AUA:"Aruba. Don't confuse with AUS, Austin.",
+ MAF:"Midland, Texas. Don't confuse with MDW, Chicago Midway.",
+ JAN:"Jackson, Mississippi. Jackson Hole, Wyoming is JAC.",
+ JAC:"Jackson Hole, Wyoming. Jackson, Mississippi is JAN.",
+ MTJ:"Montrose, the winter gateway to Telluride.",
+ HDN:"Hayden, the town where Steamboat's airport sits.",
+ STS:"Named for Peanuts creator Charles M. Schulz, who lived in Santa Rosa.",
+ ECP:"Its original name was Panama City-Bay County, so the code stayed ECP."
+};
+const DATA = RAW.map(r => ({code:r[0], city:r[1], name:r[2], region:r[3], tier:r[4], group:r[5], metro:r[6]||null}));
+const BY = Object.fromEntries(DATA.map(a => [a.code, a]));
+
+// Approximate airport positions [lat, lon] for the progress map.
+const COORD = {
+ ATL:[33.64,-84.43],ORD:[41.98,-87.9],MDW:[41.79,-87.75],DFW:[32.9,-97.04],DAL:[32.85,-96.85],IAH:[29.98,-95.34],HOU:[29.65,-95.28],
+ AUS:[30.19,-97.67],SAT:[29.53,-98.47],ELP:[31.81,-106.38],DEN:[39.86,-104.67],COS:[38.81,-104.7],ASE:[39.22,-106.87],EGE:[39.64,-106.92],
+ LAX:[33.94,-118.41],BUR:[34.2,-118.36],LGB:[33.82,-118.15],ONT:[34.06,-117.6],SNA:[33.68,-117.87],PSP:[33.83,-116.51],SAN:[32.73,-117.19],
+ SFO:[37.62,-122.38],OAK:[37.72,-122.22],SJC:[37.36,-121.93],SMF:[38.7,-121.59],FAT:[36.78,-119.72],SBA:[34.43,-119.84],MRY:[36.59,-121.84],
+ SEA:[47.45,-122.31],GEG:[47.62,-117.53],PDX:[45.59,-122.6],BOI:[43.56,-116.22],RNO:[39.5,-119.77],LAS:[36.08,-115.15],PHX:[33.43,-112.01],
+ TUS:[32.12,-110.94],ABQ:[35.04,-106.61],SLC:[40.79,-111.98],BZN:[45.78,-111.15],JAC:[43.61,-110.74],MSP:[44.88,-93.22],DTW:[42.21,-83.35],
+ GRR:[42.88,-85.52],MKE:[42.95,-87.9],MSN:[43.14,-89.34],IND:[39.72,-86.29],CMH:[40.0,-82.89],CLE:[41.41,-81.85],CVG:[39.05,-84.67],
+ SDF:[38.17,-85.74],STL:[38.75,-90.37],MCI:[39.3,-94.71],OMA:[41.3,-95.89],DSM:[41.53,-93.66],ICT:[37.65,-97.43],OKC:[35.39,-97.6],
+ TUL:[36.2,-95.89],LIT:[34.73,-92.22],XNA:[36.28,-94.31],MSY:[29.99,-90.26],MEM:[35.04,-89.98],BNA:[36.12,-86.68],TYS:[35.81,-83.99],
+ CHA:[35.04,-85.2],BHM:[33.56,-86.75],CLT:[35.21,-80.94],RDU:[35.88,-78.79],GSP:[34.9,-82.22],CHS:[32.9,-80.04],MYR:[33.68,-78.93],
+ SAV:[32.13,-81.2],MIA:[25.79,-80.29],FLL:[26.07,-80.15],PBI:[26.68,-80.1],MCO:[28.43,-81.31],TPA:[27.98,-82.53],RSW:[26.54,-81.76],
+ SRQ:[27.4,-82.55],JAX:[30.49,-81.69],PNS:[30.47,-87.19],JFK:[40.64,-73.78],LGA:[40.78,-73.87],EWR:[40.69,-74.17],BUF:[42.94,-78.73],
+ ROC:[43.12,-77.67],SYR:[43.11,-76.11],ALB:[42.75,-73.8],PHL:[39.87,-75.24],PIT:[40.49,-80.23],IAD:[38.95,-77.46],DCA:[38.85,-77.04],
+ BWI:[39.18,-76.67],RIC:[37.51,-77.32],ORF:[36.89,-76.2],BOS:[42.36,-71.01],BDL:[41.94,-72.68],PVD:[41.72,-71.43],MHT:[42.93,-71.44],
+ PWM:[43.65,-70.31],HNL:[21.32,-157.92],OGG:[20.9,-156.43],KOA:[19.74,-156.05],LIH:[21.98,-159.34],ITO:[19.72,-155.05],ANC:[61.17,-149.99],
+ YYZ:[43.68,-79.63],YTZ:[43.63,-79.4],YOW:[45.32,-75.67],YUL:[45.47,-73.74],YQB:[46.79,-71.39],YVR:[49.19,-123.18],YYJ:[48.65,-123.43],
+ YLW:[49.96,-119.38],YYC:[51.13,-114.01],YEG:[53.31,-113.58],YWG:[49.91,-97.24],YXE:[52.17,-106.7],YQR:[50.43,-104.67],YHZ:[44.88,-63.51],
+ YYT:[47.62,-52.75],MEX:[19.44,-99.07],CUN:[21.04,-86.88],GDL:[20.52,-103.31],MTY:[25.78,-100.11],SJD:[23.15,-109.72],PVR:[20.68,-105.25],
+ TIJ:[32.54,-116.97],SJU:[18.44,-66.0],STT:[18.34,-64.97],NAS:[25.04,-77.47],MBJ:[18.5,-77.91],PUJ:[18.57,-68.36],SXM:[18.04,-63.11],
+ AUA:[12.5,-70.02],SJO:[9.99,-84.2],LIR:[10.59,-85.54],BZE:[17.54,-88.31],GCM:[19.29,-81.36],AMA:[35.22,-101.71],CRP:[27.77,-97.5],
+ LBB:[33.66,-101.82],MAF:[31.94,-102.2],JAN:[32.31,-90.08],ECP:[30.36,-85.8],HDN:[40.48,-107.22],MTJ:[38.51,-107.89],STS:[38.51,-122.81]
+};
+
+// ---------- storage ----------
+const KEY = "jumpseat-codes-v1";
+const INTERVALS = [0, 1, 3, 7, 14, 30];   // days until the next review, by box
+const GOAL = 10;                          // cards per day for the streak
+const MASTER_BOX = 3;
+const today = () => { const d = new Date(); return Math.floor((d.getTime() - d.getTimezoneOffset()*60000) / 86400000); };
+function load(){ try { return JSON.parse(localStorage.getItem(KEY)) || {}; } catch(e){ return {}; } }
+function save(){ try { localStorage.setItem(KEY, JSON.stringify(store)); } catch(e){} }
+let store = Object.assign({srs:{}, best:0, daily:{day:0,count:0}, streak:{last:0,n:0}, home:"hubs"}, load());
+store.srs = store.srs || {};
+if (store.misses) { // carry over misses from the first version as due-today reviews
+  for (const c in store.misses) if (BY[c] && !store.srs[c]) store.srs[c] = {b:0, d:today()};
+  delete store.misses; save();
+}
+function status(code){ const r = store.srs[code]; if (!r) return "un"; if (r.b >= MASTER_BOX) return "mast"; if (r.b === 0) return "bad"; return "learn"; }
+function isDue(code){ const r = store.srs[code]; return !!r && r.d <= today(); }
+function streakNow(){ const s = store.streak; return (s.last >= today()-1) ? s.n : 0; }
+function todayCount(){ return store.daily.day === today() ? store.daily.count : 0; }
+function record(code, right){
+  const r = store.srs[code] || {b:0, d:0};
+  if (right) { r.b = Math.min(INTERVALS.length-1, r.b+1); r.d = today() + INTERVALS[r.b]; }
+  else { r.b = 0; r.d = today(); }
+  store.srs[code] = r;
+  if (store.daily.day !== today()) store.daily = {day:today(), count:0};
+  store.daily.count++;
+  if (store.daily.count === GOAL) {
+    const t = today();
+    if (store.streak.last === t-1) store.streak.n++;
+    else if (store.streak.last !== t) store.streak.n = 1;
+    store.streak.last = t;
+  }
+  save();
+}
+
+// ---------- decks ----------
+const AIRLINES = {
+ dl: {name:"Delta", hubs:"ATL DTW MSP SLC SEA LAX JFK LGA BOS", codes:"ATL DTW MSP SLC SEA LAX JFK LGA BOS ABQ ALB ANC AUS BDL BHM BNA BOI BUF BWI BZN CHS CLE CLT CMH COS CVG DAL DCA DEN DFW DSM ECP EGE ELP EWR FLL GEG GRR GSP HDN HNL IAD IAH IND JAC JAX KOA LAS LIH LIT MCI MCO MEM MIA MKE MSN MSY MYR OAK OGG OKC OMA ONT ORD ORF PBI PDX PHL PHX PIT PNS PSP PVD PWM RDU RIC RNO RSW SAN SAT SAV SDF SFO SJC SJU SMF SNA SRQ STL STT SYR TPA TUL TUS TYS YYZ YUL YVR YYC MEX CUN SJD PVR GDL MTY MBJ NAS PUJ AUA SXM LIR SJO BZE GCM"},
+ ua: {name:"United", hubs:"ORD DEN IAH EWR SFO IAD LAX", codes:"ORD DEN IAH EWR SFO IAD LAX ABQ ALB ANC ATL AUS BDL BNA BOI BOS BUF BWI BZN CHS CLE CLT CMH COS CVG DCA DFW DSM DTW EGE ELP FLL GEG GRR GSP HDN HNL IND JAC JAX KOA LAS LGA LIH MCI MCO MEM MIA MKE MSP MSY MTJ MYR OAK OGG OKC OMA ONT ORF PBI PDX PHL PHX PIT PNS PSP PVD RDU RIC RNO RSW SAN SAT SAV SDF SEA SJC SJU SLC SMF SNA SRQ STL STT TPA TUL TUS YYZ YUL YVR YYC MEX CUN SJD PVR GDL MTY MBJ NAS PUJ AUA SXM LIR SJO BZE GCM"},
+ aa: {name:"American", hubs:"DFW CLT MIA ORD PHL PHX LAX JFK LGA DCA", codes:"DFW CLT MIA ORD PHL PHX LAX JFK LGA DCA ABQ ALB AMA ANC ATL AUS BDL BHM BNA BOI BOS BUF BWI BZN CHS CLE CMH COS CVG DEN DSM DTW ECP EGE ELP EWR FLL GEG GRR GSP HDN HNL IAD IAH IND JAC JAX KOA LAS LBB LIH LIT MAF MCI MCO MEM MKE MSP MSY MTJ MYR OAK OGG OKC OMA ONT ORF PBI PDX PIT PNS PSP PVD RDU RIC RNO RSW SAN SAT SAV SDF SEA SFO SJC SJU SLC SMF SNA SRQ STL STT TPA TUL TUS TYS XNA YYZ YUL YVR MEX CUN SJD PVR GDL MTY MBJ NAS PUJ AUA SXM LIR SJO BZE GCM"},
+ wn: {name:"Southwest", hubs:"", codes:"ALB ABQ AMA ANC ATL AUS BWI BHM BOI BOS BUF BUR CHS CLT MDW CVG CLE CMH COS CRP DAL DEN DSM DTW ELP FLL RSW GRR GSP BDL HNL OGG KOA LIH ITO HOU IND JAN JAX MCI LAS LIT LGB LAX SDF LBB MAF MEM MIA MKE MSP BNA MSY LGA ORF OAK OKC OMA ONT SNA MCO PNS PHL PHX PIT PDX PWM PVD RDU RNO RIC ROC SMF SLC SAT SAN SFO SJC SBA SRQ SAV SEA GEG STL STS TPA TUS TUL TYS DCA PBI ECP MYR HDN MTJ SJU STT SXM CUN SJD PVR MBJ NAS PUJ AUA BZE LIR SJO GCM"}
+};
+for (const k in AIRLINES){ AIRLINES[k].set = new Set(AIRLINES[k].codes.split(" ").filter(c=>BY[c])); AIRLINES[k].hubSet = new Set(AIRLINES[k].hubs.split(" ").filter(Boolean)); }
+const WN_FOCUS = "DEN LAS PHX MDW BWI DAL HOU BNA MCO OAK ATL";
+const DECKS = [
+ {id:"dl", kind:"air", name:"Delta", f:a=>AIRLINES.dl.set.has(a.code)},
+ {id:"ua", kind:"air", name:"United", f:a=>AIRLINES.ua.set.has(a.code)},
+ {id:"aa", kind:"air", name:"American", f:a=>AIRLINES.aa.set.has(a.code)},
+ {id:"wn", kind:"air", name:"Southwest", f:a=>AIRLINES.wn.set.has(a.code)},
+ {id:"review", kind:"reg", name:"Today's review", f:a=>isDue(a.code)},
+ {id:"hubs", kind:"reg", name:"Major hubs", f:a=>a.tier===1},
+ {id:"us", kind:"reg", name:"All US", f:a=>a.group==="US"},
+ {id:"intl", kind:"reg", name:"Canada, Mexico & Caribbean", f:a=>a.group!=="US"},
+ {id:"all", kind:"reg", name:"Everything", f:()=>true}
+];
+const deckById = id => DECKS.find(d=>d.id===id);
+const homeDeck = () => deckById(store.home) || deckById("hubs");
+const MODES = [
+ {id:"c2a", name:"Code → Airport"},
+ {id:"a2c", name:"Airport → Code"},
+ {id:"mix", name:"Mixed"},
+ {id:"pair", name:"Pairings"}
+];
+const LEVELS = [
+ {id:"std", name:"Standard"},
+ {id:"adv", name:"Advanced"},
+ {id:"exp", name:"Expert"}
+];
+let deckSel = "hubs", modeSel = "c2a", levelSel = "std";
+try { const p = JSON.parse(localStorage.getItem(KEY+"-prefs")||"{}"); if(p.deck && deckById(p.deck)) deckSel=p.deck; if(p.mode && MODES.some(m=>m.id===p.mode)) modeSel=p.mode; if(p.level && LEVELS.some(m=>m.id===p.level)) levelSel=p.level; if(p.clock===false) document.getElementById("clockOn").checked=false; } catch(e){}
+
+const $ = id => document.getElementById(id);
+function deckChip(d){
+  const n = DATA.filter(d.f).length;
+  return `<button class="chip" data-deck="${d.id}" aria-pressed="${d.id===deckSel}">${d.name}<em>${d.id==="review" ? n+" due" : n}</em></button>`;
+}
+function renderSetup(){
+  $("airDecks").innerHTML = DECKS.filter(d=>d.kind==="air").map(deckChip).join("");
+  $("decks").innerHTML = DECKS.filter(d=>d.kind==="reg").map(deckChip).join("");
+  $("modes").innerHTML = MODES.map(m => `<button class="chip" data-mode="${m.id}" aria-pressed="${m.id===modeSel}">${m.name}</button>`).join("");
+  $("levels").innerHTML = LEVELS.map(m => `<button class="chip" data-level="${m.id}" aria-pressed="${m.id===levelSel}">${m.name}</button>`).join("");
+  const air = AIRLINES[deckSel];
+  let dh = "";
+  if (air) dh = (air.hubSet.size ? `${air.name} hubs: ${[...air.hubSet].join(", ")}. ` : `${air.name} runs point to point, with no hubs. `) + "Covers the mainline North American network.";
+  if (deckSel==="review") { const n = DATA.filter(a=>isDue(a.code)).length; dh = `${n} code${n===1?"":"s"} due. Short rounds are topped up with new airports from ${homeDeck().name}.`; }
+  $("deckHint").textContent = dh; $("deckHint").hidden = !dh;
+  $("modeHint").textContent = {
+    c2a: "See the code, pick the airport.",
+    a2c: "See the airport, pick the code.",
+    mix: "A random mix of both directions.",
+    pair: "Read two-day trips like the ones on your schedule. Name each station as it comes up, then find your layover."
+  }[modeSel];
+  $("levelHint").textContent = {
+    std: "Four choices. Decoys are look-alike codes, same-city airports and neighbors.",
+    adv: "Every choice starts with the same letter as the answer. Worth 1.5× points.",
+    exp: "No choices. You see the airport and type the code. Worth 2× points."
+  }[levelSel];
+  $("bestLbl").textContent = store.best ? `Best ${store.best.toLocaleString()}` : "Best —";
+  const tc = todayCount(), st = streakNow();
+  $("dToday").textContent = `${Math.min(tc,99)}/${GOAL}`;
+  $("dStreak").textContent = `${st} day${st===1?"":"s"}`;
+  $("dDue").textContent = DATA.filter(a=>isDue(a.code)).length;
+  $("dMeter").style.width = Math.min(100, tc/GOAL*100) + "%";
+  renderMap();
+}
+const pickDeck = e => { const b=e.target.closest("[data-deck]"); if(!b) return; deckSel=b.dataset.deck; if (deckSel!=="review") { store.home = deckSel; save(); } mapSel = null; renderSetup(); };
+$("decks").addEventListener("click", pickDeck);
+$("airDecks").addEventListener("click", pickDeck);
+$("modes").addEventListener("click", e => { const b=e.target.closest("[data-mode]"); if(!b) return; modeSel=b.dataset.mode; renderSetup(); });
+$("levels").addEventListener("click", e => { const b=e.target.closest("[data-level]"); if(!b) return; levelSel=b.dataset.level; renderSetup(); });
+
+// ---------- map ----------
+let mapSel = null;
+const K = 9.8, CF = Math.cos(33*Math.PI/180);
+function proj(code){
+  const c = COORD[code]; if (!c) return null;
+  const [lat, lon] = c;
+  if (lon < -150 && lat < 25) return [12 + (lon+160)/5.6*100, 392 + (22.4-lat)/3.6*46]; // Hawaii inset
+  if (lat > 56) return [36, 352];                                                         // Alaska inset
+  return [(lon+125)*CF*K, (55-lat)*K];
+}
+const LABELS = {un:"Not yet seen", learn:"Learning", bad:"Needs work", mast:"Mastered"};
+function renderMap(){
+  const deck = deckSel==="review" ? homeDeck() : deckById(deckSel);
+  const pool = DATA.filter(deck.f);
+  const counts = {un:0, learn:0, bad:0, mast:0};
+  pool.forEach(a => counts[status(a.code)]++);
+  $("mapTitle").textContent = `${deck.name} map`;
+  $("mapSub").textContent = `${counts.mast} of ${pool.length} mastered`;
+  const P = ([lat,lon]) => [(lon+125)*CF*K, (55-lat)*K];
+  let g = "";
+  for (const lat of [20,30,40,50]) { const y = P([lat,0])[1]; g += `<line class="grat" x1="130" y1="${y}" x2="600" y2="${y}"/>`; }
+  const rl = (t, lat, lon) => { const [x,y] = P([lat,lon]); return `<text class="rlabel" x="${x}" y="${y}" text-anchor="middle">${t}</text>`; };
+  g += rl("CANADA", 54, -96) + rl("UNITED STATES", 38.3, -99) + rl("MEXICO", 24.5, -103) + rl("CARIBBEAN", 14.5, -74);
+  g += `<rect class="inset" x="6" y="380" width="114" height="64" rx="4"/><text class="ilabel" x="12" y="391">HAWAII</text>`;
+  g += `<rect class="inset" x="6" y="326" width="62" height="46" rx="4"/><text class="ilabel" x="12" y="337">ALASKA</text>`;
+  const order = {un:0, learn:1, bad:2, mast:3};
+  const pts = pool.map(a => ({a, p:proj(a.code), s:status(a.code)})).filter(x=>x.p).sort((x,y)=>order[x.s]-order[y.s]);
+  for (const {a,p,s} of pts) g += `<circle class="d-${s}" cx="${p[0].toFixed(1)}" cy="${p[1].toFixed(1)}" r="${s==="mast"?5:4.2}"/>`;
+  for (const {a,p} of pts) g += `<circle class="hit" data-code="${a.code}" cx="${p[0].toFixed(1)}" cy="${p[1].toFixed(1)}" r="9"><title>${a.code} ${a.city}</title></circle>`;
+  if (mapSel && BY[mapSel]) {
+    const p = proj(mapSel);
+    if (p) {
+      const right = p[0] < 520;
+      g += `<circle class="d-selring" cx="${p[0]}" cy="${p[1]}" r="9" pointer-events="none"/>`;
+      g += `<text class="sel" x="${p[0] + (right?13:-13)}" y="${p[1]+5}" text-anchor="${right?"start":"end"}" pointer-events="none">${mapSel}</text>`;
+    }
+  }
+  $("map").innerHTML = g;
+  const sw = s => `<svg viewBox="0 0 12 12" aria-hidden="true"><circle class="d-${s}" cx="6" cy="6" r="4.5"/></svg>`;
+  $("legend").innerHTML = ["mast","learn","bad","un"].map(s => `<span>${sw(s)}${LABELS[s]} <b>${counts[s]}</b></span>`).join("");
+  if (mapSel && BY[mapSel]) {
+    const a = BY[mapSel], r = store.srs[mapSel], s = status(mapSel);
+    let when = "";
+    if (r) { const dd = r.d - today(); when = dd <= 0 ? " · Review due now" : ` · Next review in ${dd} day${dd===1?"":"s"}`; }
+    $("mapInfo").innerHTML = `<b>${a.code}</b> ${a.city}, ${a.name} · ${LABELS[s]}${when}`;
+  } else {
+    $("mapInfo").textContent = "Tap an airport to see where you stand.";
+  }
+}
+$("map").addEventListener("click", e => { const h = e.target.closest(".hit"); mapSel = h ? h.dataset.code : null; renderMap(); });
+
+// ---------- helpers ----------
+const shuffle = a => { a=a.slice(); for(let i=a.length-1;i>0;i--){const j=Math.floor(Math.random()*(i+1));[a[i],a[j]]=[a[j],a[i]];} return a; };
+const pick = a => a[Math.floor(Math.random()*a.length)];
+function sim(x,y){ let s=0; for(let i=0;i<3;i++) if(x[i]===y[i]) s+=2; for(const ch of new Set(x)) if(y.includes(ch)) s+=1; return s; }
+function decoys(t, n=3, exclude=[]){
+  let cands = DATA.filter(c => c.code!==t.code && !exclude.includes(c.code));
+  if (G && G.level==="adv"){
+    const same = cands.filter(c => c.code[0]===t.code[0]);
+    if (same.length >= n) cands = same;
+  }
+  const scored = cands.map(c => {
+    let s = sim(t.code,c.code)*0.9 + Math.random()*2.6;
+    if (G && G.poolSet.has(c.code)) s += 1.5;
+    if (t.metro && c.metro===t.metro) s += 5;
+    if (c.region===t.region) s += 2.5;
+    if (c.group===t.group) s += 1;
+    if (c.city===t.city) s += 1;
+    return {c, s};
+  }).sort((a,b)=>b.s-a.s).slice(0,7).map(x=>x.c);
+  return shuffle(scored).slice(0,n);
+}
+
+// ---------- pairings ----------
+function makeTrip(pool, hubs){
+  const spokes = pool.filter(a => !hubs.includes(a));
+  const sp = pool.length > hubs.length + 3 ? spokes : pool;
+  const used = new Set();
+  const spoke = () => { let s, n=0; do { s = pick(sp); n++; } while (used.has(s.code) && n < 50); used.add(s.code); return s; };
+  const B = pick(hubs); used.add(B.code);
+  const s1 = spoke(), h1 = pick(hubs), s2 = spoke(), h2 = pick(hubs), s3 = spoke();
+  return { base:B, days:[[B,s1,h1,s2],[s2,h2,s3,B]] };
+}
+function tripItems(trip){
+  const items = [], asked = new Set();
+  items.push({a:trip.base, kind:"base", trip, hl:[0,0], tries:9}); asked.add(trip.base.code);
+  trip.days.forEach((d, di) => d.forEach((st, si) => {
+    if (si === 0 || asked.has(st.code)) return;
+    asked.add(st.code);
+    items.push({a:st, kind:"leg", trip, hl:[di,si], tries:9});
+  }));
+  items.push({a:trip.days[0][3], kind:"ron", trip, hl:null, tries:9});
+  return items;
+}
+function tripHTML(trip, hl, names){
+  const stn = (a, on) => `<span class="stn${names?" cityname":""}${on?" hl":""}">${names ? a.city : a.code}</span>`;
+  const days = trip.days.map((d, di) => {
+    const legs = d.map((a, si) => stn(a, hl && hl[0]===di && hl[1]===si)).join(`<span class="arr" aria-hidden="true">→</span>`);
+    return `<div class="day"><span class="label">Day ${di+1}</span><div class="legs">${legs}${di===0?' <span class="ron">RON</span>':""}</div></div>`;
+  }).join("");
+  return `<div class="trip"><div class="trip-head"><span class="label">Trip ${G.tripNo(trip)} · Base ${names ? trip.base.city : trip.base.code}</span><span class="label">6 legs</span></div>${days}</div>`;
+}
+
+// ---------- game state ----------
+const CLOCK_MS = 12000;
+let G = null, raf = 0;
+
+function startRound(){
+  const deck = deckById(deckSel);
+  let pool = DATA.filter(deck.f);
+  const netDeck = deckSel==="review" ? homeDeck() : deck;
+  const net = DATA.filter(netDeck.f);
+  try { localStorage.setItem(KEY+"-prefs", JSON.stringify({deck:deckSel, mode:modeSel, level:levelSel, clock:$("clockOn").checked})); } catch(e){}
+  let queue;
+  if (modeSel === "pair") {
+    const air = AIRLINES[netDeck.id];
+    let hubs = air ? (air.hubSet.size ? [...air.hubSet] : WN_FOCUS.split(" ")).map(c=>BY[c]).filter(Boolean) : net.filter(a=>a.tier===1);
+    if (hubs.length < 2) hubs = DATA.filter(a=>a.tier===1);
+    const trips = [makeTrip(net, hubs), makeTrip(net, hubs)];
+    queue = trips.flatMap(tripItems);
+    pool = net;
+  } else {
+    if (deckSel === "review") {
+      pool.sort((x,y) => store.srs[x.code].b - store.srs[y.code].b);
+      if (!pool.length && !net.some(a=>!store.srs[a.code])) pool = shuffle(net).slice(0, GOAL);
+      if (pool.length < GOAL) pool = pool.concat(shuffle(net.filter(a => !store.srs[a.code])).slice(0, GOAL - pool.length));
+      queue = pool.slice(0, 15);
+    } else {
+      // Due cards in this deck go first, then a mix of the rest.
+      const due = shuffle(pool.filter(a=>isDue(a.code))), rest = shuffle(pool.filter(a=>!isDue(a.code)));
+      queue = due.concat(rest).slice(0, 15);
+      queue = shuffle(queue);
+    }
+    queue = queue.map(a => ({a, kind:"std", tries:0}));
+  }
+  if (!queue.length) return;
+  const trips = [];
+  G = {
+    queue, idx:0, score:0, streak:0, bestStreak:0, firstRight:0, unique:queue.length, missed:new Map(),
+    clock:$("clockOn").checked, mode:modeSel, level:levelSel, poolSet:new Set(net.concat(pool).map(a=>a.code)),
+    tripNo: t => { if (!trips.includes(t)) trips.push(t); return trips.indexOf(t)+1; }
+  };
+  $("hDeck").textContent = (modeSel==="pair" ? "Pairings · " : "") + deck.name + ({adv:" · Advanced", exp:" · Expert"}[levelSel] || "");
+  show("play"); nextCard(true);
+}
+
+function show(id){
+  ["setup","play","results"].forEach(s=>$(s).hidden = s!==id);
+  $("mapCard").hidden = id !== "setup";
+  window.scrollTo({top:0});
+}
+
+function setTiles(str, flip){
+  $("pTiles").innerHTML = str.split("").map((ch,i)=>`<div class="tile${(ch==="?"||ch==="·")?" blank":""}${flip?" flip":""}" style="animation-delay:${i*70}ms">${ch}</div>`).join("");
+}
+
+function nextCard(first){
+  cancelAnimationFrame(raf);
+  if (!first) G.idx++;
+  if (G.idx >= G.queue.length) return finish();
+  const item = G.queue[G.idx];
+  const t = item.a;
+  const pairing = item.kind !== "std";
+  let view;
+  if (G.level==="exp" && item.kind!=="ron") view = "type";
+  else if (pairing) view = "c2a";
+  else view = G.mode==="mix" ? (Math.random()<.5?"c2a":"a2c") : G.mode;
+  item.view = view;
+  item.answered = false;
+
+  $("hCard").textContent = G.idx+1;
+  $("hLeft").textContent = G.queue.length - G.idx - 1;
+  $("hStreak").textContent = G.streak;
+  $("hScore").textContent = G.score.toLocaleString();
+  $("reveal").hidden = true;
+  $("quitBtn").hidden = false;
+
+  const again = item.tries === 1 ? "Second look. " : "";
+  // Prompt
+  $("pTrip").hidden = !pairing;
+  if (pairing) {
+    $("pTrip").innerHTML = tripHTML(item.trip, item.hl, view==="type");
+    $("pCity").hidden = true;
+    const legNo = item.hl ? (item.hl[0]*3 + item.hl[1]) : 0;
+    $("pQ").textContent =
+      item.kind==="base" ? (view==="type" ? "Your base is highlighted. What's its code?" : "Your base is highlighted. Which airport is it?") :
+      item.kind==="ron" ? "Where is your overnight between day 1 and day 2?" :
+      (view==="type" ? `Leg ${legNo} lands at the highlighted station. Type its code.` : `Leg ${legNo} lands at the highlighted station. Which airport is it?`);
+    if (view==="type") setTiles("···", false); else $("pTiles").innerHTML = "";
+  } else if (view==="c2a") {
+    $("pQ").textContent = again + "Which airport is this?";
+    $("pCity").hidden = true;
+    setTiles(t.code, true);
+  } else {
+    $("pQ").textContent = again + (view==="type" ? "Type the code" : "What's the code?");
+    $("pCity").hidden = false;
+    $("pCity").innerHTML = `${t.city}<small>${t.name} · ${t.region}</small>`;
+    setTiles(view==="type" ? "···" : "???", false);
+  }
+
+  // Answers
+  if (view === "type") {
+    item.opts = null;
+    $("opts").className = "opts";
+    $("opts").innerHTML = `<form class="typer" id="typeForm" autocomplete="off"><input id="typeIn" type="text" inputmode="text" autocapitalize="characters" autocorrect="off" spellcheck="false" maxlength="3" placeholder="___" aria-label="Airport code"><button class="btn" type="submit">Check</button></form>`;
+    const inp = $("typeIn");
+    inp.addEventListener("input", () => {
+      inp.value = inp.value.toUpperCase().replace(/[^A-Z]/g,"").slice(0,3);
+      setTiles((inp.value + "···").slice(0,3), false);
+      if (inp.value.length === 3) answerTyped(inp.value);
+    });
+    $("typeForm").addEventListener("submit", e => { e.preventDefault(); if (inp.value.length) answerTyped(inp.value); });
+    inp.addEventListener("keydown", e => { if (e.key==="Enter") e.stopPropagation(); });
+    setTimeout(() => inp.focus({preventScroll:true}), 30);
+  } else {
+    if (item.kind === "ron") {
+      const others = shuffle([...new Set(item.trip.days.flat().map(a=>a.code))].filter(c=>c!==t.code)).slice(0,3).map(c=>BY[c]);
+      while (others.length < 3) others.push(...decoys(t, 3-others.length, others.map(o=>o.code)));
+      item.opts = shuffle([t, ...others]);
+    } else {
+      item.opts = shuffle([t, ...decoys(t)]);
+    }
+    if (view === "c2a") {
+      $("opts").className = "opts";
+      $("opts").innerHTML = item.opts.map((o,i)=>`<button class="opt" data-i="${i}"><span class="k">${i+1}</span><span class="t"><b>${o.city}</b><span>${o.name} · ${o.region}</span></span></button>`).join("");
+    } else {
+      $("opts").className = "opts codes";
+      $("opts").innerHTML = item.opts.map((o,i)=>`<button class="opt" data-i="${i}"><span class="k">${i+1}</span><span class="t"><b>${o.code}</b></span></button>`).join("");
+    }
+  }
+  G.t0 = performance.now();
+  $("clock").style.visibility = G.clock ? "visible" : "hidden";
+  $("clock").classList.remove("low");
+  $("clockBar").style.transform = "scaleX(1)";
+  if (G.clock) tick();
+}
+
+function clockMs(){ return G.level==="exp" ? 15000 : CLOCK_MS; }
+function tick(){
+  const left = Math.max(0, 1 - (performance.now()-G.t0)/clockMs());
+  $("clockBar").style.transform = `scaleX(${left})`;
+  $("clock").classList.toggle("low", left < .25);
+  if (left <= 0) { const item = G.queue[G.idx]; return item.view==="type" ? answerTyped("") : answer(-1); }
+  raf = requestAnimationFrame(tick);
+}
+
+function answer(i){
+  const item = G.queue[G.idx];
+  if (!item || item.answered) return;
+  const t = item.a;
+  const pickA = i>=0 ? item.opts[i] : null;
+  const right = !!pickA && pickA.code===t.code;
+  [...$("opts").children].forEach((b,k)=>{
+    b.disabled = true;
+    const o = item.opts[k];
+    if (o.code===t.code) b.classList.add("right");
+    else if (k===i) b.classList.add("wrong");
+    else b.classList.add("dim");
+    if (k===i && !right) b.insertAdjacentHTML("beforeend", item.view==="c2a" ? `<span class="tag">That's ${o.code}</span>` : `<span class="tag">${o.city} · ${o.name}</span>`);
+  });
+  if (item.view==="a2c") setTiles(t.code, true);
+  settle(item, right, i<0);
+}
+
+function answerTyped(val){
+  const item = G.queue[G.idx];
+  if (!item || item.answered) return;
+  const t = item.a;
+  const right = val === t.code;
+  const inp = $("typeIn"); if (inp) { inp.disabled = true; inp.blur(); }
+  const sub = $("typeForm") && $("typeForm").querySelector("button"); if (sub) sub.disabled = true;
+  setTiles(t.code, true);
+  let extra = "";
+  if (!right && val.length === 3) extra = BY[val] ? `You typed ${val}, which is ${BY[val].city} (${BY[val].name}).` : `You typed ${val}, which isn't in this game's airport list.`;
+  settle(item, right, !val, extra);
+}
+
+function settle(item, right, timedOut, extra=""){
+  item.answered = true;
+  cancelAnimationFrame(raf);
+  const t = item.a;
+  const firstTry = item.tries === 0 || item.tries === 9;
+  if (item.kind !== "ron" && firstTry) record(t.code, right);
+  const lvl = {adv:1.5, exp:2}[G.level] || 1;
+  if (right){
+    const elapsed = performance.now()-G.t0;
+    const speed = G.clock ? Math.round(50*Math.max(0,1-elapsed/clockMs())) : 0;
+    G.streak++; G.bestStreak = Math.max(G.bestStreak, G.streak);
+    const mult = Math.min(2, 1 + 0.1*(G.streak-1));
+    const pts = Math.round((item.tries===1 ? 40 : (100+speed)*mult) * lvl);
+    G.score += pts;
+    if (firstTry) G.firstRight++;
+    $("verdict").className = "verdict ok";
+    $("verdict").textContent = `Cleared · +${pts}${mult>1 && item.tries!==1 ? ` (×${mult.toFixed(1)})` : ""}`;
+  } else {
+    G.streak = 0;
+    if (item.kind !== "ron") G.missed.set(t.code, t);
+    if (item.tries === 0) {
+      const at = Math.min(G.queue.length, G.idx + 4);
+      G.queue.splice(at, 0, {a:t, kind:"std", tries:1});
+    }
+    $("verdict").className = "verdict bad";
+    $("verdict").textContent = timedOut ? "Out of time" : "Not quite";
+  }
+  const note = NOTES[t.code];
+  const r = store.srs[t.code];
+  let srsLine = "";
+  if (item.kind !== "ron" && firstTry && r) srsLine = right
+    ? (r.b >= MASTER_BOX ? `Mastered. Next review in ${INTERVALS[r.b]} days.` : `Next review in ${INTERVALS[r.b]} day${INTERVALS[r.b]===1?"":"s"}.`)
+    : "Back in tomorrow's review.";
+  $("revealBody").innerHTML =
+    (extra ? `<div class="hint">${extra}</div>` : "") +
+    `<div><b>${t.code}</b> is ${t.city}, ${t.name} (${t.region}).</div>` +
+    (item.kind==="ron" ? `<div class="hint">The last station on day 1 is your overnight, marked RON (remain overnight).</div>` : "") +
+    (note ? `<div class="note"><span class="label">Memory hook</span>${note}</div>` : "") +
+    (srsLine || (!right && item.tries===0) ? `<div class="hint">${[srsLine, (!right && item.tries===0) ? "It also comes back later in this round." : ""].filter(Boolean).join(" ")}</div>` : "");
+  $("hStreak").textContent = G.streak;
+  $("hScore").textContent = G.score.toLocaleString();
+  $("hLeft").textContent = G.queue.length - G.idx - 1;
+  $("reveal").hidden = false;
+  $("nextBtn").focus({preventScroll:true});
+  $("nextBtn").firstElementChild.textContent = G.idx >= G.queue.length-1 ? "See results" : "Next card";
+}
+
+function finish(){
+  cancelAnimationFrame(raf);
+  const acc = G.unique ? Math.round(100*G.firstRight/G.unique) : 0;
+  const rank = acc>=90 ? "Purser" : acc>=75 ? "Lead flight attendant" : acc>=50 ? "Line flight attendant" : "Trainee";
+  $("rRank").textContent = rank;
+  $("rScore").textContent = G.score.toLocaleString();
+  $("rAcc").textContent = acc + "%";
+  $("rStreak").textContent = G.bestStreak;
+  if (G.score > (store.best||0)) { store.best = G.score; save(); }
+  const tc = todayCount(), st = streakNow();
+  $("rDaily").innerHTML = `<span>Today <b>${tc}/${GOAL}</b></span><span>Streak <b>${st} day${st===1?"":"s"}</b></span><span>${tc >= GOAL ? "Daily goal met" : `${GOAL-tc} more to keep the streak`}</span>`;
+  const m = [...G.missed.values()];
+  $("rMissLbl").textContent = m.length ? `Missed this round · ${m.length} added to tomorrow's review` : "Clean round. Nothing missed.";
+  $("rMiss").innerHTML = m.map(a=>`<li><code>${a.code}</code><span>${a.city}, ${a.name}${NOTES[a.code]?`<small>${NOTES[a.code]}</small>`:""}</span></li>`).join("");
+  $("rMiss").hidden = !m.length;
+  renderSetup();
+  show("results");
+}
+
+$("opts").addEventListener("click", e => { const b=e.target.closest(".opt"); if(b && !b.disabled) answer(+b.dataset.i); });
+$("nextBtn").addEventListener("click", ()=>nextCard(false));
+$("startBtn").addEventListener("click", startRound);
+$("againBtn").addEventListener("click", startRound);
+$("menuBtn").addEventListener("click", ()=>{ renderSetup(); show("setup"); });
+$("quitBtn").addEventListener("click", finish);
+document.addEventListener("keydown", e => {
+  if ($("play").hidden || !G) return;
+  const item = G.queue[G.idx];
+  if (!item) return;
+  if (e.target.tagName === "BUTTON" && (e.key==="Enter" || e.key===" ")) return; // the button's own click handles it
+  if (!item.answered && item.view !== "type" && /^[1-4]$/.test(e.key)) { answer(+e.key-1); e.preventDefault(); }
+  else if (item.answered && (e.key==="Enter" || e.key===" ")) { nextCard(false); e.preventDefault(); }
+});
+document.addEventListener("visibilitychange", () => {
+  if (!G || $("play").hidden) return;
+  const item = G.queue[G.idx]; if (!item || item.answered || !G.clock) return;
+  if (document.hidden) { cancelAnimationFrame(raf); G.pausedAt = performance.now(); }
+  else if (G.pausedAt) { G.t0 += performance.now()-G.pausedAt; G.pausedAt = 0; tick(); }
+});
+
+// ---------- logo ----------
+const FLAPS = " ABCDEFGHIJKLMNOPQRSTUVWXYZ";
+function flipLogo(){
+  const word = "JUMPSEAT";
+  const reduce = window.matchMedia && matchMedia("(prefers-reduced-motion: reduce)").matches;
+  [...document.querySelectorAll("#logo .f")].forEach((f, i) => {
+    const inner = f.firstElementChild;
+    if (reduce) { inner.textContent = word[i]; return; }
+    const target = FLAPS.indexOf(word[i]);
+    let pos = (target - 6 - Math.floor(Math.random()*10) + FLAPS.length*2) % FLAPS.length;
+    clearInterval(f._t);
+    setTimeout(() => {
+      f._t = setInterval(() => {
+        pos = (pos + 1) % FLAPS.length;
+        inner.textContent = FLAPS[pos];
+        f.classList.remove("tick"); void f.offsetWidth; f.classList.add("tick");
+        if (pos === target) clearInterval(f._t);
+      }, 55);
+    }, i * 60);
+  });
+}
+$("logo").addEventListener("click", flipLogo);
+renderSetup();
+flipLogo();
+</script>
+
+</body>
+</html>
