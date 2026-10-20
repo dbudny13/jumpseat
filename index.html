@@ -1,8 +1,4 @@
-<!doctype html>
-<html lang="en">
-<head>
-<meta charset="utf-8">
-<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<!doctype html><html><head><meta charset=utf8><meta name=viewport content="width=device-width,initial-scale=1,viewport-fit=cover"><style>:root{color-scheme:light;box-sizing:border-box;padding-top:env(safe-area-inset-top,0px);padding-bottom:env(safe-area-inset-bottom,0px)}html{scroll-padding-top:env(safe-area-inset-top,0px)}body{margin:0;padding:0;font:14px -apple-system,BlinkMacSystemFont,sans-serif;background:#fff;color:#000}img{max-width:100%}[hidden]:not([hidden=until-found i]){display:none!important}</style></head><body>
 <title>Jumpseat</title>
 <meta name="claude:viewport-fit-sides" content="cover">
 <link rel="preconnect" href="https://fonts.googleapis.com">
@@ -16,6 +12,8 @@
   --tile: #1A252F; --tile-2: #222F3A; --tile-ink: #F3EFE2;
   --ok: #1D8549; --ok-bg: #E1F2E7; --bad: #BF3428; --bad-bg: #FAE5E2;
   --chip: #EEF2F5; --land: #E2E8ED;
+  --body-fill: #FFFFFF; --win: #3E5263; --shade: #8FA3B3; --ground: #B9C4CC;
+  --seat-prem: #F2B21B; --seat-plus: #6FA8DC; --seat-eco: #FFFFFF;
   --f-display: "Big Shoulders Display", "Arial Narrow", "Roboto Condensed", sans-serif;
   --f-body: "Figtree", system-ui, -apple-system, "Segoe UI", sans-serif;
   --f-mono: "IBM Plex Mono", ui-monospace, "SF Mono", Menlo, monospace;
@@ -25,13 +23,17 @@
   --sign: #F5B700; --sign-ink: #1B1500;
   --tile: #091015; --tile-2: #111A21; --tile-ink: #F3EFE2;
   --ok: #4BC17C; --ok-bg: #12301F; --bad: #EE6E5D; --bad-bg: #3A1915;
-  --chip: #1C2832; --land: #1D2933; color-scheme: dark } }
+  --chip: #1C2832; --land: #1D2933;
+  --body-fill: #1E2B35; --win: #8FA3B3; --shade: #000000; --ground: #34434F;
+  --seat-prem: #D9A11A; --seat-plus: #3D7FBF; --seat-eco: #2A3A47; color-scheme: dark } }
 :root[data-theme="dark"] {
   --bg: #0C1318; --card: #151F27; --ink: #E3E9EE; --muted: #90A0AD; --line: #283541;
   --sign: #F5B700; --sign-ink: #1B1500;
   --tile: #091015; --tile-2: #111A21; --tile-ink: #F3EFE2;
   --ok: #4BC17C; --ok-bg: #12301F; --bad: #EE6E5D; --bad-bg: #3A1915;
-  --chip: #1C2832; --land: #1D2933; color-scheme: dark }
+  --chip: #1C2832; --land: #1D2933;
+  --body-fill: #1E2B35; --win: #8FA3B3; --shade: #000000; --ground: #34434F;
+  --seat-prem: #D9A11A; --seat-plus: #3D7FBF; --seat-eco: #2A3A47; color-scheme: dark }
 
 * { box-sizing: border-box; }
 body {
@@ -42,19 +44,19 @@ body {
 .wrap { max-width: 520px; margin: 0 auto; display: grid; gap: 14px; }
 header.top { display: flex; align-items: center; justify-content: space-between; gap: 12px; }
 /* Logo: a row of split-flap modules. Letters advance through the alphabet in order, the way a real flap unit does. */
-.brand { display: flex; gap: 3px; padding: 5px; background: var(--tile); border-radius: 7px; cursor: pointer; border: 0; box-shadow: 0 1px 0 rgba(0,0,0,.25); }
+/* Wordmark: a row of split-flap tiles, sized so the letters stay easy to read. A thin split line and slightly
+   darker lower half give the flap feel without anything crossing the letters. */
+.brand { display: flex; gap: 2px; padding: 4px; background: var(--tile); border-radius: 7px; cursor: pointer; border: 0; box-shadow: 0 1px 0 rgba(0,0,0,.25); perspective: 200px; }
 .brand .f {
-  position: relative; width: 22px; height: 30px; border-radius: 3px; display: grid; place-items: center; overflow: hidden;
-  background: linear-gradient(var(--tile-2) 0 50%, #070C10 50% 100%);
-  color: var(--sign); font-family: var(--f-display); font-weight: 800; font-size: 23px; line-height: 1;
-  text-shadow: 0 0 6px rgba(245,183,0,.35);
+  position: relative; width: 24px; height: 32px; border-radius: 3px; display: grid; place-items: center; overflow: hidden;
+  background: linear-gradient(#26333E 0 50%, #1A252F 50% 100%);
+  color: var(--sign); font-family: var(--f-display); font-weight: 800; font-size: 25px; line-height: 1;
 }
-.brand .f::before { content: ""; position: absolute; left: 0; right: 0; top: calc(50% - 1px); height: 2px; background: var(--tile); z-index: 1; }
-.brand .f::after { content: ""; position: absolute; left: 1px; right: 1px; top: calc(50% - 2px); height: 4px; z-index: 2;
-  background: radial-gradient(circle at 0 50%, #3A4651 1.5px, transparent 2px), radial-gradient(circle at 100% 50%, #3A4651 1.5px, transparent 2px); }
-.brand .f.tick span { animation: tick 70ms ease-out; display: block; }
-@keyframes tick { 0% { transform: scaleY(.15) translateY(-40%); } 100% { transform: none; } }
-@media (max-width: 360px) { .brand .f { width: 19px; height: 27px; font-size: 20px; } }
+.brand .f > span { position: relative; z-index: 1; display: block; transform-origin: 50% 50%; }
+.brand .f::after { content: ""; position: absolute; left: 0; right: 0; top: 50%; height: 1px; background: rgba(4,8,11,.75); z-index: 2; }
+.brand .f.in > span { animation: flapIn .32s cubic-bezier(.3,.7,.3,1) both; }
+@keyframes flapIn { 0% { transform: rotateX(-90deg); opacity: .2; } 70% { transform: rotateX(10deg); opacity: 1; } 100% { transform: none; } }
+@media (max-width: 360px) { .brand .f { width: 21px; height: 29px; font-size: 22px; } }
 .top small { font-family: var(--f-mono); font-size: 11px; color: var(--muted); letter-spacing: .08em; text-transform: uppercase; }
 
 /* Boarding pass */
@@ -207,59 +209,233 @@ header.top { display: flex; align-items: center; justify-content: space-between;
 .legend svg { width: 12px; height: 12px; }
 .mapinfo { font-size: 14px; min-height: 1.45em; }
 .mapinfo b { font-family: var(--f-display); font-weight: 800; font-size: 18px; letter-spacing: .05em; }
-@media (prefers-reduced-motion: reduce) { .tile.flip { animation: none; } .clock i { transition: none !important; } .brand .f.tick span { animation: none; } }
-</style>
-</head>
-<body>
+/* Splash: a full-screen departure board. Each module is a real two-leaf split flap: the top leaf falls, the bottom leaf lands. */
+#splash {
+  position: fixed; inset: 0; z-index: 50; display: grid; place-items: center; align-content: center; gap: 22px;
+  background: radial-gradient(120% 80% at 50% 40%, #16222C 0%, #070C10 70%); color: var(--tile-ink);
+  padding: max(24px, env(safe-area-inset-top, 0px)) 16px max(24px, env(safe-area-inset-bottom, 0px));
+  transition: transform .6s cubic-bezier(.7,0,.2,1), opacity .6s ease; cursor: pointer;
+}
+#splash.out { transform: translateY(-100%); opacity: .4; pointer-events: none; }
+#splash .board { display: flex; gap: clamp(4px, 1.2vw, 8px); padding: clamp(8px, 2vw, 14px); background: #04080B; border-radius: 12px; box-shadow: 0 0 0 1px #1E2A34, 0 30px 60px rgba(0,0,0,.5); }
+.sf {
+  --w: clamp(34px, 10vw, 72px); --h: calc(var(--w) * 1.42);
+  position: relative; width: var(--w); height: var(--h); perspective: 300px;
+  font-family: var(--f-display); font-weight: 800; font-size: calc(var(--h) * .78); color: var(--sign);
+  text-shadow: 0 0 10px rgba(245,183,0,.35);
+}
+.sf > div { position: absolute; left: 0; right: 0; height: 50%; overflow: hidden; backface-visibility: hidden; }
+.sf > div span { position: absolute; left: 0; right: 0; height: var(--h); line-height: var(--h); text-align: center; }
+.sf .top, .sf .ltop { top: 0; border-radius: 5px 5px 0 0; background: linear-gradient(#24313C, #1B2630); transform-origin: 50% 100%; }
+.sf .bot, .sf .lbot { bottom: 0; border-radius: 0 0 5px 5px; background: linear-gradient(#141D25, #0E151B); transform-origin: 50% 0; }
+.sf .bot span, .sf .lbot span { top: -100%; }
+.sf .ltop { z-index: 2; } .sf .lbot { z-index: 2; transform: rotateX(90deg); }
+.sf::after { content: ""; position: absolute; left: 0; right: 0; top: calc(50% - 1px); height: 2px; background: #04080B; z-index: 3; }
+.sf::before { content: ""; position: absolute; left: -2px; right: -2px; top: calc(50% - 3px); height: 6px; z-index: 4;
+  background: radial-gradient(circle at 2px 50%, #3A4651 2px, transparent 2.5px), radial-gradient(circle at calc(100% - 2px) 50%, #3A4651 2px, transparent 2.5px); }
+#splash .sub { display: flex; gap: 14px; align-items: center; font-family: var(--f-mono); font-size: 12px; letter-spacing: .28em; text-transform: uppercase; color: #8FA0AE; opacity: 0; transition: opacity .5s; }
+#splash .sub.on { opacity: 1; }
+#splash .sub i { width: 8px; height: 8px; border-radius: 50%; background: var(--ok); box-shadow: 0 0 8px var(--ok); animation: blink 1s steps(2) infinite; }
+@keyframes blink { 50% { opacity: .2; } }
+#splash .skip { position: absolute; bottom: max(18px, env(safe-area-inset-bottom, 0px)); font-family: var(--f-mono); font-size: 10.5px; letter-spacing: .16em; text-transform: uppercase; color: #56646F; }
 
+/* Landing: airline picker as a departures list */
+.land-hero { display: grid; gap: 10px; }
+.land-hero h1 { font-family: var(--f-display); font-weight: 800; font-size: 40px; line-height: .95; margin: 0; text-transform: uppercase; text-wrap: balance; }
+.land-hero p { margin: 0; color: var(--muted); }
+.airlist { display: grid; gap: 8px; }
+.air {
+  display: grid; grid-template-columns: auto 1fr auto; gap: 14px; align-items: center; text-align: left; width: 100%;
+  background: var(--card); color: var(--ink); border: 1px solid var(--line); border-radius: 12px; padding: 12px 14px; cursor: pointer; font: inherit;
+  transition: border-color .15s, transform .15s;
+}
+.air:hover { border-color: var(--ink); }
+.air:active { transform: translateY(1px); }
+.air .code { display: flex; gap: 2px; padding: 4px; background: var(--tile); border-radius: 6px; }
+.air .code b { width: 22px; height: 30px; display: grid; place-items: center; border-radius: 3px; background: linear-gradient(var(--tile-2) 0 50%, #070C10 50% 100%); color: var(--sign); font: 800 22px/1 var(--f-display); }
+.air .nm { min-width: 0; }
+.air .nm strong { display: block; font-family: var(--f-display); font-weight: 800; font-size: 22px; text-transform: uppercase; letter-spacing: .03em; line-height: 1.1; }
+.air .nm span { display: block; font-size: 13px; color: var(--muted); overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+.air .nm .stat-ln { white-space: normal; font-family: var(--f-mono); font-size: 10.5px; letter-spacing: .04em; text-transform: uppercase; margin-top: 3px; }
+.air .go { font-family: var(--f-mono); font-size: 16px; letter-spacing: .12em; text-transform: uppercase; color: var(--muted); white-space: nowrap; }
+.air.any { background: transparent; border-style: dashed; }
+.air.any .code b { color: var(--tile-ink); }
+.tracks { display: flex; flex-wrap: wrap; gap: 8px; }
+.track { display: inline-flex; align-items: center; gap: 8px; font-size: 13.5px; font-weight: 600; padding: 7px 12px; border-radius: 999px; background: var(--chip); border: 1px solid var(--line); }
+.track em { font-style: normal; font-family: var(--f-mono); font-size: 10px; letter-spacing: .1em; text-transform: uppercase; color: var(--muted); }
+.track.live em { color: var(--ok); }
+.crewbar { display: flex; align-items: baseline; gap: 10px; flex-wrap: wrap; }
+.crewbar b { font-family: var(--f-display); font-weight: 800; font-size: 22px; text-transform: uppercase; letter-spacing: .03em; }
+.linkbtn { background: none; border: 0; padding: 0; color: var(--muted); font: 600 13px var(--f-body); text-decoration: underline; text-underline-offset: 3px; cursor: pointer; }
+
+
+/* Aircraft outlines and cabin plans (scoped to .ol so they can't collide with app styles) */
+.ol svg { display: block; width: 100%; height: auto; }
+.ol .line .part { fill: var(--body-fill); stroke: var(--ink); stroke-width: 1.1; vector-effect: non-scaling-stroke; stroke-linejoin: round; }
+.ol .line .det { fill: none; stroke: var(--ink); stroke-width: .6; vector-effect: non-scaling-stroke; opacity: .4; }
+.ol .line .win { fill: var(--win); }
+.ol .line .door { fill: none; stroke: var(--ink); stroke-width: .9; vector-effect: non-scaling-stroke; }
+.ol .line .cock { fill: var(--ink); }
+.ol .pane { stroke: var(--body-fill); stroke-width: 1.2; vector-effect: non-scaling-stroke; }
+.ol .mask { fill: var(--ink); stroke: var(--ink); stroke-width: 2.5; vector-effect: non-scaling-stroke; stroke-linejoin: round; }
+.ol .plug { fill: none; stroke: var(--ink); stroke-width: .8; stroke-dasharray: 3 2; vector-effect: non-scaling-stroke; opacity: .55; }
+.ol .line .gearp { fill: var(--muted); stroke: var(--ink); stroke-width: .6; vector-effect: non-scaling-stroke; }
+.ol .line .tyre { fill: var(--ink); }
+.ol .line .hub { fill: var(--muted); }
+.ol .shadow { fill: var(--ink); opacity: .07; }
+.ol .ground { stroke: var(--ground); stroke-width: 1; vector-effect: non-scaling-stroke; stroke-dasharray: 4 4; }
+.ol .exit { fill: var(--sign); stroke: var(--sign-ink); stroke-width: 1.2; vector-effect: non-scaling-stroke; }
+.ol .exit.found { fill: var(--ok); stroke: var(--ok); }
+.ol .exit.missed { fill: var(--bad); stroke: var(--bad); }
+.ol .tag { font-family: var(--f-mono); font-weight: 600; fill: var(--ink); paint-order: stroke; stroke: var(--card); stroke-linejoin: round; }
+.ol .tag.dim { fill: var(--muted); }
+.ol .hit { fill: transparent; cursor: pointer; }
+.ol .miss-dot { fill: none; stroke: var(--bad); stroke-width: 2; vector-effect: non-scaling-stroke; }
+.ol .plan .seat { fill: var(--seat-eco); stroke: var(--ink); stroke-width: .6; vector-effect: non-scaling-stroke; }
+.ol .plan .seat.prem { fill: var(--seat-prem); }
+.ol .plan .seat.plus { fill: var(--seat-plus); }
+.ol .plan .seatback { stroke: var(--ink); stroke-width: 1.4; vector-effect: non-scaling-stroke; }
+.ol .plan .galley { fill: var(--chip); stroke: var(--ink); stroke-width: .6; vector-effect: non-scaling-stroke; }
+.ol .plan .lav { fill: color-mix(in srgb, var(--muted) 18%, var(--body-fill)); stroke: var(--ink); stroke-width: .6; vector-effect: non-scaling-stroke; }
+.ol .plan .deck { fill: color-mix(in srgb, var(--muted) 22%, var(--body-fill)); }
+.ol .plan .jump { fill: var(--ink); opacity: .75; }
+.ol .plan .divider { stroke: var(--muted); stroke-width: 1; vector-effect: non-scaling-stroke; stroke-dasharray: 3 2; }
+.ol .plan .wingstub { fill: none; stroke: var(--muted); stroke-width: 1; vector-effect: non-scaling-stroke; stroke-dasharray: 4 3; }
+@media (prefers-reduced-motion: no-preference) { .ol .exit.found, .ol .exit.missed { transition: fill .2s; } }
+.ol-legend { display: flex; flex-wrap: wrap; align-items: center; gap: 4px 12px; font-size: 12.5px; color: var(--muted); }
+.lgs { display: inline-block; width: 12px; height: 12px; border: 1px solid var(--ink); border-radius: 3px; background: var(--seat-eco); margin-right: 4px; vertical-align: -2px; }
+.lgs.prem { background: var(--seat-prem); } .lgs.plus { background: var(--seat-plus); } .lgs.jump { background: var(--ink); opacity: .75; }
+.ol-table { width: 100%; border-collapse: collapse; font-size: 14px; font-variant-numeric: tabular-nums; }
+.ol-table th { text-align: left; font: 500 10.5px var(--f-mono); letter-spacing: .1em; text-transform: uppercase; color: var(--muted); padding: 6px 6px; border-bottom: 1px solid var(--line); }
+.ol-table td { padding: 6px; border-bottom: 1px solid var(--line); }
+.ol-table td:nth-child(n+2), .ol-table th:nth-child(n+2) { text-align: right; }
+.ol-table tr.tot td { font-weight: 700; border-bottom: 0; }
+.spotdraw { max-width: 100%; margin: 0 auto; }
+.planplay { margin-inline: -6px; overflow-x: auto; overscroll-behavior-x: contain; }
+.planbar { display: flex; justify-content: space-between; align-items: center; gap: 10px; flex-wrap: wrap; font-size: 14px; font-variant-numeric: tabular-nums; }
+.planbar b { font-family: var(--f-display); font-weight: 800; font-size: 20px; }
+.revealdraw { margin-top: 2px; }
+.sthumb { display: block; margin: 2px 0 2px; }
+.hchips { display: flex; flex-wrap: wrap; gap: 6px; }
+.hchips .chip { padding: 6px 11px; font-size: 13px; }
+
+/* Track switch */
+.seg { display: grid; grid-template-columns: 1fr 1fr; gap: 4px; padding: 4px; background: var(--chip); border: 1px solid var(--line); border-radius: 12px; }
+.seg button { font: 800 16px/1 var(--f-display); text-transform: uppercase; letter-spacing: .05em; padding: 11px 8px; border: 0; border-radius: 9px; background: transparent; color: var(--muted); cursor: pointer; }
+.seg button[aria-selected="true"] { background: var(--tile); color: var(--sign); box-shadow: 0 1px 0 rgba(0,0,0,.25); }
+
+/* Hangar: one stand per aircraft type */
+.hangar { display: grid; grid-template-columns: repeat(auto-fill, minmax(150px, 1fr)); gap: 8px; }
+.stand { text-align: left; font: inherit; color: var(--ink); background: var(--card); border: 1px solid var(--line); border-left-width: 5px; border-radius: 10px; padding: 10px 12px; cursor: pointer; display: grid; gap: 3px; min-width: 0; }
+.stand b { font-family: var(--f-display); font-weight: 800; font-size: 20px; line-height: 1; text-transform: uppercase; letter-spacing: .02em; }
+.stand span { font-family: var(--f-mono); font-size: 10.5px; letter-spacing: .06em; text-transform: uppercase; color: var(--muted); }
+.stand.un { border-left-color: var(--line); }
+.stand.learn { border-left-color: color-mix(in srgb, var(--sign) 55%, transparent); }
+.stand.mast { border-left-color: var(--sign); background: color-mix(in srgb, var(--sign) 10%, var(--card)); }
+.stand.bad { border-left-color: var(--bad); }
+.stand[aria-pressed="true"] { border-color: var(--ink); }
+.hinfo { display: grid; gap: 10px; font-size: 14px; }
+.hinfo h3 { margin: 0; font-family: var(--f-display); font-weight: 800; font-size: 24px; text-transform: uppercase; line-height: 1; }
+.facts { display: grid; grid-template-columns: auto 1fr; gap: 6px 14px; margin: 0; }
+.facts dt { font-family: var(--f-mono); font-size: 10.5px; letter-spacing: .1em; text-transform: uppercase; color: var(--muted); padding-top: 2px; }
+.facts dd { margin: 0; }
+.cfgs { display: grid; gap: 6px; margin: 0; padding: 0; list-style: none; }
+.cfgs li { display: grid; grid-template-columns: 52px 1fr; gap: 10px; align-items: baseline; padding-block: 6px; border-bottom: 1px solid var(--line); }
+.cfgs li:last-child { border-bottom: 0; }
+.cfgs code { font-family: var(--f-display); font-weight: 800; font-size: 22px; font-variant-numeric: tabular-nums; }
+.cfgs small { display: block; color: var(--muted); font-size: 12.5px; }
+.card-sub { font-family: var(--f-body); font-weight: 500; font-size: 15px; color: var(--muted); }
+.clue { font-size: 18px; font-weight: 600; line-height: 1.35; text-wrap: pretty; max-width: 36ch; margin: 0 auto; }
+
+@media (prefers-reduced-motion: reduce) { #splash { transition: opacity .3s; } #splash.out { transform: none; opacity: 0; } #splash .sub i { animation: none; } }
+@media (prefers-reduced-motion: reduce) { .tile.flip { animation: none; } .clock i { transition: none !important; } .brand .f.in > span { animation: none; } }
+</style>
+
+<div id="splash" role="img" aria-label="Jumpseat">
+  <div class="board" id="sfBoard"></div>
+  <div class="sub" id="sfSub"><i></i><span>Now boarding · Crew training</span></div>
+  <div class="skip">Tap to skip</div>
+</div>
 
 <div class="wrap">
   <header class="top">
-    <button class="brand" id="logo" aria-label="Jumpseat">
-      <span class="f"><span>J</span></span><span class="f"><span>U</span></span><span class="f"><span>M</span></span><span class="f"><span>P</span></span><span class="f"><span>S</span></span><span class="f"><span>E</span></span><span class="f"><span>A</span></span><span class="f"><span>T</span></span>
-    </button>
+    <button class="brand" id="logo" aria-label="Jumpseat"><span class="f"><span>J</span></span><span class="f"><span>U</span></span><span class="f"><span>M</span></span><span class="f"><span>P</span></span><span class="f"><span>S</span></span><span class="f"><span>E</span></span><span class="f"><span>A</span></span><span class="f"><span>T</span></span></button>
     <small id="bestLbl">Best —</small>
   </header>
+
+  <!-- LANDING: airline first -->
+  <section id="landing" class="pass" hidden>
+    <div class="sec land-hero">
+      <span class="label">Welcome aboard</span>
+      <h1>Let's Takeoff</h1>
+      <p>Pick your airline. Your training is built around it: its stations first, then its fleet. You can switch any time.</p>
+    </div>
+    <div class="perf"></div>
+    <div class="sec stack">
+      <div class="airlist" id="airList"></div>
+      <div class="field">
+        <span class="label">What you'll learn</span>
+        <div class="tracks">
+          <span class="track live">Airport codes <em>Live</em></span>
+          <span class="track live">Aircraft <em>Live</em></span>
+          <span class="track">Phonetics &amp; codes <em>Soon</em></span>
+        </div>
+      </div>
+    </div>
+  </section>
 
   <!-- SETUP -->
   <section id="setup" class="pass">
     <div class="sec hero">
+      <div class="crewbar" id="crewBar"><span class="label">Flying for</span><b id="crewName"></b><button class="linkbtn" id="changeAir">Change airline</button></div>
+      <div class="seg" role="tablist" aria-label="Track">
+        <button role="tab" data-track="air" id="tabAir">Airport codes</button>
+        <button role="tab" data-track="fleet" id="tabFleet">Aircraft</button>
+      </div>
       <div class="daily" id="dailyBar">
         <span>Today <b id="dToday">0/10</b></span>
         <span>Streak <b id="dStreak">0 days</b></span>
         <span>Due for review <b id="dDue">0</b></span>
         <div class="meter"><i id="dMeter" style="width:0%"></i></div>
       </div>
-      <div class="tiles" aria-hidden="true">
+      <div class="tiles" aria-hidden="true" id="heroTiles">
         <div class="tile">I</div><div class="tile">N</div><div class="tile">D</div>
       </div>
-      <h1>Learn the board before you work the cabin</h1>
-      <p>Ten cards a day keeps the streak alive. Codes you get right come back after 1, 3, 7, 14 and 30 days. Codes you miss come back tomorrow. Three correct reviews in a row marks an airport as mastered on your map.</p>
+      <span class="label" id="heroCap" style="text-align:center"></span>
+      <h1 id="heroH">Learn the board before you work the cabin</h1>
+      <p id="heroP">Ten cards a day keeps the streak alive. Codes you get right come back after 1, 3, 7, 14 and 30 days. Codes you miss come back tomorrow. Three correct reviews in a row marks an airport as mastered on your map.</p>
     </div>
     <div class="perf"></div>
     <div class="sec stack">
-      <div class="field">
-        <span class="label">Your airline</span>
-        <div class="chips" id="airDecks"></div>
-        <span class="hint" id="deckHint" hidden></span>
+      <div class="stack" id="airFields">
+        <div class="field">
+          <span class="label">Study</span>
+          <div class="chips" id="decks"></div>
+          <span class="hint" id="deckHint" hidden></span>
+        </div>
+        <div class="field">
+          <span class="label">Practice</span>
+          <div class="chips" id="modes"></div>
+          <span class="hint" id="modeHint"></span>
+        </div>
       </div>
-      <div class="field">
-        <span class="label">Or study by region</span>
-        <div class="chips" id="decks"></div>
-      </div>
-      <div class="field">
-        <span class="label">Practice</span>
-        <div class="chips" id="modes"></div>
-        <span class="hint" id="modeHint"></span>
+      <div class="stack" id="fleetFields" hidden>
+        <div class="field">
+          <span class="label">Study</span>
+          <div class="chips" id="fdecks"></div>
+          <span class="hint" id="fdeckHint"></span>
+        </div>
       </div>
       <div class="field">
         <span class="label">Level</span>
         <div class="chips" id="levels"></div>
         <span class="hint" id="levelHint"></span>
       </div>
-      <label class="toggle" for="clockOn"><input type="checkbox" id="clockOn" checked> Boarding clock</label>
+      <div class="field">
+        <label class="toggle" for="clockOn"><input type="checkbox" id="clockOn" checked> Boarding clock</label>
+        <span class="hint">Timed cards: answer fast for bonus points; running out counts as a miss.</span>
+      </div>
       <button class="btn" id="startBtn"><span>Start round</span><span aria-hidden="true">→</span></button>
-      <span class="hint">Keyboard: 1–4 to answer, Enter for the next card.</span>
     </div>
   </section>
 
@@ -273,6 +449,19 @@ header.top { display: flex; align-items: center; justify-content: space-between;
       <div class="mapwrap"><svg id="map" viewBox="0 0 600 450" role="img" aria-label="Map of airports colored by how well you know them"></svg></div>
       <div class="legend" id="legend"></div>
       <div class="mapinfo" id="mapInfo">Tap an airport to see where you stand.</div>
+    </div>
+  </section>
+
+  <!-- HANGAR -->
+  <section id="hangarCard" class="pass" hidden>
+    <div class="sec stack">
+      <div class="maphead">
+        <h2 id="hangarTitle">Hangar</h2>
+        <span class="label" id="hangarSub"></span>
+      </div>
+      <div class="hangar" id="hangar"></div>
+      <div class="legend" id="hLegend"></div>
+      <div class="hinfo" id="hInfo"><span class="hint">Tap an aircraft to see its cabins, exits and recognition cues.</span></div>
     </div>
   </section>
 
@@ -568,7 +757,7 @@ const MASTER_BOX = 3;
 const today = () => { const d = new Date(); return Math.floor((d.getTime() - d.getTimezoneOffset()*60000) / 86400000); };
 function load(){ try { return JSON.parse(localStorage.getItem(KEY)) || {}; } catch(e){ return {}; } }
 function save(){ try { localStorage.setItem(KEY, JSON.stringify(store)); } catch(e){} }
-let store = Object.assign({srs:{}, best:0, daily:{day:0,count:0}, streak:{last:0,n:0}, home:"hubs"}, load());
+let store = Object.assign({srs:{}, fsrs:{}, best:0, daily:{day:0,count:0}, streak:{last:0,n:0}, home:"hubs", track:"air"}, load());
 store.srs = store.srs || {};
 if (store.misses) { // carry over misses from the first version as due-today reviews
   for (const c in store.misses) if (BY[c] && !store.srs[c]) store.srs[c] = {b:0, d:today()};
@@ -631,13 +820,16 @@ let deckSel = "hubs", modeSel = "c2a", levelSel = "std";
 try { const p = JSON.parse(localStorage.getItem(KEY+"-prefs")||"{}"); if(p.deck && deckById(p.deck)) deckSel=p.deck; if(p.mode && MODES.some(m=>m.id===p.mode)) modeSel=p.mode; if(p.level && LEVELS.some(m=>m.id===p.level)) levelSel=p.level; if(p.clock===false) document.getElementById("clockOn").checked=false; } catch(e){}
 
 const $ = id => document.getElementById(id);
-function deckChip(d){
+function deckChip(d, label){
   const n = DATA.filter(d.f).length;
-  return `<button class="chip" data-deck="${d.id}" aria-pressed="${d.id===deckSel}">${d.name}<em>${d.id==="review" ? n+" due" : n}</em></button>`;
+  return `<button class="chip" data-deck="${d.id}" aria-pressed="${d.id===deckSel}">${label || d.name}<em>${d.id==="review" ? n+" due" : n}</em></button>`;
 }
 function renderSetup(){
-  $("airDecks").innerHTML = DECKS.filter(d=>d.kind==="air").map(deckChip).join("");
-  $("decks").innerHTML = DECKS.filter(d=>d.kind==="reg").map(deckChip).join("");
+  // The airline picked on the main screen drives the deck list: only that airline's network is offered.
+  const mine = AIRLINES[store.airline] ? store.airline : null;
+  if (AIRLINES[deckSel] && deckSel !== mine) deckSel = mine || "hubs";
+  const myChip = mine ? [deckChip(deckById(mine), `${AIRLINES[mine].name} network`)] : [];
+  $("decks").innerHTML = myChip.concat(DECKS.filter(d=>d.kind==="reg").map(d=>deckChip(d))).join("");
   $("modes").innerHTML = MODES.map(m => `<button class="chip" data-mode="${m.id}" aria-pressed="${m.id===modeSel}">${m.name}</button>`).join("");
   $("levels").innerHTML = LEVELS.map(m => `<button class="chip" data-level="${m.id}" aria-pressed="${m.id===levelSel}">${m.name}</button>`).join("");
   const air = AIRLINES[deckSel];
@@ -656,6 +848,9 @@ function renderSetup(){
     adv: "Every choice starts with the same letter as the answer. Worth 1.5× points.",
     exp: "No choices. You see the airport and type the code. Worth 2× points."
   }[levelSel];
+  const myAir = AIRLINES[store.airline];
+  $("crewName").textContent = myAir ? myAir.name : "All airlines";
+  $("crewBar").hidden = !store.airline;
   $("bestLbl").textContent = store.best ? `Best ${store.best.toLocaleString()}` : "Best —";
   const tc = todayCount(), st = streakNow();
   $("dToday").textContent = `${Math.min(tc,99)}/${GOAL}`;
@@ -663,10 +858,10 @@ function renderSetup(){
   $("dDue").textContent = DATA.filter(a=>isDue(a.code)).length;
   $("dMeter").style.width = Math.min(100, tc/GOAL*100) + "%";
   renderMap();
+  renderTrack();
 }
-const pickDeck = e => { const b=e.target.closest("[data-deck]"); if(!b) return; deckSel=b.dataset.deck; if (deckSel!=="review") { store.home = deckSel; save(); } mapSel = null; renderSetup(); };
+const pickDeck = e => { const b=e.target.closest("[data-deck]"); if(!b) return; deckSel=b.dataset.deck; if (AIRLINES[deckSel]) store.airline = deckSel; if (deckSel!=="review") { store.home = deckSel; save(); } mapSel = null; renderSetup(); };
 $("decks").addEventListener("click", pickDeck);
-$("airDecks").addEventListener("click", pickDeck);
 $("modes").addEventListener("click", e => { const b=e.target.closest("[data-mode]"); if(!b) return; modeSel=b.dataset.mode; renderSetup(); });
 $("levels").addEventListener("click", e => { const b=e.target.closest("[data-level]"); if(!b) return; levelSel=b.dataset.level; renderSetup(); });
 
@@ -789,6 +984,7 @@ const CLOCK_MS = 12000;
 let G = null, raf = 0;
 
 function startRound(){
+  if (store.track === "fleet") return startFleet();
   const deck = deckById(deckSel);
   let pool = DATA.filter(deck.f);
   const netDeck = deckSel==="review" ? homeDeck() : deck;
@@ -828,8 +1024,9 @@ function startRound(){
 }
 
 function show(id){
-  ["setup","play","results"].forEach(s=>$(s).hidden = s!==id);
-  $("mapCard").hidden = id !== "setup";
+  ["landing","setup","play","results"].forEach(s=>$(s).hidden = s!==id);
+  $("mapCard").hidden = id !== "setup" || store.track === "fleet";
+  $("hangarCard").hidden = id !== "setup" || store.track !== "fleet";
   window.scrollTo({top:0});
 }
 
@@ -838,6 +1035,7 @@ function setTiles(str, flip){
 }
 
 function nextCard(first){
+  if (G && G.fleet) return fleetNext(first);
   cancelAnimationFrame(raf);
   if (!first) G.idx++;
   if (G.idx >= G.queue.length) return finish();
@@ -890,7 +1088,6 @@ function nextCard(first){
     inp.addEventListener("input", () => {
       inp.value = inp.value.toUpperCase().replace(/[^A-Z]/g,"").slice(0,3);
       setTiles((inp.value + "···").slice(0,3), false);
-      if (inp.value.length === 3) answerTyped(inp.value);
     });
     $("typeForm").addEventListener("submit", e => { e.preventDefault(); if (inp.value.length) answerTyped(inp.value); });
     inp.addEventListener("keydown", e => { if (e.key==="Enter") e.stopPropagation(); });
@@ -918,7 +1115,11 @@ function nextCard(first){
   if (G.clock) tick();
 }
 
-function clockMs(){ return G.level==="exp" ? 15000 : CLOCK_MS; }
+function clockMs(){
+  const it = G && G.queue && G.queue[G.idx];
+  if (G && G.fleet && it && it.card && it.card.kind === "fplan") return 40000;   // cabin plans get more time
+  return G.level==="exp" ? 15000 : CLOCK_MS;
+}
 function tick(){
   const left = Math.max(0, 1 - (performance.now()-G.t0)/clockMs());
   $("clockBar").style.transform = `scaleX(${left})`;
@@ -928,6 +1129,7 @@ function tick(){
 }
 
 function answer(i){
+  if (G.fleet) return fleetAnswer(i);
   const item = G.queue[G.idx];
   if (!item || item.answered) return;
   const t = item.a;
@@ -946,6 +1148,7 @@ function answer(i){
 }
 
 function answerTyped(val){
+  if (G.fleet) return fleetTyped(val);
   const item = G.queue[G.idx];
   if (!item || item.answered) return;
   const t = item.a;
@@ -1018,7 +1221,9 @@ function finish(){
   $("rDaily").innerHTML = `<span>Today <b>${tc}/${GOAL}</b></span><span>Streak <b>${st} day${st===1?"":"s"}</b></span><span>${tc >= GOAL ? "Daily goal met" : `${GOAL-tc} more to keep the streak`}</span>`;
   const m = [...G.missed.values()];
   $("rMissLbl").textContent = m.length ? `Missed this round · ${m.length} added to tomorrow's review` : "Clean round. Nothing missed.";
-  $("rMiss").innerHTML = m.map(a=>`<li><code>${a.code}</code><span>${a.city}, ${a.name}${NOTES[a.code]?`<small>${NOTES[a.code]}</small>`:""}</span></li>`).join("");
+  $("rMiss").innerHTML = G.fleet
+    ? m.map(c=>`<li><code>${c.kind==="fplan" ? OUT.planExitCount(OUT.byKey[c.okey]) : c.num ?? "✈"}</code><span>${c.kind==="fspot" ? FLEET_T[c.tk].n : c.big}<small>${c.kind==="fspot" ? "Spot the plane" : c.kind==="feng" ? answerText(c) : c.kind==="fplan" ? "Find the exits · " + c.sub : c.q}</small></span></li>`).join("")
+    : m.map(a=>`<li><code>${a.code}</code><span>${a.city}, ${a.name}${NOTES[a.code]?`<small>${NOTES[a.code]}</small>`:""}</span></li>`).join("");
   $("rMiss").hidden = !m.length;
   renderSetup();
   show("results");
@@ -1045,31 +1250,833 @@ document.addEventListener("visibilitychange", () => {
   else if (G.pausedAt) { G.t0 += performance.now()-G.pausedAt; G.pausedAt = 0; tick(); }
 });
 
+const FLEET_T = {"A220-100":{"n":"Airbus A220-100","f":"A220","m":"Airbus","dp":2,"ow":"1 pair Type III","ex":6,"en":"L1 boarding door, R1 service door, L2/R2 aft, one overwing exit per side.","eng":"2 × Pratt & Whitney PW1500G (geared turbofan)","rec":"Huge engines for a small 2-3 cabin, short body: about 12 windows ahead of the single overwing exit.","c":"medium"},"A220-300":{"n":"Airbus A220-300","f":"A220","m":"Airbus","dp":2,"ow":"1 pair Type III","ex":6,"en":"Same exit layout as the -100; longer fuselage.","eng":"2 × Pratt & Whitney PW1500G","rec":"Huge engines for a small 2-3 cabin, but stretched: about 17 windows ahead of the single overwing exit.","c":"medium"},"A319":{"n":"Airbus A319","f":"A320 family","m":"Airbus","dp":2,"ow":"1 pair Type III (typical US)","ex":6,"en":"One overwing pair limits seating to 145; a second optional pair allows 160.","eng":"2 × CFM56-5 or IAE V2500","rec":"Shortest A320-family jet; usually one overwing exit per side.","c":"medium"},"A320":{"n":"Airbus A320","f":"A320 family","m":"Airbus","dp":2,"ow":"2 pairs Type III","ex":8,"en":"Two overwing exits per side.","eng":"ceo: CFM56-5B or IAE V2500; neo: CFM LEAP-1A or PW1100G","rec":"Two overwing exits per side; wingtip fences (older) or sharklets.","c":"high"},"A321ceo":{"n":"Airbus A321ceo","f":"A320 family","m":"Airbus","dp":4,"ow":"none","ex":8,"en":"Four floor-level door pairs: two ahead of the wing, two behind. No overwing exits.","eng":"2 × CFM56-5B or IAE V2500","rec":"Long narrowbody with 4 doors per side and no overwing hatches.","c":"medium"},"A321neo":{"n":"Airbus A321neo","f":"A320 family","m":"Airbus","dp":3,"ow":"2 pairs Type III (Cabin Flex); one pair may be plugged","ex":10,"en":"Cabin Flex layout (2020+): door 2 deleted, two overwing pairs added, door 3 moved aft. Door 3 or an overwing pair can be plugged at lower seat counts, so active exits range 6–10 by airline.","eng":"2 × CFM LEAP-1A or PW1100G","rec":"Big neo engines and sharklets; no door just ahead of the wing; two overwing hatches per side.","c":"medium"},"A321XLR":{"n":"Airbus A321XLR","f":"A320 family","m":"Airbus","dp":3,"ow":"2 pairs Type III (Cabin Flex; may be plugged)","ex":null,"en":"Long-range A321neo with an extra fuel tank. Active exits vary by airline; not confirmed for AA/UA.","eng":"2 × CFM LEAP-1A or PW1100G","rec":null,"c":"low"},"A330-200":{"n":"Airbus A330-200","f":"A330","m":"Airbus","dp":4,"ow":"none (door 3 sits over the wing)","ex":8,"en":"Basic layout A-A-I-A (door 3 is a smaller Type I). Optional all-Type-A layout raises the limit.","eng":"2 × GE CF6-80E1, PW4000 or Rolls-Royce Trent 700","rec":"Shorter A330; small winglets; small door 3 over the wing.","c":"high"},"A330-300":{"n":"Airbus A330-300","f":"A330","m":"Airbus","dp":4,"ow":"none (door 3 over wing)","ex":8,"en":"Same door layout as the A330-200 on a longer fuselage.","eng":"2 × GE CF6-80E1, PW4000 or Rolls-Royce Trent 700","rec":"Long, slender A330; small winglets.","c":"high"},"A330-900":{"n":"Airbus A330-900neo","f":"A330","m":"Airbus","dp":4,"ow":"none (door 3 over wing)","ex":8,"en":"460 with optional Type A+ exits.","eng":"2 × Rolls-Royce Trent 7000 (only option)","rec":"A330 body with big Trent 7000s and A350-style curved wingtips.","c":"medium"},"A350-900":{"n":"Airbus A350-900","f":"A350","m":"Airbus","dp":4,"ow":"none","ex":8,"en":"Four Type A door pairs. Certification minimum cabin crew is 8.","eng":"2 × Rolls-Royce Trent XWB-84 (only option)","rec":"Black 'raccoon mask' cockpit windows; sharply curved wingtips; 4-wheel main gear.","c":"high"},"717":{"n":"Boeing 717","f":"717","m":"Boeing","dp":1,"ow":"2 pairs Type III","ex":7,"en":"L1 boarding door, R1 service door, 4 overwing window exits, and a tailcone exit (tailcone jettisons, slide deploys). No aft side doors.","eng":"2 × Rolls-Royce BR715, mounted on the rear fuselage","rec":"T-tail with two rear-mounted engines; 2-3 seating.","c":"medium"},"737-700":{"n":"Boeing 737-700","f":"737 NG","m":"Boeing","dp":2,"ow":"1 pair Type III","ex":6,"en":"One overwing exit per side.","eng":"2 × CFM56-7B","rec":"Short 737; flat-bottomed engine nacelles; single overwing hatch per side.","c":"high"},"737-800":{"n":"Boeing 737-800","f":"737 NG","m":"Boeing","dp":2,"ow":"2 pairs Type III","ex":8,"en":"Two overwing exits per side.","eng":"2 × CFM56-7B","rec":"Two overwing hatches per side; flat-bottomed nacelles; blended or split winglets.","c":"high"},"737-900":{"n":"Boeing 737-900","f":"737 NG","m":"Boeing","dp":2,"ow":"2 pairs Type III","ex":8,"en":"Non-ER 737-900 keeps the -800's exit layout.","eng":"2 × CFM56-7B","rec":"Long NG with no mid-cabin door.","c":"medium"},"737-900ER":{"n":"Boeing 737-900ER","f":"737 NG","m":"Boeing","dp":3,"ow":"2 pairs Type III","ex":10,"en":"Adds a mid-cabin exit door pair behind the wing. Airlines at 189 seats or fewer may plug it — then only 8 exits are usable.","eng":"2 × CFM56-7B","rec":"Longest NG; extra small door (or plug outline) behind the wing.","c":"medium"},"737MAX8":{"n":"Boeing 737 MAX 8","f":"737 MAX","m":"Boeing","dp":2,"ow":"2 pairs Type III","ex":8,"en":"Overwing exit doors swing up and out automatically.","eng":"2 × CFM LEAP-1B","rec":"Split-tip winglets; sawtooth (chevron) engine nacelle edges.","c":"high"},"737MAX9":{"n":"Boeing 737 MAX 9","f":"737 MAX","m":"Boeing","dp":3,"ow":"2 pairs Type III","ex":10,"en":"Mid-cabin exit door behind the wing. At lower densities (United 179) it is replaced by a door plug — the part that blew out on Alaska 1282 in Jan 2024 — leaving 8 usable exits.","eng":"2 × CFM LEAP-1B","rec":"MAX features plus a door or plug outline behind the wing.","c":"high"},"757-200":{"n":"Boeing 757-200","f":"757","m":"Boeing","dp":3,"ow":"2 pairs Type III (overwing version)","ex":10,"en":"Certified two ways: 4 door pairs (8 exits, 239 max) or 3 door pairs + 2 overwing pairs (10 exits, 224 max). Check which your fleet uses.","eng":"2 × Rolls-Royce RB211-535 or Pratt & Whitney PW2000","rec":"Long narrowbody with a tall nose-up stance; big engines; often winglets.","c":"medium"},"757-300":{"n":"Boeing 757-300","f":"757","m":"Boeing","dp":4,"ow":"2 pairs Type III","ex":12,"en":"3 main door pairs, a smaller door pair behind the wing, and 2 overwing exits per side.","eng":"2 × Rolls-Royce RB211-535E4B or PW2043","rec":"Extremely long narrowbody; tail skid under the rear.","c":"medium"},"767-300ER":{"n":"Boeing 767-300ER","f":"767","m":"Boeing","dp":2,"ow":"2 pairs Type III (baseline)","ex":8,"en":"Several certified layouts (2 doors + 4 overwing, 3 doors + 2 overwing, or 4 door pairs). US fleets vary.","eng":"2 × GE CF6-80C2, PW4000 or Rolls-Royce RB211-524H","rec":"Twin-aisle 2-3-2 cabin; tall winglets on many US aircraft.","c":"medium"},"767-400ER":{"n":"Boeing 767-400ER","f":"767","m":"Boeing","dp":4,"ow":"none","ex":8,"en":"3 Type A door pairs plus a Type I exit pair behind the wing. Flown only by Delta and United.","eng":"2 × GE CF6-80C2","rec":"Long 767 with raked wingtips (no winglets).","c":"high"},"777-200":{"n":"Boeing 777-200/-200ER","f":"777","m":"Boeing","dp":4,"ow":"none","ex":8,"en":"Four Type A doors per side; door 3 over the wing.","eng":"2 × GE90, PW4000 or Rolls-Royce Trent 800","rec":"Huge round engines; 6-wheel main gear; blade-shaped tail cone.","c":"high"},"777-300ER":{"n":"Boeing 777-300ER","f":"777","m":"Boeing","dp":5,"ow":"none","ex":10,"en":"Five Type A doors per side.","eng":"2 × GE90-115B (only option)","rec":"Very long 777 with 5 doors per side; raked wingtips.","c":"high"},"787-8":{"n":"Boeing 787-8","f":"787","m":"Boeing","dp":4,"ow":"none","ex":8,"en":"Four Type A door pairs.","eng":"2 × GE GEnx-1B or Rolls-Royce Trent 1000","rec":"The shortest 787: stubby twin-aisle with 4-pane cockpit windows, flexing raked wingtips and sawtooth nacelles.","c":"high"},"787-9":{"n":"Boeing 787-9","f":"787","m":"Boeing","dp":4,"ow":"none","ex":8,"en":"Four Type A door pairs.","eng":"2 × GE GEnx-1B or Rolls-Royce Trent 1000","rec":"Mid-length 787: longer than the 787-8, shorter than the 787-10. Four-pane cockpit windows, raked wingtips.","c":"high"},"787-10":{"n":"Boeing 787-10","f":"787","m":"Boeing","dp":4,"ow":"none","ex":8,"en":"Four door pairs (assumed Type A).","eng":"2 × GE GEnx-1B or Rolls-Royce Trent 1000","rec":"The longest 787, yet still only 4 doors per side. Four-pane cockpit windows.","c":"medium"}};
+const FLEET_C = [["dl","A220-100","Airbus A220-100","221",109,[["Delta First",12],["Delta Comfort",20],["Delta Main",77]],"2-2 First, 2-3 Main","high",45],["dl","A220-300","Airbus A220-300","223",130,[["Delta First",12],["Delta Comfort",43],["Delta Main",75]],"2-2 First, 2-3 Main","high",42],["dl","A319","Airbus A319","319",132,[["Delta First",12],["Delta Comfort",24],["Delta Main",96]],"2-2 First, 3-3 Main","high",57],["dl","A320","Airbus A320","320",157,[["Delta First",16],["Delta Comfort",18],["Delta Main",123]],"2-2 First, 3-3 Main","high",43],["dl","A321ceo","Airbus A321","321",191,[["Delta First",20],["Delta Comfort",35],["Delta Main",136]],"2-2 First, 3-3 Main","high",127],["dl","A321neo","Airbus A321neo","3NE",194,[["Delta First",20],["Delta Comfort",60],["Delta Main",114]],"2-2 First, 3-3 Main","high",null],["dl","A321neo","Airbus A321neo","3NP (interim 44 First)",164,[["Delta First",44],["Delta Comfort",54],["Delta Main",66]],"2-2 First, 3-3 Main","medium",7],["dl","A330-200","Airbus A330-200","332",223,[["Delta One",34],["Delta Premium Select",21],["Delta Comfort",32],["Delta Main",136]],"1-2-1 Delta One, 2-4-2 Main","high",11],["dl","A330-300","Airbus A330-300","3M3",282,[["Delta One",34],["Delta Premium Select",21],["Delta Comfort",24],["Delta Main",203]],"1-2-1 Delta One, 2-4-2 Main","high",31],["dl","A330-900","Airbus A330-900neo","339",281,[["Delta One",29],["Delta Premium Select",28],["Delta Comfort",56],["Delta Main",168]],"1-2-1 Delta One, 2-4-2 Main","high",39],["dl","A350-900","Airbus A350-900","359",306,[["Delta One",32],["Delta Premium Select",48],["Delta Comfort",36],["Delta Main",190]],"1-2-1 Delta One, 3-3-3 Main","medium",null],["dl","A350-900","Airbus A350-900","35H",275,[["Delta One",40],["Delta Premium Select",40],["Delta Comfort",36],["Delta Main",159]],"1-2-1 Delta One, 3-3-3 Main","medium",null],["dl","717","Boeing 717","717",110,[["Delta First",12],["Delta Comfort",25],["Delta Main",73]],"2-2 First, 2-3 Main","high",80],["dl","737-800","Boeing 737-800","738",160,[["Delta First",16],["Delta Comfort",54],["Delta Main",90]],"2-2 First, 3-3 Main","high",77],["dl","737-900ER","Boeing 737-900ER","739",180,[["Delta First",20],["Delta Comfort",27],["Delta Main",133]],"2-2 First, 3-3 Main","medium",null],["dl","737-900ER","Boeing 737-900ER","73R",173,[["First Class",12],["Delta Comfort",24],["Delta Main",137]],"2-2 First, 3-3 Main","medium",21],["dl","737-900ER","Boeing 737-900ER","73J",180,[["Delta First",12],["Delta Comfort",6],["Delta Main",162]],"2-2 First, 3-3 Main","medium",12],["dl","757-200","Boeing 757-200","75S (Delta One transcon)",168,[["Delta One",16],["Delta Comfort",44],["Delta Main",108]],"Lie-flat Delta One, 3-3 Main","medium",12],["dl","757-200","Boeing 757-200","75G",193,[["Delta First",20],["Delta Comfort",53],["Delta Main",120]],"2-2 First, 3-3 Main","medium",6],["dl","757-200","Boeing 757-200","75D / 75H",199,[["Delta First",20],["Delta Comfort",35],["Delta Main",144]],"2-2 First, 3-3 Main","medium",46],["dl","757-300","Boeing 757-300","75Y",234,[["Delta First",24],["Delta Comfort",38],["Delta Main",172]],"2-2 First, 3-3 Main","high",16],["dl","767-300ER","Boeing 767-300ER","76K (international)",216,[["Delta One",26],["Delta Premium Select",18],["Delta Comfort",29],["Delta Main",143]],"1-2-1 Delta One, 2-3-2 Main","medium",32],["dl","767-300ER","Boeing 767-300ER","76L (domestic)",211,[["Delta One",36],["Delta Comfort",32],["Delta Main",143]],"Lie-flat Delta One, 2-3-2 Main","medium",5],["dl","767-400ER","Boeing 767-400ER","764",238,[["Delta One",34],["Delta Premium Select",20],["Delta Comfort",28],["Delta Main",156]],"1-2-1 Delta One, 2-3-2 Main","high",21],["ua","A319","Airbus A319","",126,[["United First",12],["Economy Plus",36],["United Economy",78]],"2-2 First, 3-3 economy","high",70],["ua","A320","Airbus A320","",150,[["United First",12],["Economy Plus",42],["United Economy",96]],"2-2 First, 3-3 economy","high",64],["ua","A321neo","Airbus A321neo","Domestic",200,[["United First",20],["Economy Plus",57],["United Economy",123]],"2-2 First, 3-3 economy","high",73],["ua","A321XLR","Airbus A321XLR","",150,[["United Polaris",20],["United Premium Plus",12],["Economy Plus",36],["United Economy",82]],"1-1 Polaris, 2-2 Premium Plus, 3-3 economy","medium",1],["ua","737-700","Boeing 737-700","",126,[["United First",12],["Economy Plus",36],["United Economy",78]],"2-2 First, 3-3 economy","high",40],["ua","737-800","Boeing 737-800","",166,[["United First",16],["Economy Plus",54],["United Economy",96]],"2-2 First, 3-3 economy","medium",141],["ua","737-900","Boeing 737-900","",179,[["United First",20],["Economy Plus",45],["United Economy",114]],"2-2 First, 3-3 economy","high",12],["ua","737-900ER","Boeing 737-900ER","",179,[["United First",20],["Economy Plus",45],["United Economy",114]],"2-2 First, 3-3 economy","high",136],["ua","737MAX8","Boeing 737 MAX 8","",166,[["United First",16],["Economy Plus",54],["United Economy",96]],"2-2 First, 3-3 economy","high",123],["ua","737MAX9","Boeing 737 MAX 9","",179,[["United First",20],["Economy Plus",45],["United Economy",114]],"2-2 First, 3-3 economy","high",174],["ua","757-200","Boeing 757-200","",176,[["United Polaris",16],["Economy Plus",42],["United Economy",118]],"2-2 lie-flat Polaris, 3-3 economy","medium",40],["ua","757-300","Boeing 757-300","",234,[["United First",24],["Economy Plus",54],["United Economy",156]],"2-2 First, 3-3 economy","high",21],["ua","767-300ER","Boeing 767-300ER","76L (high-premium)",167,[["United Polaris",46],["United Premium Plus",22],["Economy Plus",43],["United Economy",56]],"1-1-1 Polaris, 2-2-2 Premium Plus, 2-3-2 economy","medium",24],["ua","767-300ER","Boeing 767-300ER","76Q",203,[["United Polaris",30],["United Premium Plus",24],["Economy Plus",32],["United Economy",117]],"1-1-1 Polaris, 2-2-2 Premium Plus, 2-3-2 economy","low",13],["ua","767-400ER","Boeing 767-400ER","",231,[["United Polaris",34],["United Premium Plus",24],["Economy Plus",48],["United Economy",125]],"1-1-1 Polaris, 2-2-2 Premium Plus, 2-3-2 economy","high",16],["ua","777-200","Boeing 777-200","Domestic/Hawaii (77G/77M)",364,[["United First",28],["Economy Plus",102],["United Economy",234]],"3-4-3 economy","medium",19],["ua","777-200","Boeing 777-200ER","Domestic/Hawaii (77O)",362,[["United First",32],["Economy Plus",124],["United Economy",206]],"3-4-3 economy","medium",4],["ua","777-200","Boeing 777-200ER","International Polaris",276,[["United Polaris",50],["United Premium Plus",24],["Economy Plus",46],["United Economy",156]],"1-2-1 Polaris, 2-4-2 Premium Plus, 3-4-3 economy","high",51],["ua","777-300ER","Boeing 777-300ER","",350,[["United Polaris",60],["United Premium Plus",24],["Economy Plus",62],["United Economy",204]],"1-2-1 Polaris, 2-4-2 Premium Plus, 3-4-3 economy","high",22],["ua","787-8","Boeing 787-8","",243,[["United Polaris",28],["United Premium Plus",21],["Economy Plus",36],["United Economy",158]],"1-2-1 Polaris, 2-3-2 Premium Plus, 3-3-3 economy","high",12],["ua","787-9","Boeing 787-9","Standard Polaris",257,[["United Polaris",48],["United Premium Plus",21],["Economy Plus",39],["United Economy",149]],"1-2-1 Polaris, 2-3-2 Premium Plus, 3-3-3 economy","high",48],["ua","787-9","Boeing 787-9","United Elevated",222,[["United Polaris Studio",8],["United Polaris",56],["United Premium Plus",35],["Economy Plus",33],["United Economy",90]],"1-2-1 Polaris, 2-3-2 Premium Plus, 3-3-3 economy","medium",10],["ua","787-10","Boeing 787-10","",318,[["United Polaris",44],["United Premium Plus",21],["Economy Plus",54],["United Economy",199]],"1-2-1 Polaris, 2-3-2 Premium Plus, 3-3-3 economy","high",21],["aa","A319","Airbus A319","Legacy (8 First)",128,[["First",8],["Main Cabin Extra",24],["Main Cabin",96]],"2-2 First, 3-3 economy","high",null],["aa","A319","Airbus A319","Retrofit (12 First)",132,[["First",12],["Main Cabin Extra",24],["Main Cabin",96]],"2-2 First, 3-3 economy","high",null],["aa","A320","Airbus A320","",150,[["First",12],["Main Cabin Extra",18],["Main Cabin",120]],"2-2 First, 3-3 economy","high",48],["aa","A321ceo","Airbus A321","Standard",190,[["First",20],["Main Cabin Extra",35],["Main Cabin",135]],"2-2 First, 3-3 economy","high",203],["aa","A321ceo","Airbus A321","A321T (Transcon)",102,[["Flagship First",10],["Flagship Business",20],["Main Cabin Extra",36],["Main Cabin",36]],"1-1 First, 2-2 Business, 3-3 economy","high",null],["aa","A321neo","Airbus A321neo","",196,[["First",20],["Main Cabin Extra",35],["Main Cabin",141]],"2-2 First, 3-3 economy","high",74],["aa","A321XLR","Airbus A321XLR","",155,[["Flagship Suite",20],["Premium Economy",12],["Main Cabin Extra",12],["Main Cabin",111]],"1-1 Flagship Suite, 2-2 Premium Economy, 3-3 economy","medium",5],["aa","737-800","Boeing 737-800","",172,[["First",16],["Main Cabin Extra",24],["Main Cabin",132]],"2-2 First, 3-3 economy","high",303],["aa","737MAX8","Boeing 737 MAX 8","",172,[["First",16],["Main Cabin Extra",24],["Main Cabin",132]],"2-2 First, 3-3 economy","high",103],["aa","777-200","Boeing 777-200ER","",273,[["Flagship Business",37],["Premium Economy",24],["Main Cabin Extra",66],["Main Cabin",146]],"1-2-1 Business, 2-4-2 Premium Economy, 3-4-3 economy","high",47],["aa","777-300ER","Boeing 777-300ER","Legacy (Flagship First)",304,[["Flagship First",8],["Flagship Business",52],["Premium Economy",28],["Main Cabin Extra",28],["Main Cabin",188]],"1-2-1 First/Business, 2-4-2 Premium Economy, 3-4-3 economy","high",null],["aa","777-300ER","Boeing 777-300ER","Retrofit (Flagship Suite)",330,[["Flagship Suite",70],["Premium Economy",44],["Main Cabin Extra",30],["Main Cabin",186]],"","high",null],["aa","787-8","Boeing 787-8","",234,[["Flagship Business",20],["Premium Economy",28],["Main Cabin Extra",48],["Main Cabin",138]],"1-2-1 Business, 2-3-2 Premium Economy, 3-3-3 economy","high",37],["aa","787-9","Boeing 787-9","Standard",285,[["Flagship Business",30],["Premium Economy",21],["Main Cabin Extra",34],["Main Cabin",200]],"1-2-1 Business, 2-3-2 Premium Economy, 3-3-3 economy","high",22],["aa","787-9","Boeing 787-9","787-9P (Flagship Suite)",244,[["Flagship Suite Preferred",8],["Flagship Suite",43],["Premium Economy",32],["Main Cabin Extra",18],["Main Cabin",143]],"1-2-1 suites, 2-3-2 Premium Economy, 3-3-3 economy","high",11],["wn","737-700","Boeing 737-700","",137,[["Extra Legroom",42],["Preferred",null],["Standard",null]],"3-3, single cabin","medium",294],["wn","737-800","Boeing 737-800","",175,[["Extra Legroom",46],["Preferred",45],["Standard",84]],"3-3, single cabin","medium",196],["wn","737MAX8","Boeing 737 MAX 8","",175,[["Extra Legroom",46],["Preferred",45],["Standard",84]],"3-3, single cabin","medium",310]];
+
+// ---------- aircraft outlines and cabin plans ----------
+// Side-view drawings and top-down cabin plans, generated from measured reference geometry (see the Jumpseat Outlines page).
+const OUT = (() => {
+const SPECS = [{"key":"A220-100","code":"221","name":"Airbus A220-100","fam":"A220","ck":"a220","wl":"blended","doors":[[5.19,"C","1L"],[13.4,"III","OW"],[26.4,"C","2L"]],"win":1.1,"wing":[12.6,2.35,22.1,0.35],"meas":{"H":3.75,"gearH":1.76,"right":35.12,"c":{"noseTop":[[0,2.74],[0.14,1.84],[3.42,0],[5.4,0]],"noseBot":[[0,2.74],[0.2,3.52],[2.83,3.75],[2.93,3.75]],"tailBot":[[23.82,3.75],[24.94,3.75],[33.94,1.54],[35,1.17]],"end":35},"fin":{"h":6.1,"tipLE":32.54,"tipTE":34.26,"rootLE":27.06,"rootTE":34.26},"eng":{"x0":9.93,"x1":16.31,"bottom":5.04,"top":2.31},"wl":[23.31,-0.78],"gear":[3.4,16.7],"endBot":1.17},"facts":[["Exits","6 \u00b7 2 door pairs, overwing 1 pair Type III"],["Spot it","Huge engines for the fuselage size; 2-3 seating; no winglets. Fewer windows ahead of the overwing exit than the -300."],["Engines","2 \u00d7 Pratt & Whitney PW1500G (geared turbofan)"]],"L":35.12,"body":"narrow"},{"key":"A220-300","code":"223","name":"Airbus A220-300","fam":"A220","ck":"a220","wl":"blended","doors":[[5.07,"C","1L"],[15.5,"III","OW"],[30.0,"C","2L"]],"win":1.2,"wing":[15.9,2.1,24.4,0.45],"meas":{"H":3.75,"gearH":1.76,"right":38.82,"c":{"noseTop":[[0,2.74],[0.13,1.85],[3.39,0],[5.36,0]],"noseBot":[[0,2.74],[0.19,3.5],[2.75,3.75],[2.85,3.75]],"tailBot":[[27.52,3.75],[28.64,3.75],[37.29,1.66],[38.7,1.17]],"end":38.7},"fin":{"h":6.1,"tipLE":36.12,"tipTE":37.96,"rootLE":30.88,"rootTE":37.96},"eng":{"x0":11.96,"x1":18.61,"bottom":5.04,"top":2.31},"wl":[25.37,-0.78],"gear":[3.4,18.72],"endBot":1.17},"facts":[["Exits","6 \u00b7 2 door pairs, overwing 1 pair Type III"],["Spot it","Like the A220-100 but noticeably longer."],["Engines","2 \u00d7 Pratt & Whitney PW1500G"]],"L":38.82,"body":"narrow"},{"key":"A319","code":"319","name":"Airbus A319","fam":"A320","ck":"airbus","wl":"sharklet","doors":[[4.83,"C","1L"],[13.6,"III","OW"],[26.2,"C","2L"]],"win":1.43,"wing":[12.8,2.5,21.4,0.63],"meas":{"H":4.07,"gearH":1.97,"right":33.84,"c":{"noseTop":[[0,2.73],[0.08,2.22],[2.73,0],[5.12,0]],"noseBot":[[0,2.73],[0.24,3.71],[2.84,4.07],[2.94,4.07]],"tailBot":[[22.06,4.07],[24.81,4.07],[33.45,1.41],[33.84,1.34]],"end":33.84},"fin":{"h":5.87,"tipLE":31.16,"tipTE":33.09,"rootLE":26.2,"rootTE":33.09},"eng":{"x0":9.9,"x1":15.01,"bottom":5.41,"top":3.06},"wl":[23.06,-1.17],"gear":[5.05,16.63],"endBot":1.34},"facts":[["Exits","6 \u00b7 2 door pairs, overwing 1 pair Type III (typical US)"],["Spot it","Shortest A320-family jet; usually one overwing exit per side."],["Engines","2 \u00d7 CFM56-5 or IAE V2500"]],"L":33.84,"body":"narrow"},{"key":"A320","code":"320","name":"Airbus A320","fam":"A320","ck":"airbus","wl":"sharklet","doors":[[4.9,"C","1L"],[14.4,"III","OW"],[15.05,"III","OW"],[29.8,"C","2L"]],"win":1.4,"wing":[13.5,2.5,22.3,0.6],"meas":{"H":4.1,"gearH":1.92,"right":37.57,"c":{"noseTop":[[0,2.73],[0.03,2.55],[2.48,0],[5.31,0]],"noseBot":[[0,2.73],[0.25,3.75],[2.95,4.1],[3.05,4.1]],"tailBot":[[25.33,4.1],[28.19,4.1],[37.17,1.42],[37.57,1.34]],"end":37.57},"fin":{"h":5.85,"tipLE":34.85,"tipTE":36.82,"rootLE":30.01,"rootTE":36.82},"eng":{"x0":11.12,"x1":16.21,"bottom":5.43,"top":3.05},"wl":[24.28,-1.17],"gear":[5.06,17.84],"endBot":1.34},"facts":[["Exits","8 \u00b7 2 door pairs, overwing 2 pairs Type III"],["Spot it","Two overwing exits per side; wingtip fences (older) or sharklets."],["Engines","ceo: CFM56-5B or IAE V2500; neo: CFM LEAP-1A or PW1100G"]],"L":37.57,"body":"narrow"},{"key":"A321ceo","code":"321","name":"Airbus A321ceo","fam":"A320","ck":"airbus","wl":"sharklet","doors":[[4.92,"C","1L"],[13.8,"C","2L"],[24.45,"C","3L"],[36.5,"C","4L"]],"win":1.39,"wing":[17.2,2.6,27.1,0.43],"meas":{"H":4.18,"gearH":1.93,"right":44.51,"c":{"noseTop":[[0,2.75],[0.07,2.26],[2.96,0],[4.93,0]],"noseBot":[[0,2.75],[0.09,3.11],[3.45,4.18],[3.57,4.18]],"tailBot":[[31.83,4.18],[34.79,4.18],[44.09,1.43],[44.51,1.36]],"end":44.51},"fin":{"h":6.01,"tipLE":41.79,"tipTE":43.76,"rootLE":36.71,"rootTE":43.76},"eng":{"x0":15.17,"x1":20.38,"bottom":5.49,"top":3.1},"wl":[28.5,-1.22],"gear":[5.12,22],"endBot":1.36},"facts":[["Exits","8 \u00b7 4 door pairs, overwing none"],["Spot it","Long narrowbody with 4 doors per side and no overwing hatches."],["Engines","2 \u00d7 CFM56-5B or IAE V2500"]],"L":44.51,"body":"narrow"},{"key":"A321neo","code":"32Q","name":"Airbus A321neo","fam":"A320","ck":"airbus","wl":"sharklet","doors":[[4.9,"C","1L"],[18.9,"III","OW"],[19.7,"III","OW"],[27.1,"C","3L"],[36.6,"C","4L"]],"win":1.4,"wing":[16.4,2.6,26.6,0.45],"nozzle":true,"meas":{"H":4.18,"gearH":1.93,"right":44.51,"c":{"noseTop":[[0,2.79],[0.08,2.26],[2.81,0],[5.26,0]],"noseBot":[[0,2.79],[0.22,3.67],[3.18,4.18],[3.29,4.18]],"tailBot":[[31.83,4.18],[34.79,4.18],[44.09,1.43],[44.51,1.36]],"end":44.51},"fin":{"h":5.96,"tipLE":41.79,"tipTE":43.76,"rootLE":36.71,"rootTE":43.76},"eng":{"x0":15.21,"x1":20.38,"bottom":5.59,"top":3},"wl":[28.45,-1.17],"gear":[5.12,22],"endBot":1.36},"facts":[["Exits","10 \u00b7 3 door pairs, overwing 2 pairs Type III (Cabin Flex); one pair may be plugged"],["Spot it","Big neo engines and sharklets; no door just ahead of the wing; two overwing hatches per side."],["Engines","2 \u00d7 CFM LEAP-1A or PW1100G"]],"L":44.51,"body":"narrow"},{"key":"A321XLR","code":"XLR","name":"Airbus A321XLR","fam":"A320","ck":"airbus","wl":"sharklet","doors":[[4.9,"C","1L"],[18.9,"III","OW"],[19.7,"III","OW"],[27.1,"C","3L"],[36.6,"C","4L"]],"win":1.4,"wing":[16.4,2.6,26.6,0.45],"nozzle":true,"meas":{"H":4.18,"gearH":1.93,"right":44.51,"c":{"noseTop":[[0,2.79],[0.08,2.26],[2.81,0],[5.26,0]],"noseBot":[[0,2.79],[0.22,3.67],[3.18,4.18],[3.29,4.18]],"tailBot":[[31.83,4.18],[34.79,4.18],[44.09,1.43],[44.51,1.36]],"end":44.51},"fin":{"h":5.96,"tipLE":41.79,"tipTE":43.76,"rootLE":36.71,"rootTE":43.76},"eng":{"x0":15.21,"x1":20.38,"bottom":5.59,"top":3},"wl":[28.45,-1.17],"gear":[5.12,22],"endBot":1.36},"facts":[["Exits","Varies \u00b7 3 door pairs, overwing 2 pairs Type III (Cabin Flex; may be plugged)"],["Spot it","Outwardly identical to the A321neo Cabin Flex."],["Engines","2 \u00d7 CFM LEAP-1A or PW1100G"],["Note","Door use varies by airline; the Cabin Flex layout is shown."]],"L":44.51,"body":"narrow"},{"key":"A330-200","code":"332","name":"Airbus A330-200","fam":"A330","ck":"airbus","wl":"blended","doors":[[6.15,"A","1L"],[15.06,"A","2L"],[33.1,"I","3L"],[46.65,"A","4L"]],"win":2.02,"wing":[21.3,3.75,38.2,0.27],"meas":{"H":5.61,"gearH":2.43,"right":60.17,"c":{"noseTop":[[0,3.17],[0.07,2.71],[3.42,0],[6.83,0]],"noseBot":[[0,3.17],[0.33,4.51],[6.02,5.61],[6.69,5.61]],"tailBot":[[40.57,5.61],[43,5.61],[51.34,3.57],[58.82,1.01]],"end":58.82},"fin":{"h":9.13,"tipLE":56.99,"tipTE":60.17,"rootLE":47.81,"rootTE":60.17},"eng":{"x0":18.52,"x1":24.2,"bottom":7.03,"top":3.25},"wl":[36.98,-0.41],"gear":[6.79,27.99,29.95],"endBot":1.01},"facts":[["Exits","8 \u00b7 4 door pairs, overwing none (door 3 sits over the wing)"],["Spot it","Shorter A330; small winglets; small door 3 over the wing."],["Engines","2 \u00d7 GE CF6-80E1, PW4000 or Rolls-Royce Trent 700"]],"L":60.17,"body":"wide"},{"key":"A330-300","code":"333","name":"Airbus A330-300","fam":"A330","ck":"airbus","wl":"blended","doors":[[5.67,"A","1L"],[17.6,"A","2L"],[36.0,"I","3L"],[51.4,"A","4L"]],"win":1.91,"wing":[25.2,3.87,41.4,0.46],"meas":{"H":5.54,"gearH":2.4,"right":64.73,"c":{"noseTop":[[0,3.13],[0.07,2.67],[3.44,0],[6.87,0]],"noseBot":[[0,3.13],[0.38,4.66],[6.32,5.54],[6.54,5.54]],"tailBot":[[45.71,5.54],[48.7,5.54],[62.12,1.86],[63.66,0.93]],"end":63.66},"fin":{"h":8.41,"tipLE":61.26,"tipTE":64.53,"rootLE":52.98,"rootTE":64.53},"eng":{"x0":21.55,"x1":27.23,"bottom":6.94,"top":3.27},"wl":[41.97,-0.33],"gear":[6.71,30.93,32.83],"endBot":0.93},"facts":[["Exits","8 \u00b7 4 door pairs, overwing none (door 3 over wing)"],["Spot it","Long, slender A330; small winglets."],["Engines","2 \u00d7 GE CF6-80E1, PW4000 or Rolls-Royce Trent 700"]],"L":64.73,"body":"wide"},{"key":"A330-900","code":"339","name":"Airbus A330-900neo","fam":"A330","ck":"airbus","wl":"sharklet","doors":[[6.0,"A","1L"],[18.0,"A","2L"],[36.0,"I","3L"],[51.7,"A","4L"]],"win":1.91,"wing":[25.0,3.87,42.5,0.46],"meas":{"H":5.54,"gearH":2.4,"right":64.73,"c":{"noseTop":[[0,3.13],[0.03,2.9],[3.01,0],[6.94,0]],"noseBot":[[0,3.13],[0.38,4.66],[6.32,5.54],[6.54,5.54]],"tailBot":[[45.71,5.54],[48.7,5.54],[62.12,1.86],[63.66,0.93]],"end":63.66},"fin":{"h":8.41,"tipLE":61.26,"tipTE":64.53,"rootLE":52.98,"rootTE":64.53},"eng":{"x0":20.95,"x1":26.96,"bottom":7.21,"top":3.47},"wl":[41.97,-0.33],"gear":[6.71,30.96,32.83],"endBot":0.93},"facts":[["Exits","8 \u00b7 4 door pairs, overwing none (door 3 over wing)"],["Spot it","A330 body with big Trent 7000s and A350-style curved wingtips."],["Engines","2 \u00d7 Rolls-Royce Trent 7000 (only option)"]],"L":64.73,"body":"wide"},{"key":"A350-900","code":"359","name":"Airbus A350-900","fam":"A350","ck":"a350","wl":"sharklet","doors":[[6.8,"A","1L"],[18.9,"A","2L"],[38.0,"A","3L"],[52.7,"A","4L"]],"win":2.38,"wing":[26.1,5.1,45.1,-0.25],"meas":{"H":6.02,"gearH":2.45,"right":66.95,"c":{"noseTop":[[0,4.35],[0.04,4.11],[4.78,0],[7.17,0]],"noseBot":[[0,4.35],[0.12,4.85],[3.62,6.02],[3.74,6.02]],"tailBot":[[46,6.02],[48.77,6.02],[63.66,2.77],[66.8,1.3]],"end":66.8},"fin":{"h":8.54,"tipLE":63.75,"tipTE":66.95,"rootLE":55.37,"rootTE":66.95},"eng":{"x0":22.11,"x1":32.79,"bottom":8.01,"top":3.66},"wl":[45.83,-0.76],"gear":[6.9,31.57,33.51],"endBot":1.3},"facts":[["Exits","8 \u00b7 4 door pairs, overwing none"],["Spot it","Black 'raccoon mask' cockpit windows; sharply curved wingtips; 4-wheel main gear."],["Engines","2 \u00d7 Rolls-Royce Trent XWB-84 (only option)"]],"L":66.95,"body":"wide"},{"key":"717","code":"717","name":"Boeing 717","fam":"717","ck":"717","wl":null,"doors":[[4.4,"I","1L"],[16.6,"III","OW"],[17.4,"III","OW"],[32.7,"tail","Tailcone"]],"win":1.36,"wing":[13.5,3.0,22.4,2.15],"aft":true,"meas":{"H":3.57,"gearH":1.33,"right":37.8,"c":{"noseTop":[[0,2.54],[0.1,1.6],[2.9,0.05],[5.24,0]],"noseBot":[[0,2.54],[0.3,3.3],[1.8,3.57],[2.7,3.57]],"tailBot":[[23.0,3.57],[27.0,3.4],[31.0,2.1],[32.7,1.59]],"end":32.7},"fin":{"h":3.85,"tipLE":31.0,"tipTE":34.7,"rootLE":27.0,"rootTE":32.6},"eng":null,"wl":null,"gear":[2.2,18.9],"endBot":1.59},"facts":[["Exits","7 \u00b7 1 door pair, overwing 2 pairs Type III"],["Spot it","T-tail with two rear-mounted engines; 2-3 seating."],["Engines","2 \u00d7 Rolls-Royce BR715, mounted on the rear fuselage"]],"L":37.8,"body":"narrow"},{"key":"737-700","code":"73G","name":"Boeing 737-700","fam":"737","ck":"boeing","wl":"blended","doors":[[4.94,"I","1L"],[15.0,"III","OW"],[25.9,"I","2L"]],"win":1.45,"wing":[14.2,3.47,22.4,1.5],"flat":true,"meas":{"H":4.17,"gearH":1.29,"right":35.39,"c":{"noseTop":[[0,2.56],[0.06,2.17],[3.29,0],[5.8,0]],"noseBot":[[0,2.56],[0.26,3.59],[4.27,4.17],[4.42,4.17]],"tailBot":[[22.55,4.17],[22.92,4.17],[31.94,2.63],[33.63,1.2]],"end":33.63},"fin":{"h":6.96,"tipLE":32.69,"tipTE":34.23,"rootLE":26.67,"rootTE":34.23},"eng":{"x0":10.22,"x1":14.52,"bottom":5.03,"top":2.83},"wl":[24.1,-1.29],"gear":[3.99,16.75],"endBot":1.2},"facts":[["Exits","6 \u00b7 2 door pairs, overwing 1 pair Type III"],["Spot it","Short 737; flat-bottomed engine nacelles; single overwing hatch per side."],["Engines","2 \u00d7 CFM56-7B"]],"L":35.39,"body":"narrow"},{"key":"738","code":"738","name":"Boeing 737-800","fam":"737","ck":"boeing","wl":"blended","doors":[[5.0,"I","1L"],[16.9,"III","OW"],[17.9,"III","OW"],[31.7,"I","2L"]],"win":1.45,"wing":[14.8,3.55,25.1,1.55],"flat":true,"meas":{"H":4.22,"gearH":1.31,"right":41.29,"c":{"noseTop":[[0,2.59],[0.06,2.2],[3.53,0],[5.88,0]],"noseBot":[[0,2.59],[0.26,3.64],[4.34,4.22],[4.49,4.22]],"tailBot":[[28.26,4.22],[29.01,4.22],[37.78,2.67],[39.5,1.22]],"end":39.5},"fin":{"h":7.06,"tipLE":38.54,"tipTE":40.11,"rootLE":32.44,"rootTE":40.11},"eng":{"x0":13.15,"x1":17.51,"bottom":5.1,"top":2.87},"wl":[26.7,-1.09],"gear":[4.05,19.77],"endBot":1.22},"facts":[["Exits","8 \u00b7 2 door pairs, overwing 2 pairs Type III"],["Spot it","Two overwing hatches per side; flat-bottomed nacelles; blended or split winglets."],["Engines","2 \u00d7 CFM56-7B"]],"L":41.29,"body":"narrow"},{"key":"737-900","code":"739","name":"Boeing 737-900","fam":"737","ck":"boeing","wl":"blended","doors":[[5.12,"I","1L"],[18.85,"III","OW"],[19.5,"III","OW"],[34.2,"I","2L"]],"win":1.5,"wing":[18.55,3.39,28.9,1.5],"flat":true,"meas":{"H":4.2,"gearH":1.34,"right":43.87,"c":{"noseTop":[[0,2.6],[0.06,2.2],[3.43,0],[6.06,0]],"noseBot":[[0,2.6],[0.24,3.54],[3.92,4.2],[4.05,4.2]],"tailBot":[[31.33,4.2],[31.69,4.2],[40.8,2.81],[42.11,1.1]],"end":42.11},"fin":{"h":7.01,"tipLE":41.16,"tipTE":42.73,"rootLE":35.04,"rootTE":42.73},"eng":{"x0":14.69,"x1":19.08,"bottom":5.06,"top":2.86},"wl":[30.4,-1.1],"gear":[4.03,21.25],"endBot":1.1},"facts":[["Exits","8 \u00b7 2 door pairs, overwing 2 pairs Type III"],["Spot it","Long NG with no mid-cabin door."],["Engines","2 \u00d7 CFM56-7B"]],"L":43.87,"body":"narrow"},{"key":"737-900ER","code":"739","name":"Boeing 737-900ER","fam":"737","ck":"boeing","wl":"blended","doors":[[5.12,"I","1L"],[18.85,"III","OW"],[19.5,"III","OW"],[34.2,"I","2L"]],"plugs":[25.6],"win":1.5,"wing":[18.55,3.39,28.9,1.5],"flat":true,"meas":{"H":4.2,"gearH":1.34,"right":43.87,"c":{"noseTop":[[0,2.6],[0.06,2.2],[3.43,0],[6.06,0]],"noseBot":[[0,2.6],[0.24,3.54],[3.92,4.2],[4.05,4.2]],"tailBot":[[31.33,4.2],[31.69,4.2],[40.71,2.78],[42.11,1.14]],"end":42.11},"fin":{"h":7.01,"tipLE":41.16,"tipTE":42.73,"rootLE":35.04,"rootTE":42.73},"eng":{"x0":14.69,"x1":19.08,"bottom":5.06,"top":2.86},"wl":[28.47,-1.24],"gear":[4.03,21.25],"endBot":1.14},"facts":[["Exits","10 \u00b7 3 door pairs, overwing 2 pairs Type III"],["Spot it","Longest NG; extra small door (or plug outline) behind the wing."],["Engines","2 \u00d7 CFM56-7B"],["Note","Mid exit door behind the wing is plugged on US configurations at 189 seats or fewer."]],"L":43.87,"body":"narrow"},{"key":"737MAX8","code":"7M8","name":"Boeing 737 MAX 8","fam":"737 MAX","ck":"boeing","wl":"at","doors":[[5.03,"I","1L"],[16.7,"III","OW"],[17.7,"III","OW"],[31.35,"I","2L"]],"win":1.45,"wing":[14.8,3.55,24.6,1.55],"chevron":true,"meas":{"H":4.17,"gearH":1.42,"right":40.77,"c":{"noseTop":[[0,2.6],[0.06,2.2],[3.41,0],[6.02,0]],"noseBot":[[0,2.6],[0.24,3.55],[3.95,4.17],[4.09,4.17]],"tailBot":[[27.44,4.17],[28.25,4.17],[37.09,2.46],[39.52,1.03]],"end":39.52},"fin":{"h":6.97,"tipLE":38.06,"tipTE":39.61,"rootLE":32.04,"rootTE":39.61},"eng":{"x0":12.94,"x1":16.99,"bottom":5.07,"top":2.54},"wl":[26.27,-1.2],"gear":[4,19.52],"endBot":1.03},"facts":[["Exits","8 \u00b7 2 door pairs, overwing 2 pairs Type III"],["Spot it","Split-tip winglets; sawtooth (chevron) engine nacelle edges."],["Engines","2 \u00d7 CFM LEAP-1B"]],"L":40.77,"body":"narrow"},{"key":"737MAX9","code":"7M9","name":"Boeing 737 MAX 9","fam":"737 MAX","ck":"boeing","wl":"at","doors":[[5.18,"I","1L"],[18.4,"III","OW"],[19.5,"III","OW"],[33.9,"I","2L"]],"plugs":[26.0],"win":1.45,"wing":[16.8,3.55,26.6,1.55],"chevron":true,"meas":{"H":4.22,"gearH":1.44,"right":43.46,"c":{"noseTop":[[0,2.59],[0.08,2.02],[3.77,0],[5.66,0]],"noseBot":[[0,2.59],[0.25,3.61],[4.21,4.22],[4.36,4.22]],"tailBot":[[29.98,4.22],[30.39,4.22],[38.5,2.83],[42.16,1.06]],"end":42.16},"fin":{"h":7.1,"tipLE":40.72,"tipTE":42.26,"rootLE":34.58,"rootTE":42.26},"eng":{"x0":14.72,"x1":18.8,"bottom":5.13,"top":2.54},"wl":[28.25,-1.25],"gear":[4.05,21.37],"endBot":1.06},"facts":[["Exits","10 \u00b7 3 door pairs, overwing 2 pairs Type III"],["Spot it","MAX features plus a door or plug outline behind the wing."],["Engines","2 \u00d7 CFM LEAP-1B"],["Note","The mid-cabin exit behind the wing is a door plug at 179 seats (United, Alaska)."]],"L":43.46,"body":"narrow"},{"key":"757-200","code":"752","name":"Boeing 757-200","fam":"757","ck":"boeing","wl":"blended","doors":[[4.92,"I","1L"],[13.92,"I","2L"],[21.0,"III","OW"],[21.8,"III","OW"],[38.55,"I","4L"]],"win":1.45,"wing":[19.7,3.4,28.7,0.9],"meas":{"H":4.02,"gearH":2.46,"right":47.72,"c":{"noseTop":[[0,2.98],[0.05,2.62],[2.53,0],[5.43,0]],"noseBot":[[0,2.98],[0.2,3.78],[2.57,4.02],[2.66,4.02]],"tailBot":[[37.27,4.02],[37.61,4.02],[44.18,2.79],[47.32,1.61]],"end":47.32},"fin":{"h":7.18,"tipLE":45.21,"tipTE":47.72,"rootLE":38.27,"rootTE":47.72},"eng":{"x0":16.6,"x1":21.6,"bottom":5.63,"top":2.8},"wl":[29.84,-1.11],"gear":[5.93,23.81,24.99],"endBot":1.61},"facts":[["Exits","10 \u00b7 3 door pairs, overwing 2 pairs Type III (overwing version)"],["Spot it","Long narrowbody with a tall nose-up stance; big engines; often winglets."],["Engines","2 \u00d7 Rolls-Royce RB211-535 or Pratt & Whitney PW2000"],["Note","Overwing version shown. Some 757-200s have four door pairs instead."]],"L":47.72,"body":"narrow"},{"key":"757-300","code":"753","name":"Boeing 757-300","fam":"757","ck":"boeing","wl":"blended","doors":[[5.06,"I","1L"],[13.9,"I","2L"],[24.8,"III","OW"],[25.7,"III","OW"],[37.0,"I","3L"],[45.6,"I","4L"]],"win":1.52,"wing":[21.6,3.5,32.7,0.9],"meas":{"H":4.13,"gearH":2.53,"right":54.87,"c":{"noseTop":[[0,3.07],[0.06,2.7],[2.6,0],[5.57,0]],"noseBot":[[0,3.07],[0.18,3.77],[2.55,4.13],[2.64,4.13]],"tailBot":[[44.14,4.13],[44.48,4.13],[51.58,2.79],[54.47,1.66]],"end":54.47},"fin":{"h":7.35,"tipLE":52.29,"tipTE":54.87,"rootLE":45.29,"rootTE":54.87},"eng":{"x0":20.1,"x1":25.6,"bottom":5.6,"top":2.86},"wl":[33.58,-1.09],"gear":[6.11,27.52,28.73],"endBot":1.66},"facts":[["Exits","12 \u00b7 4 door pairs, overwing 2 pairs Type III"],["Spot it","Extremely long narrowbody; tail skid under the rear."],["Engines","2 \u00d7 Rolls-Royce RB211-535E4B or PW2043"]],"L":54.87,"body":"narrow"},{"key":"767-300ER","code":"76W","name":"Boeing 767-300ER","fam":"767","ck":"boeing","wl":"blended","doors":[[5.38,"A","1L"],[24.2,"III","OW"],[24.9,"III","OW"],[42.6,"A","2L"]],"win":1.92,"wing":[19.4,3.7,35.7,0.2],"meas":{"H":5.34,"gearH":1.88,"right":56.15,"c":{"noseTop":[[0,3.16],[0.13,2.27],[3.56,0],[5.34,0]],"noseBot":[[0,3.16],[0.35,4.58],[4.57,5.34],[4.73,5.34]],"tailBot":[[39.96,5.34],[41.46,5.34],[47.26,4.07],[54.94,1.88]],"end":54.94},"fin":{"h":9.22,"tipLE":53.61,"tipTE":56.15,"rootLE":44.51,"rootTE":56.15},"eng":{"x0":18.37,"x1":23.71,"bottom":6.55,"top":3.09},"wl":[36.93,-1.7],"gear":[4.58,26.89,28.47],"endBot":1.88},"facts":[["Exits","8 \u00b7 2 door pairs, overwing 2 pairs Type III (baseline)"],["Spot it","Twin-aisle 2-3-2 cabin; tall winglets on many US aircraft."],["Engines","2 \u00d7 GE CF6-80C2, PW4000 or Rolls-Royce RB211-524H"],["Note","Baseline layout shown: two door pairs plus four overwing exits. US fleets vary."]],"L":56.15,"body":"wide"},{"key":"767-400ER","code":"764","name":"Boeing 767-400ER","fam":"767","ck":"boeing","wl":"raked","doors":[[5.5,"A","1L"],[19.1,"A","2L"],[33.2,"I","3L"],[48.8,"A","4L"]],"win":1.81,"wing":[22.4,3.8,39.7,0.3],"meas":{"H":5.41,"gearH":1.89,"right":62.59,"c":{"noseTop":[[0,3.18],[0.13,2.31],[3.65,0],[5.21,0]],"noseBot":[[0,3.18],[0.36,4.62],[4.48,5.41],[4.8,5.41]],"tailBot":[[46.01,5.41],[47.03,5.41],[58.07,3.23],[61.37,1.83]],"end":61.37},"fin":{"h":9.41,"tipLE":60.02,"tipTE":62.59,"rootLE":50.68,"rootTE":62.59},"eng":{"x0":21.72,"x1":27.2,"bottom":6.63,"top":3.11},"wl":[44.45,-0.54],"gear":[4.63,30.35,32.04],"endBot":1.83},"facts":[["Exits","8 \u00b7 4 door pairs, overwing none"],["Spot it","Long 767 with raked wingtips (no winglets)."],["Engines","2 \u00d7 GE CF6-80C2"]],"L":62.59,"body":"wide"},{"key":"777-200","code":"772","name":"Boeing 777-200/-200ER","fam":"777","ck":"boeing","wl":null,"doors":[[6.78,"A","1L"],[17.2,"A","2L"],[36.9,"A","3L"],[50.4,"A","4L"]],"win":2.6,"wing":[26.6,5.1,43.5,1.0],"meas":{"H":6.28,"gearH":2.93,"right":65.4,"c":{"noseTop":[[0,3.73],[0.29,1.78],[6.97,0],[8.37,0]],"noseBot":[[0,3.73],[0.39,5.31],[6.53,6.28],[6.76,6.28]],"tailBot":[[46.79,6.28],[47.92,6.28],[63.17,2.66],[63.73,2.58]],"end":63.73},"fin":{"h":9.48,"tipLE":61.08,"tipTE":64.08,"rootLE":52.16,"rootTE":64.08},"eng":{"x0":20.71,"x1":26.57,"bottom":7.95,"top":3.97},"wl":null,"gear":[6.1,30.09,31.69,33.29],"endBot":2.58},"facts":[["Exits","8 \u00b7 4 door pairs, overwing none"],["Spot it","Huge round engines; 6-wheel main gear; blade-shaped tail cone."],["Engines","2 \u00d7 GE90, PW4000 or Rolls-Royce Trent 800"]],"L":65.4,"body":"wide"},{"key":"777-300ER","code":"77W","name":"Boeing 777-300ER","fam":"777","ck":"boeing","wl":"raked","doors":[[6.9,"A","1L"],[17.1,"A","2L"],[33.2,"A","3L"],[46.7,"A","4L"],[60.3,"A","5L"]],"win":2.61,"wing":[31.9,5.1,49.7,0.8],"meas":{"H":6.34,"gearH":2.94,"right":75.48,"c":{"noseTop":[[0,3.75],[0.32,1.59],[7.57,0],[8.11,0]],"noseBot":[[0,3.75],[0.43,5.46],[7.1,6.34],[7.34,6.34]],"tailBot":[[56.79,6.34],[57.36,6.34],[72.8,2.96],[73.86,2.55]],"end":73.86},"fin":{"h":9.58,"tipLE":71.08,"tipTE":74.09,"rootLE":62.12,"rootTE":74.09},"eng":{"x0":25.73,"x1":31.52,"bottom":7.96,"top":4.02},"wl":[54.24,-0.46],"gear":[6.18,35.19,36.78,38.4],"endBot":2.55},"facts":[["Exits","10 \u00b7 5 door pairs, overwing none"],["Spot it","Very long 777 with 5 doors per side; raked wingtips."],["Engines","2 \u00d7 GE90-115B (only option)"]],"L":75.48,"body":"wide"},{"key":"787-8","code":"788","name":"Boeing 787-8","fam":"787","ck":"787","wl":"raked","doors":[[6.19,"A","1L"],[15.5,"A","2L"],[33.6,"A","3L"],[44.1,"A","4L"]],"win":2.1,"wing":[23.6,4.5,40.5,-0.23],"chevron":true,"meas":{"H":5.99,"gearH":2.17,"right":57.6,"c":{"noseTop":[[0,4.29],[0.13,3.42],[3.48,0],[8.69,0]],"noseBot":[[0,4.29],[0.33,5.62],[5.51,5.99],[5.7,5.99]],"tailBot":[[37.99,5.99],[44.86,5.99],[54.31,3.06],[56.72,2.41]],"end":56.72},"fin":{"h":8.81,"tipLE":55.25,"tipTE":56.9,"rootLE":45.03,"rootTE":56.9},"eng":{"x0":18.26,"x1":23.9,"bottom":7.22,"top":3.29},"wl":[40.34,-0.23],"gear":[5.26,28.07,29.59],"endBot":2.41},"facts":[["Exits","8 \u00b7 4 door pairs, overwing none"],["Spot it","4-pane cockpit windows; flexing raked wingtips; sawtooth nacelles."],["Engines","2 \u00d7 GE GEnx-1B or Rolls-Royce Trent 1000"]],"L":57.6,"body":"wide"},{"key":"789","code":"789","name":"Boeing 787-9","fam":"787","ck":"787","wl":"raked","doors":[[6.4,"A","1L"],[18.7,"A","2L"],[36.1,"A","3L"],[50.8,"A","4L"]],"win":2.2,"wing":[26.1,4.25,43.0,0.2],"chevron":true,"meas":{"H":6.0,"gearH":2.1,"right":64.1,"c":{"noseTop":[[0,4.26],[0.12,3.37],[7.0,0.05],[13.26,0]],"noseBot":[[0,4.26],[0.35,5.5],[4.6,6.0],[7.93,6.0]],"tailBot":[[44.0,6.0],[50.0,5.9],[60.0,3.2],[62.81,1.27]],"end":62.81},"fin":{"h":8.5,"tipLE":61.3,"tipTE":63.2,"rootLE":51.0,"rootTE":61.4},"eng":{"x0":19.3,"x1":28.6,"bottom":7.15,"top":3.45},"wl":null,"gear":[5.2,31.4,32.6],"endBot":1.27},"facts":[["Exits","8 \u00b7 4 door pairs, overwing none"],["Spot it","Like the 787-8 but longer."],["Engines","2 \u00d7 GE GEnx-1B or Rolls-Royce Trent 1000"]],"L":64.1,"body":"wide"},{"key":"787-10","code":"781","name":"Boeing 787-10","fam":"787","ck":"787","wl":"raked","doors":[[6.2,"A","1L"],[21.8,"A","2L"],[39.0,"A","3L"],[56.0,"A","4L"]],"win":2.01,"wing":[29.3,4.15,47.2,-0.23],"chevron":true,"meas":{"H":6.01,"gearH":2.05,"right":69.16,"c":{"noseTop":[[0,4.21],[0.19,2.93],[4.36,0],[7.69,0]],"noseBot":[[0,4.21],[0.21,5.07],[6.24,6.01],[6.45,6.01]],"tailBot":[[51.8,6.01],[53.45,6.01],[64.72,3.78],[68.28,2.34]],"end":68.28},"fin":{"h":8.86,"tipLE":66.45,"tipTE":68.35,"rootLE":56.63,"rootTE":68.35},"eng":{"x0":24.69,"x1":30.26,"bottom":7.18,"top":3.22},"wl":[46.74,-0.29],"gear":[5.27,34.47,35.97],"endBot":2.34},"facts":[["Exits","8 \u00b7 4 door pairs, overwing none"],["Spot it","Longest 787, still only 4 doors per side."],["Engines","2 \u00d7 GE GEnx-1B or Rolls-Royce Trent 1000"]],"L":69.16,"body":"wide"}];
+// ---------- geometry ----------
+// Coordinates in meters: x aft from the nose tip, y down from the fuselage crown (0) to the belly (H).
+const f2 = n => +(+n).toFixed(3);
+const EXIT = { A:[1.07,1.93], C:[.9,1.85], I:[.84,1.83], III:[.51,.92], tail:[0,0] };
+const bezPt = (P, t) => { const u = 1-t; return [u*u*u*P[0][0]+3*u*u*t*P[1][0]+3*u*t*t*P[2][0]+t*t*t*P[3][0], u*u*u*P[0][1]+3*u*u*t*P[1][1]+3*u*t*t*P[2][1]+t*t*t*P[3][1]]; };
+function curveY(P, x){   // y on a Bezier at a given x (curve is monotonic in x)
+  let prev = bezPt(P, 0);
+  for (let i = 1; i <= 200; i++){ const q = bezPt(P, i/200); if (q[0] >= x) { const k = (x - prev[0])/((q[0]-prev[0]) || 1); return prev[1] + k*(q[1]-prev[1]); } prev = q; }
+  return prev[1];
+}
+// Windshield: four corners (lower-front, upper-front, upper-rear, lower-rear) as fractions of the nose length and
+// fuselage height, plus pane dividers. Shapes follow the earlier hand-placed windows the user preferred.
+const COCKPIT = {
+  boeing:{q:[[.25,.31],[.32,.22],[.5,.19],[.51,.29]], div:[.36,.68]},
+  '717':{q:[[.5,.3],[.56,.19],[.74,.17],[.73,.29]], div:[.4,.72]},
+  airbus:{q:[[.27,.37],[.35,.27],[.6,.25],[.61,.37]], div:[.36,.66]},
+  a220:{q:[[.27,.37],[.35,.27],[.58,.25],[.59,.37]], div:[.4,.72]},
+  '787':{q:[[.2,.46],[.25,.38],[.4,.36],[.41,.45]], div:[.5]},
+  a350:{q:[[.22,.45],[.28,.36],[.46,.34],[.47,.45]], div:[.5], mask:true} };
+
+function buildPlane(s){
+  const m = s.meas, c = m.c, H = m.H, end = c.end, L = s.L, wide = H > 5;
+  const fin = {...m.fin}; fin.fillX = fin.rootLE - .07*L; fin.rootTE = Math.min(fin.rootTE, end + .2); fin.tTail = !!s.aft;
+  const endBot = m.endBot, endTop = s.aft ? .95 : Math.max(.2, endBot*.72);
+  let stab;
+  if (s.aft) stab = {rootLE:30.9, rootY:-3.55, tipLE:36.3, tipTE:37.8, tipY:-3.35, rootTE:34.6, t:.42};
+  else { const tipTE = Math.max(m.right, end + .6); stab = {rootLE:fin.rootLE + .42*(end - fin.rootLE), rootY:.24*H, tipTE, tipLE:tipTE - Math.max(.9, .028*L), tipY:.13*H, rootTE:end - .25, t:.06*H}; }
+  const [rLE, rY, tLE, tY] = s.wing, span = tLE - rLE;
+  const wing = {rootLE:rLE, rootY:rY, tipLE:tLE, tipY:tY, rootTE:rLE + .62*span, tipTE:tLE + Math.max(1, .03*L)};
+  let let_ = null;
+  if (s.wl === 'raked') wing.tipTE = Math.max(wing.tipTE + .06*L, m.wl ? m.wl[0] + .3 : 0), wing.raked = true;
+  else if (s.wl && m.wl) { const ch = Math.max(.55, .017*L); let_ = {type:s.wl, topX:Math.max(m.wl[0] - ch*.6, tLE + .5), topY:Math.min(m.wl[1], tY - Math.max(1.1, .022*L)), chord:ch}; }
+  wing.let = let_;
+  const ground = H + m.gearH;
+  let eng;
+  if (s.aft) eng = {aft:true, x:23.0, l:5.7, d:1.7, cy:1.45, plug:.6};
+  else { const e = m.eng, tot = e.x1 - e.x0; const dd = e.bottom - e.top; eng = {x:e.x0, l:Math.max(tot*(s.chevron ? .86 : .8), dd*1.55), plug:Math.max(.5, tot*.2), d:e.bottom - e.top, clr:Math.max(.25, ground - e.bottom), flat:!!s.flat, chevron:!!s.chevron, nozzle:s.nozzle ? tot*.16 : 0}; }
+  const mains = m.gear.slice(1), main = mains.length ? mains.reduce((a,b)=>a+b,0)/mains.length : rLE + .7*span;
+  const gear = {nose:m.gear[0], main, wheels:Math.min(3, Math.max(1, mains.length)), r: wide ? .62 : .5, spacing: mains.length > 1 ? (mains[mains.length-1]-mains[0])/(mains.length-1) : 0};
+  const doors = s.doors.map(([x,t,lab]) => ({x, t, lab}));
+  const pitch = s.fam === '787' ? .68 : s.fam === 'A350' ? .55 : s.fam === '717' ? .48 : .52;
+  const win = {y:s.win, pitch, w: s.fam==='787' ? .33 : wide ? .29 : .26, h: s.fam==='787' ? .56 : wide ? .46 : .38,
+               from: doors[0].x + 1.1, to: doors.filter(d=>d.t!=='tail').slice(-1)[0].x - .9};
+  const seams = [doors[0].x + 1.6, rLE - .8, wing.rootTE + 1.2, fin.rootLE - .4].filter((v,i,a)=>a.indexOf(v)===i);
+  return { key:s.key, code:s.code, name:s.name, fam:s.fam, L, end, H, gearH:m.gearH, ground, c, endTop, endBot, fin, stab, wing,
+    fairing:[rLE - .6, wing.rootTE + 1.8, .06*H], eng, gear, win, doors, plugs:s.plugs || [], seams,
+    antennas:[[.22*end,'top'],[.56*end,'top'],[.3*end,'bot']], ck:COCKPIT[s.ck], facts:s.facts, right:Math.max(L, stab.tipTE, wing.tipTE) };
+}
+
+// ---------- drawing ----------
+function spline(pts){ let d = ""; for (let i = 0; i < pts.length - 1; i++){ const p0 = pts[i-1] || pts[i], p1 = pts[i], p2 = pts[i+1], p3 = pts[i+2] || p2;
+  d += `C${f2(p1[0]+(p2[0]-p0[0])/6)},${f2(p1[1]+(p2[1]-p0[1])/6)} ${f2(p2[0]-(p3[0]-p1[0])/6)},${f2(p2[1]-(p3[1]-p1[1])/6)} ${f2(p2[0])},${f2(p2[1])} `; } return d; }
+function fuselagePath(p){
+  const {c, end, endTop} = p, nt = c.noseTop, nb = c.noseBot, tb = c.tailBot;
+  const ttop = [[end - (end - p.fin.rootLE)*.55, 0], [end - (end - p.fin.rootLE)*.2, endTop*.45], [end, endTop]];
+  const C3 = (a,b,d) => `C${a[0]},${a[1]} ${b[0]},${b[1]} ${d[0]},${d[1]} `;
+  return `M${nt[0][0]},${nt[0][1]} ` + C3(nt[1], nt[2], nt[3]) + `L${ttop[0][0]},0 ` + spline(ttop) +
+         `L${tb[3][0]},${tb[3][1]} ` + C3(tb[2], tb[1], tb[0]) + `L${nb[3][0]},${nb[3][1]} ` + C3(nb[2], nb[1], nb[0]) + "Z";
+}
+function finSvg(p){
+  const f = p.fin, h = f.h;
+  const d = `M${f2(f.fillX)},0 C${f2((f.fillX+f.rootLE)/2)},0 ${f2(f.rootLE-.4)},${f2(-h*.04)} ${f2(f.rootLE)},${f2(-h*.08)} L${f.tipLE},${-h} L${f.tipTE},${-h} L${f2(f.rootTE)},${f.tTail ? p.endTop : -.05} Z`;
+  const hx0 = f.rootTE - (f.rootTE - f.rootLE)*.3, hx1 = f.tipTE - (f.tipTE - f.tipLE)*.45;
+  return `<path class="part" d="${d}"/><path class="det" d="M${f2(hx0)},${f2(-h*.1)} L${f2(hx1)},${f2(-h*.95)}"/>`;
+}
+function stabSvg(p){
+  const s = p.stab, th = s.t;
+  return `<path class="part" d="M${f2(s.rootLE)},${f2(s.rootY)} L${f2(s.tipLE)},${f2(s.tipY)} L${f2(s.tipTE)},${f2(s.tipY+.05)} L${f2(s.rootTE)},${f2(s.rootY+th)} Z"/>` +
+         `<path class="det" d="M${f2(s.rootLE+(s.rootTE-s.rootLE)*.7)},${f2(s.rootY+th*.8)} L${f2(s.tipLE+(s.tipTE-s.tipLE)*.4)},${f2(s.tipY+.04)}"/>`;
+}
+function wingSvg(p){
+  const w = p.wing, H = p.H; let s = "";
+  const [fa, fb, fd] = p.fairing;
+  s += `<path class="part" d="M${f2(fa)},${f2(H-.1)} C${f2(fa+1)},${f2(H+fd)} ${f2(fb-2)},${f2(H+fd*1.1)} ${f2(fb)},${f2(H-.1)} Z"/>`;
+  const teR = w.rootY + .45, teT = w.tipY + .04;
+  let d = `M${w.rootLE},${w.rootY} C${f2(w.rootLE+(w.tipLE-w.rootLE)*.35)},${f2(w.rootY-(w.rootY-w.tipY)*.45)} ${f2(w.tipLE-(w.tipLE-w.rootLE)*.25)},${f2(w.tipY+.1)} ${w.tipLE},${w.tipY} `;
+  d += `L${f2(w.tipTE)},${f2(w.raked ? w.tipY - .08 : teT)} L${f2(w.rootTE)},${f2(teR)} C${f2(w.rootTE-1.2)},${f2(teR+.1)} ${f2(w.rootLE+.6)},${f2(w.rootY+.3)} ${w.rootLE},${w.rootY} Z`;
+  s += `<path class="part" d="${d}"/>`;
+  const teY = x => teR + (x - w.rootTE)/(w.tipTE - w.rootTE)*(teT - teR);
+  [.18, .48, .78].forEach((f, i) => { const fx = w.rootTE + (w.tipTE - w.rootTE)*f, y = teY(fx), len = (2.2 - i*.35)*H/4, dep = (.38 - i*.06)*H/4;
+    s += `<path class="part" d="M${f2(fx-len*.55)},${f2(y-.08)} C${f2(fx-len*.3)},${f2(y+dep)} ${f2(fx+len*.25)},${f2(y+dep)} ${f2(fx+len*.45)},${f2(y+.02)} Z"/>`; });
+  s += `<path class="det" d="M${f2(w.rootTE-2.2)},${f2(w.rootY+.3)} L${f2(w.tipTE-1)},${f2(w.tipY+.12)}"/>`;
+  const l = w.let;
+  if (l && l.type === "blended") s += `<path class="part" d="M${f2(w.tipLE-.3)},${f2(w.tipY+.05)} C${f2(w.tipLE+.1)},${f2(w.tipY-.6)} ${f2(l.topX-.6)},${f2(l.topY+.6)} ${f2(l.topX)},${f2(l.topY)} L${f2(l.topX+l.chord)},${f2(l.topY)} C${f2(l.topX+.2)},${f2(l.topY+.9)} ${f2(w.tipTE)},${f2(w.tipY-.4)} ${f2(w.tipTE)},${f2(w.tipY+.05)} Z"/>`;
+  if (l && (l.type === "sharklet" || l.type === "at")) s += `<path class="part" d="M${f2(w.tipLE-.2)},${f2(w.tipY+.05)} Q${f2(w.tipLE+.9)},${f2(w.tipY-.2)} ${f2(l.topX)},${f2(l.topY)} L${f2(l.topX+l.chord)},${f2(l.topY+.05)} Q${f2(w.tipTE+.2)},${f2(w.tipY-.6)} ${f2(w.tipTE)},${f2(w.tipY+.05)} Z"/>`;
+  if (l && l.type === "at") s += `<path class="part" d="M${f2(w.tipTE-.6)},${f2(w.tipY+.05)} L${f2(w.tipTE+.3)},${f2(w.tipY+.75)} L${f2(w.tipTE+.6)},${f2(w.tipY+.72)} L${f2(w.tipTE+.15)},${f2(w.tipY)} Z"/>`;
+  return s;
+}
+function engineSvg(p){
+  const e = p.eng, r = e.d/2, x = e.x, l = e.l; let s = "";
+  if (e.aft) {
+    const cy = e.cy;
+    s += `<path class="part" d="M${x+l*.35},${cy+r*.55} L${x+l*.8},${cy+r*.55} L${x+l*.75},${cy+r*1.05} L${x+l*.42},${cy+r*1.05} Z"/>`;
+    s += `<path class="part" d="M${x+.15},${cy-r} L${x+l*.86},${cy-r*.95} Q${x+l},${cy-r*.6} ${x+l},${cy-r*.35} L${x+l},${cy+r*.4} Q${x+l},${cy+r*.75} ${x+l*.86},${cy+r*.9} L${x+.15},${cy+r} Q${x-.12},${cy} ${x+.15},${cy-r} Z"/>`;
+    s += `<path class="det" d="M${x+.55},${cy-r*.97} Q${x+.4},${cy} ${x+.55},${cy+r*.97}"/><path class="det" d="M${x+l*.62},${cy-r*.97} L${x+l*.62},${cy+r*.93}"/>`;
+    return s + `<path class="part" d="M${x+l},${cy-r*.3} L${x+l+e.plug},${cy-r*.12} L${x+l+e.plug},${cy+r*.18} L${x+l},${cy+r*.35} Z"/>`;
+  }
+  const cy = p.ground - e.clr - r, top = cy - r, bot = cy + r, fb = e.flat ? bot - r*.18 : bot;
+  const w = p.wing, wingY = xx => w.rootY + (xx - w.rootLE)/(w.tipLE - w.rootLE)*(w.tipY - w.rootY);
+  const pyTop = Math.min(top - .25, wingY(x + l*.45) + .15), aftX = x + l + p.H*.45;
+  s += `<path class="part" d="M${f2(x+l*.38)},${f2(top+.05)} L${f2(x+l*.5)},${f2(pyTop)} L${f2(aftX-.6)},${f2(Math.min(top, wingY(aftX-.6)+.35))} Q${f2(aftX)},${f2(top+r*.15)} ${f2(x+l*.92)},${f2(top+r*.32)} L${f2(x+l*.8)},${f2(top+.08)} Z"/>`;
+  const lip = Math.min(.32, l*.07);
+  s += `<path class="part" d="M${f2(x+lip)},${f2(top)} L${f2(x+l*.78)},${f2(top+r*.04)} Q${f2(x+l)},${f2(top+r*.25)} ${f2(x+l)},${f2(cy-r*.35)} L${f2(x+l)},${f2(cy+r*.4)} Q${f2(x+l)},${f2(fb-r*.12)} ${f2(x+l*.78)},${f2(fb)} L${f2(x+lip)},${f2(fb+(e.flat? r*.1:0))} Q${f2(x-.15)},${f2(cy)} ${f2(x+lip)},${f2(top)} Z"/>`;
+  s += `<path class="det" d="M${f2(x+lip+.12)},${f2(top+.04)} Q${f2(x+.02)},${f2(cy)} ${f2(x+lip+.12)},${f2(fb+(e.flat?r*.08:0)-.04)}"/>`;
+  s += `<path class="det" d="M${f2(x+l*.42)},${f2(top+.02)} L${f2(x+l*.42)},${f2(fb+(e.flat?r*.06:0)-.02)}"/>`;
+  const ex = x + l;
+  if (e.chevron) { let c = `M${f2(ex)},${f2(cy-r*.42)} `; for (let i=0;i<7;i++){ const y0 = cy - r*.42 + i*(r*.84/7); c += `L${f2(ex+.38)},${f2(y0+r*.84/14)} L${f2(ex)},${f2(y0+r*.84/7)} `; } s += `<path class="part" d="${c}Z"/>`; }
+  else if (e.nozzle) s += `<path class="part" d="M${f2(ex)},${f2(cy-r*.45)} L${f2(ex+e.nozzle)},${f2(cy-r*.32)} L${f2(ex+e.nozzle)},${f2(cy+r*.32)} L${f2(ex)},${f2(cy+r*.45)} Z"/>`;
+  const px0 = ex + (e.chevron ? .35 : (e.nozzle || 0));
+  return s + `<path class="part" d="M${f2(px0)},${f2(cy-r*.22)} L${f2(px0+e.plug)},${f2(cy)} L${f2(px0)},${f2(cy+r*.22)} Z"/>`;
+}
+function gearSvg(p){
+  const g = p.gear, H = p.H, ground = p.ground; let s = "";
+  const strut = (x, r, y0) => `<path class="gearp" d="M${f2(x-.11)},${f2(y0)} L${f2(x+.11)},${f2(y0)} L${f2(x+.09)},${f2(ground-r)} L${f2(x-.09)},${f2(ground-r)} Z"/>`;
+  const wheel = (x, r) => `<circle class="tyre" cx="${f2(x)}" cy="${f2(ground-r)}" r="${r}"/><circle class="hub" cx="${f2(x)}" cy="${f2(ground-r)}" r="${f2(r*.45)}"/>`;
+  const nr = g.r*.72;
+  s += strut(g.nose, nr, H-.2) + `<path class="gearp" d="M${f2(g.nose-.55)},${f2(H+.05)} L${f2(g.nose-.12)},${f2(H+.05)} L${f2(g.nose-.18)},${f2(H+.75)} L${f2(g.nose-.5)},${f2(H+.6)} Z"/>` + wheel(g.nose, nr);
+  s += strut(g.main, g.r, H-.1) + `<path class="gearp" d="M${f2(g.main+.15)},${f2(H+.05)} L${f2(g.main+.7)},${f2(H+.05)} L${f2(g.main+.6)},${f2(H+.9)} L${f2(g.main+.18)},${f2(H+.95)} Z"/>`;
+  if (g.wheels > 1) { const sp = Math.max(g.spacing, g.r*2.15); for (let i = 0; i < g.wheels; i++) s += wheel(g.main + (i - (g.wheels-1)/2)*sp, g.r); }
+  else s += wheel(g.main, g.r);
+  return s;
+}
+function exitRect(p, e){
+  if (e.t === "tail") return {x:p.end-1.9, y:p.endTop-.1, w:1.85, h:p.endBot-p.endTop+.9, tail:true};
+  const [w, h] = EXIT[e.t];
+  return {x:e.x - w/2, y:p.win.y - h*(e.t === "III" ? .5 : .44), w, h};
+}
+function windowsSvg(p){
+  const W = p.win, blocks = [...p.doors.filter(e=>e.t!=='tail').map(e=>[e.x, EXIT[e.t][0]]), ...p.plugs.map(x=>[x, .84])];
+  const clear = x => !blocks.some(([bx, bw]) => Math.abs(bx - x) < bw/2 + W.pitch*.75);
+  let s = ""; for (let x = W.from; x <= W.to; x += W.pitch) if (clear(x)) s += `<rect class="win" x="${f2(x - W.w/2)}" y="${f2(W.y - W.h/2)}" width="${W.w}" height="${W.h}" rx="${f2(W.w*.42)}"/>`;
+  return s;
+}
+function doorsSvg(p){
+  let s = p.doors.filter(e => e.t !== "tail").map(e => {
+    const R = exitRect(p, e), rr = Math.min(R.w, R.h)*.2;
+    let d = `<rect class="door" x="${f2(R.x)}" y="${f2(R.y)}" width="${R.w}" height="${R.h}" rx="${f2(rr)}"/>`;
+    if (e.t !== "III") d += `<rect class="win" x="${f2(e.x - .1)}" y="${f2(R.y + R.h*.2)}" width=".2" height=".26" rx=".09"/><path class="det" d="M${f2(e.x-.18)},${f2(R.y+R.h*.55)} L${f2(e.x+.18)},${f2(R.y+R.h*.55)}"/>`;
+    else d += `<rect class="win" x="${f2(e.x - p.win.w/2)}" y="${f2(p.win.y - p.win.h/2)}" width="${p.win.w}" height="${p.win.h}" rx="${f2(p.win.w*.42)}"/>`;
+    return d; }).join("");
+  // plugged door: outline only, dashed
+  p.plugs.forEach(x => { const R = {x:x-.42, y:p.win.y - 1.83*.44, w:.84, h:1.83}; s += `<rect class="plug" x="${f2(R.x)}" y="${f2(R.y)}" width="${R.w}" height="${R.h}" rx=".17"/>`; });
+  return s;
+}
+function detailsSvg(p, clipId){
+  const H = p.H; let s = `<g clip-path="url(#${clipId})">`;
+  p.seams.forEach(x => s += `<path class="det" d="M${f2(x)},.05 L${f2(x)},${f2(H-.05)}"/>`);
+  s += `<path class="det" d="M${p.c.noseTop[3][0]},${f2(H*.66)} L${p.c.tailBot[0][0]},${f2(H*.66)}"/></g>`;
+  p.antennas.forEach(([x, w]) => s += w==="top" ? `<path class="part" d="M${f2(x)},0 L${f2(x+.25)},-.45 L${f2(x+.42)},-.45 L${f2(x+.55)},0 Z"/>` : `<path class="part" d="M${f2(x)},${H} L${f2(x+.15)},${f2(H+.35)} L${f2(x+.3)},${f2(H+.35)} L${f2(x+.4)},${H} Z"/>`);
+  return s;
+}
+// Windshield: template corners, nudged down where needed so the upper edge stays inside the nose curve, then clipped.
+function cockpitSvg(p, clipId){
+  const ck = p.ck, nt = p.c.noseTop, X = nt[3][0], H = p.H;
+  const pts = ck.q.map(([fx, fy]) => { const x = fx*X; return [x, Math.max(fy*H, curveY(nt, x) + .045*H)]; });
+  const [lf, uf, ur, lr] = pts;
+  if (lf[1] < uf[1] + .07*H) lf[1] = uf[1] + .07*H;  // keep a visible pane height after nudging
+  if (lr[1] < ur[1] + .07*H) lr[1] = ur[1] + .07*H;
+  const poly = [lf, uf, ur, lr].map((q,i) => (i ? "L" : "M") + f2(q[0]) + "," + f2(q[1])).join(" ") + " Z";
+  let s = `<g clip-path="url(#${clipId})">`;
+  if (ck.mask) s += `<path class="mask" d="${poly}"/>`;
+  s += `<path class="cock" d="${poly}"/>`;
+  ck.div.forEach(t => { const ux = uf[0] + (ur[0]-uf[0])*t, uy = uf[1] + (ur[1]-uf[1])*t, lx = lf[0] + (lr[0]-lf[0])*t, ly = lf[1] + (lr[1]-lf[1])*t;
+    s += `<path class="pane" d="M${f2(ux)},${f2(uy)} L${f2(lx)},${f2(ly)}"/>`; });
+  return s + `</g>`;
+}
+
+let svgSeq = 0;
+// mode: "spot" (exits unmarked), "exits" (labeled), "find" (exits hidden; found/missed passed in)
+function planeSvg(p, mode, state = {}){
+  const H = p.H, ground = p.ground, fs = Math.max(1.05, p.end*.03), id = `c${++svgSeq}`;
+  const topY = -(p.fin.h + (p.fin.tTail ? .4 : .3)), pad = 1.0;
+  const vb = `${-pad} ${f2(topY - .3)} ${f2(p.right + pad*2)} ${f2(ground + .3 - topY + .3)}`;
+  const fus = fuselagePath(p);
+  let g = `<defs><clipPath id="${id}"><path d="${fus}"/></clipPath><linearGradient id="g${id}" x1="0" y1="0" x2="0" y2="1"><stop offset=".55" stop-color="var(--shade)" stop-opacity="0"/><stop offset="1" stop-color="var(--shade)" stop-opacity=".55"/></linearGradient></defs>`;
+  g += `<line class="ground" x1="${-pad}" y1="${f2(ground)}" x2="${f2(p.right+pad)}" y2="${f2(ground)}"/>`;
+  g += `<ellipse class="shadow" cx="${f2(p.end*.48)}" cy="${f2(ground)}" rx="${f2(p.end*.45)}" ry=".18"/>`;
+  g += gearSvg(p) + finSvg(p);
+  g += `<path class="part body" d="${fus}"/><path d="${fus}" fill="url(#g${id})" stroke="none"/>`;
+  g += detailsSvg(p, id) + windowsSvg(p) + doorsSvg(p) + cockpitSvg(p, id);
+  g += stabSvg(p) + wingSvg(p) + engineSvg(p);
+  if (mode === "exits" || mode === "find") p.doors.forEach((e, i) => {
+    const R = exitRect(p, e), cls = mode==="exits" ? "exit" : state.found?.has(i) ? "exit found" : state.reveal ? "exit missed" : null;
+    if (!cls) return;
+    g += R.tail ? `<path class="${cls}" d="M${f2(R.x)},${f2(R.y)} L${f2(p.end-.05)},${f2(R.y)} L${f2(p.end-.05)},${f2(R.y+R.h*.7)} L${f2(R.x+.3)},${f2(R.y+R.h)} Z" opacity=".9"/>`
+                : `<rect class="${cls}" x="${f2(R.x)}" y="${f2(R.y)}" width="${R.w}" height="${R.h}" rx="${f2(Math.min(R.w,R.h)*.2)}"/>`;
+  });
+  if (mode === "exits") {
+    const groups = [];
+    p.doors.forEach(e => { const last = groups[groups.length-1]; if (e.t==="III" && last && last.t==="III" && e.x - last.x2 < 3) last.x2 = e.x; else groups.push({t:e.t, lab:e.lab, x:e.x, x2:e.x}); });
+    groups.forEach(gr => {
+      const under = gr.t==="tail" || gr.x > p.fin.rootLE - .5, x = gr.t==="tail" ? p.end - .3 : (gr.x + gr.x2)/2;
+      const y = under ? (gr.t==="tail" ? p.endBot + fs*1.6 : H + fs*1.05) : -fs*.45;
+      g += `<text class="tag" x="${f2(x)}" y="${f2(y)}" font-size="${f2(fs)}" stroke-width="${f2(fs*.22)}" text-anchor="${gr.t==="tail" ? "end" : "middle"}">${gr.lab}</text>`;
+    });
+    p.plugs.forEach(x => g += `<text class="tag dim" x="${f2(x)}" y="${f2(-fs*.45)}" font-size="${f2(fs*.8)}" stroke-width="${f2(fs*.2)}" text-anchor="middle">plug</text>`);
+  }
+  if (mode === "find") {
+    p.doors.forEach((e, i) => { const R = exitRect(p, e), m = 1.0; g += `<rect class="hit" data-i="${i}" x="${f2(R.x-m)}" y="${f2(R.y-m)}" width="${f2(R.w+m*2)}" height="${f2(R.h+m*2)}"/>`; });
+    (state.misses || []).forEach(([x,y]) => g += `<circle class="miss-dot" cx="${f2(x)}" cy="${f2(y)}" r="${f2(H*.16)}"/>`);
+  }
+  return `<svg viewBox="${vb}" role="img" aria-label="${p.name} side view" class="line">${g}</svg>`;
+}
+const PLANES = SPECS.map(buildPlane), byKey = Object.fromEntries(PLANES.map(p => [p.key, p]));
+const CONFIGS = {"A220-100":[{"air":"Delta","cfg":"221","seats":109,"cabins":[["Delta First",12],["Delta Comfort",20],["Delta Main",77]],"layout":"2-2 First, 2-3 Main","count":45,"conf":"high"}],"A220-300":[{"air":"Delta","cfg":"223","seats":130,"cabins":[["Delta First",12],["Delta Comfort",43],["Delta Main",75]],"layout":"2-2 First, 2-3 Main","count":42,"conf":"high"}],"A319":[{"air":"Delta","cfg":"319","seats":132,"cabins":[["Delta First",12],["Delta Comfort",24],["Delta Main",96]],"layout":"2-2 First, 3-3 Main","count":57,"conf":"high"},{"air":"United","cfg":null,"seats":126,"cabins":[["United First",12],["Economy Plus",36],["United Economy",78]],"layout":"2-2 First, 3-3 economy","count":70,"conf":"high"},{"air":"American","cfg":"Legacy (8 First)","seats":128,"cabins":[["First",8],["Main Cabin Extra",24],["Main Cabin",96]],"layout":"2-2 First, 3-3 economy","count":null,"conf":"high"},{"air":"American","cfg":"Retrofit (12 First)","seats":132,"cabins":[["First",12],["Main Cabin Extra",24],["Main Cabin",96]],"layout":"2-2 First, 3-3 economy","count":null,"conf":"high"}],"A320":[{"air":"Delta","cfg":"320","seats":157,"cabins":[["Delta First",16],["Delta Comfort",18],["Delta Main",123]],"layout":"2-2 First, 3-3 Main","count":43,"conf":"high"},{"air":"United","cfg":null,"seats":150,"cabins":[["United First",12],["Economy Plus",42],["United Economy",96]],"layout":"2-2 First, 3-3 economy","count":64,"conf":"high"},{"air":"American","cfg":null,"seats":150,"cabins":[["First",12],["Main Cabin Extra",18],["Main Cabin",120]],"layout":"2-2 First, 3-3 economy","count":48,"conf":"high"}],"A321ceo":[{"air":"Delta","cfg":"321","seats":191,"cabins":[["Delta First",20],["Delta Comfort",35],["Delta Main",136]],"layout":"2-2 First, 3-3 Main","count":127,"conf":"high"},{"air":"American","cfg":"Standard","seats":190,"cabins":[["First",20],["Main Cabin Extra",35],["Main Cabin",135]],"layout":"2-2 First, 3-3 economy","count":203,"conf":"high"},{"air":"American","cfg":"A321T (Transcon)","seats":102,"cabins":[["Flagship First",10],["Flagship Business",20],["Main Cabin Extra",36],["Main Cabin",36]],"layout":"1-1 First, 2-2 Business, 3-3 economy","count":null,"conf":"high"}],"A321neo":[{"air":"Delta","cfg":"3NE","seats":194,"cabins":[["Delta First",20],["Delta Comfort",60],["Delta Main",114]],"layout":"2-2 First, 3-3 Main","count":null,"conf":"high"},{"air":"Delta","cfg":"3NP (interim 44 First)","seats":164,"cabins":[["Delta First",44],["Delta Comfort",54],["Delta Main",66]],"layout":"2-2 First, 3-3 Main","count":7,"conf":"medium"},{"air":"United","cfg":"Domestic","seats":200,"cabins":[["United First",20],["Economy Plus",57],["United Economy",123]],"layout":"2-2 First, 3-3 economy","count":73,"conf":"high"},{"air":"American","cfg":null,"seats":196,"cabins":[["First",20],["Main Cabin Extra",35],["Main Cabin",141]],"layout":"2-2 First, 3-3 economy","count":74,"conf":"high"}],"A330-200":[{"air":"Delta","cfg":"332","seats":223,"cabins":[["Delta One",34],["Delta Premium Select",21],["Delta Comfort",32],["Delta Main",136]],"layout":"1-2-1 Delta One, 2-4-2 Main","count":11,"conf":"high"}],"A330-300":[{"air":"Delta","cfg":"3M3","seats":282,"cabins":[["Delta One",34],["Delta Premium Select",21],["Delta Comfort",24],["Delta Main",203]],"layout":"1-2-1 Delta One, 2-4-2 Main","count":31,"conf":"high"}],"A330-900":[{"air":"Delta","cfg":"339","seats":281,"cabins":[["Delta One",29],["Delta Premium Select",28],["Delta Comfort",56],["Delta Main",168]],"layout":"1-2-1 Delta One, 2-4-2 Main","count":39,"conf":"high"}],"A350-900":[{"air":"Delta","cfg":"359","seats":306,"cabins":[["Delta One",32],["Delta Premium Select",48],["Delta Comfort",36],["Delta Main",190]],"layout":"1-2-1 Delta One, 3-3-3 Main","count":null,"conf":"medium"},{"air":"Delta","cfg":"35H","seats":275,"cabins":[["Delta One",40],["Delta Premium Select",40],["Delta Comfort",36],["Delta Main",159]],"layout":"1-2-1 Delta One, 3-3-3 Main","count":null,"conf":"medium"}],"717":[{"air":"Delta","cfg":"717","seats":110,"cabins":[["Delta First",12],["Delta Comfort",25],["Delta Main",73]],"layout":"2-2 First, 2-3 Main","count":80,"conf":"high"}],"738":[{"air":"Delta","cfg":"738","seats":160,"cabins":[["Delta First",16],["Delta Comfort",54],["Delta Main",90]],"layout":"2-2 First, 3-3 Main","count":77,"conf":"high"},{"air":"United","cfg":null,"seats":166,"cabins":[["United First",16],["Economy Plus",54],["United Economy",96]],"layout":"2-2 First, 3-3 economy","count":141,"conf":"medium"},{"air":"American","cfg":null,"seats":172,"cabins":[["First",16],["Main Cabin Extra",24],["Main Cabin",132]],"layout":"2-2 First, 3-3 economy","count":303,"conf":"high"},{"air":"Southwest","cfg":null,"seats":175,"cabins":[["Extra Legroom",46],["Preferred",45],["Standard",84]],"layout":"3-3, single cabin","count":196,"conf":"medium"}],"737-900ER":[{"air":"Delta","cfg":"739","seats":180,"cabins":[["Delta First",20],["Delta Comfort",27],["Delta Main",133]],"layout":"2-2 First, 3-3 Main","count":null,"conf":"medium"},{"air":"Delta","cfg":"73R","seats":173,"cabins":[["First Class",12],["Delta Comfort",24],["Delta Main",137]],"layout":"2-2 First, 3-3 Main","count":21,"conf":"medium"},{"air":"Delta","cfg":"73J","seats":180,"cabins":[["Delta First",12],["Delta Comfort",6],["Delta Main",162]],"layout":"2-2 First, 3-3 Main","count":12,"conf":"medium"},{"air":"United","cfg":null,"seats":179,"cabins":[["United First",20],["Economy Plus",45],["United Economy",114]],"layout":"2-2 First, 3-3 economy","count":136,"conf":"high"}],"757-200":[{"air":"Delta","cfg":"75S (Delta One transcon)","seats":168,"cabins":[["Delta One",16],["Delta Comfort",44],["Delta Main",108]],"layout":"Lie-flat Delta One, 3-3 Main","count":12,"conf":"medium"},{"air":"Delta","cfg":"75G","seats":193,"cabins":[["Delta First",20],["Delta Comfort",53],["Delta Main",120]],"layout":"2-2 First, 3-3 Main","count":6,"conf":"medium"},{"air":"Delta","cfg":"75D / 75H","seats":199,"cabins":[["Delta First",20],["Delta Comfort",35],["Delta Main",144]],"layout":"2-2 First, 3-3 Main","count":46,"conf":"medium"},{"air":"United","cfg":null,"seats":176,"cabins":[["United Polaris",16],["Economy Plus",42],["United Economy",118]],"layout":"2-2 lie-flat Polaris, 3-3 economy","count":40,"conf":"medium"}],"757-300":[{"air":"Delta","cfg":"75Y","seats":234,"cabins":[["Delta First",24],["Delta Comfort",38],["Delta Main",172]],"layout":"2-2 First, 3-3 Main","count":16,"conf":"high"},{"air":"United","cfg":null,"seats":234,"cabins":[["United First",24],["Economy Plus",54],["United Economy",156]],"layout":"2-2 First, 3-3 economy","count":21,"conf":"high"}],"767-300ER":[{"air":"Delta","cfg":"76K (international)","seats":216,"cabins":[["Delta One",26],["Delta Premium Select",18],["Delta Comfort",29],["Delta Main",143]],"layout":"1-2-1 Delta One, 2-3-2 Main","count":32,"conf":"medium"},{"air":"Delta","cfg":"76L (domestic)","seats":211,"cabins":[["Delta One",36],["Delta Comfort",32],["Delta Main",143]],"layout":"Lie-flat Delta One, 2-3-2 Main","count":5,"conf":"medium"},{"air":"United","cfg":"76L (high-premium)","seats":167,"cabins":[["United Polaris",46],["United Premium Plus",22],["Economy Plus",43],["United Economy",56]],"layout":"1-1-1 Polaris, 2-2-2 Premium Plus, 2-3-2 economy","count":24,"conf":"medium"},{"air":"United","cfg":"76Q","seats":203,"cabins":[["United Polaris",30],["United Premium Plus",24],["Economy Plus",32],["United Economy",117]],"layout":"1-1-1 Polaris, 2-2-2 Premium Plus, 2-3-2 economy","count":13,"conf":"low"}],"767-400ER":[{"air":"Delta","cfg":"764","seats":238,"cabins":[["Delta One",34],["Delta Premium Select",20],["Delta Comfort",28],["Delta Main",156]],"layout":"1-2-1 Delta One, 2-3-2 Main","count":21,"conf":"high"},{"air":"United","cfg":null,"seats":231,"cabins":[["United Polaris",34],["United Premium Plus",24],["Economy Plus",48],["United Economy",125]],"layout":"1-1-1 Polaris, 2-2-2 Premium Plus, 2-3-2 economy","count":16,"conf":"high"}],"A321XLR":[{"air":"United","cfg":null,"seats":150,"cabins":[["United Polaris",20],["United Premium Plus",12],["Economy Plus",36],["United Economy",82]],"layout":"1-1 Polaris, 2-2 Premium Plus, 3-3 economy","count":1,"conf":"medium"},{"air":"American","cfg":null,"seats":155,"cabins":[["Flagship Suite",20],["Premium Economy",12],["Main Cabin Extra",12],["Main Cabin",111]],"layout":"1-1 Flagship Suite, 2-2 Premium Economy, 3-3 economy","count":5,"conf":"medium"}],"737-700":[{"air":"United","cfg":null,"seats":126,"cabins":[["United First",12],["Economy Plus",36],["United Economy",78]],"layout":"2-2 First, 3-3 economy","count":40,"conf":"high"}],"737-900":[{"air":"United","cfg":null,"seats":179,"cabins":[["United First",20],["Economy Plus",45],["United Economy",114]],"layout":"2-2 First, 3-3 economy","count":12,"conf":"high"}],"737MAX8":[{"air":"United","cfg":null,"seats":166,"cabins":[["United First",16],["Economy Plus",54],["United Economy",96]],"layout":"2-2 First, 3-3 economy","count":123,"conf":"high"},{"air":"American","cfg":null,"seats":172,"cabins":[["First",16],["Main Cabin Extra",24],["Main Cabin",132]],"layout":"2-2 First, 3-3 economy","count":103,"conf":"high"},{"air":"Southwest","cfg":null,"seats":175,"cabins":[["Extra Legroom",46],["Preferred",45],["Standard",84]],"layout":"3-3, single cabin","count":310,"conf":"medium"}],"737MAX9":[{"air":"United","cfg":null,"seats":179,"cabins":[["United First",20],["Economy Plus",45],["United Economy",114]],"layout":"2-2 First, 3-3 economy","count":174,"conf":"high"}],"777-200":[{"air":"United","cfg":"Domestic/Hawaii (77G/77M)","seats":364,"cabins":[["United First",28],["Economy Plus",102],["United Economy",234]],"layout":"3-4-3 economy","count":19,"conf":"medium"},{"air":"United","cfg":"Domestic/Hawaii (77O)","seats":362,"cabins":[["United First",32],["Economy Plus",124],["United Economy",206]],"layout":"3-4-3 economy","count":4,"conf":"medium"},{"air":"United","cfg":"International Polaris","seats":276,"cabins":[["United Polaris",50],["United Premium Plus",24],["Economy Plus",46],["United Economy",156]],"layout":"1-2-1 Polaris, 2-4-2 Premium Plus, 3-4-3 economy","count":51,"conf":"high"},{"air":"American","cfg":null,"seats":273,"cabins":[["Flagship Business",37],["Premium Economy",24],["Main Cabin Extra",66],["Main Cabin",146]],"layout":"1-2-1 Business, 2-4-2 Premium Economy, 3-4-3 economy","count":47,"conf":"high"}],"777-300ER":[{"air":"United","cfg":null,"seats":350,"cabins":[["United Polaris",60],["United Premium Plus",24],["Economy Plus",62],["United Economy",204]],"layout":"1-2-1 Polaris, 2-4-2 Premium Plus, 3-4-3 economy","count":22,"conf":"high"},{"air":"American","cfg":"Legacy (Flagship First)","seats":304,"cabins":[["Flagship First",8],["Flagship Business",52],["Premium Economy",28],["Main Cabin Extra",28],["Main Cabin",188]],"layout":"1-2-1 First/Business, 2-4-2 Premium Economy, 3-4-3 economy","count":null,"conf":"high"},{"air":"American","cfg":"Retrofit (Flagship Suite)","seats":330,"cabins":[["Flagship Suite",70],["Premium Economy",44],["Main Cabin Extra",30],["Main Cabin",186]],"layout":null,"count":null,"conf":"high"}],"787-8":[{"air":"United","cfg":null,"seats":243,"cabins":[["United Polaris",28],["United Premium Plus",21],["Economy Plus",36],["United Economy",158]],"layout":"1-2-1 Polaris, 2-3-2 Premium Plus, 3-3-3 economy","count":12,"conf":"high"},{"air":"American","cfg":null,"seats":234,"cabins":[["Flagship Business",20],["Premium Economy",28],["Main Cabin Extra",48],["Main Cabin",138]],"layout":"1-2-1 Business, 2-3-2 Premium Economy, 3-3-3 economy","count":37,"conf":"high"}],"789":[{"air":"United","cfg":"Standard Polaris","seats":257,"cabins":[["United Polaris",48],["United Premium Plus",21],["Economy Plus",39],["United Economy",149]],"layout":"1-2-1 Polaris, 2-3-2 Premium Plus, 3-3-3 economy","count":48,"conf":"high"},{"air":"United","cfg":"United Elevated","seats":222,"cabins":[["United Polaris Studio",8],["United Polaris",56],["United Premium Plus",35],["Economy Plus",33],["United Economy",90]],"layout":"1-2-1 Polaris, 2-3-2 Premium Plus, 3-3-3 economy","count":10,"conf":"medium"},{"air":"American","cfg":"Standard","seats":285,"cabins":[["Flagship Business",30],["Premium Economy",21],["Main Cabin Extra",34],["Main Cabin",200]],"layout":"1-2-1 Business, 2-3-2 Premium Economy, 3-3-3 economy","count":22,"conf":"high"},{"air":"American","cfg":"787-9P (Flagship Suite)","seats":244,"cabins":[["Flagship Suite Preferred",8],["Flagship Suite",43],["Premium Economy",32],["Main Cabin Extra",18],["Main Cabin",143]],"layout":"1-2-1 suites, 2-3-2 Premium Economy, 3-3-3 economy","count":11,"conf":"high"}],"787-10":[{"air":"United","cfg":null,"seats":318,"cabins":[["United Polaris",44],["United Premium Plus",21],["Economy Plus",54],["United Economy",199]],"layout":"1-2-1 Polaris, 2-3-2 Premium Plus, 3-3-3 economy","count":21,"conf":"high"}]};
+// ---------- cabin plan (top-down) ----------
+// Example layouts from Jumpseat's fleet data. Rows are generic (count, pitch, abreast), not an airline's exact seat map.
+// groups: seats per block across the cabin, left to right; sw: seat width (m); depth: seat depth (m); pitch (m)
+// Outer fuselage width (m) and default seat patterns by family, used where a configuration's layout note doesn't give one.
+const FAM = {
+  "A220":   {W:3.7,  flat:[2,2],   first:[2,2],   pe:[2,3],   eco:[2,3]},
+  "A320":   {W:3.95, flat:[1,1],   first:[2,2],   pe:[2,2],   eco:[3,3]},
+  "717":    {W:3.34, flat:[2,2],   first:[2,2],   pe:[2,3],   eco:[2,3]},
+  "737":    {W:3.76, flat:[2,2],   first:[2,2],   pe:[3,3],   eco:[3,3]},
+  "737 MAX":{W:3.76, flat:[2,2],   first:[2,2],   pe:[3,3],   eco:[3,3]},
+  "757":    {W:3.76, flat:[2,2],   first:[2,2],   pe:[3,3],   eco:[3,3]},
+  "767":    {W:5.03, flat:[1,1,1], first:[1,2,1], pe:[2,2,2], eco:[2,3,2]},
+  "A330":   {W:5.64, flat:[1,2,1], first:[1,2,1], pe:[2,3,2], eco:[2,4,2]},
+  "A350":   {W:5.96, flat:[1,2,1], first:[1,2,1], pe:[2,4,2], eco:[3,3,3]},
+  "777":    {W:6.19, flat:[1,2,1], first:[2,4,2], pe:[2,4,2], eco:[3,4,3]},
+  "787":    {W:5.77, flat:[1,2,1], first:[1,2,1], pe:[2,3,2], eco:[3,3,3]} };
+const CABIN_W = new Proxy({}, {get: (_, k) => { const p = byKey[k]; return p ? FAM[p.fam].W : undefined; }});
+const LAYOUTS = CABIN_W;   // every type with configurations has a cabin plan
+
+// Seat class from the airline's own cabin name
+function seatClass(name){
+  const n = name.toLowerCase();
+  if (/polaris|delta one|flagship|suite|business/.test(n)) return "flat";
+  if (/premium/.test(n)) return "pe";
+  if (/first/.test(n)) return "first";
+  if (/comfort|extra|plus/.test(n)) return "plus";   // Southwest "Preferred" is standard legroom, just farther forward
+  return "eco";
+}
+const CLASS_DIM = { flat:{depth:1.0, pitch:1.15, maxsw:.9, tint:"prem"}, first:{depth:.62, pitch:.96, maxsw:.66, tint:"prem"},
+  pe:{depth:.6, pitch:.96, maxsw:.52, tint:"plus"}, plus:{depth:.5, pitch:.86, maxsw:.47, tint:"plus"}, eco:{depth:.5, pitch:.79, maxsw:.47, tint:""} };
+const CLASS_LABEL = {flat:"Lie-flat", first:"First", pe:"Premium economy", plus:"Extra legroom", eco:"Economy"};
+
+// Build a cabin layout from one airline configuration: seats per class, abreast pattern per class, rows rounded up
+// (a short last row holds the remainder). Patterns come from the configuration's layout note, e.g. "1-2-1 Polaris, 3-3-3 economy".
+function layoutFromConfig(p, cfg){
+  const F = FAM[p.fam], W = F.W, wide = W > 5, aisle = wide ? .5 : .48, inner = W - (wide ? .7 : .5);
+  // segments of the layout note, e.g. "1-2-1 Polaris, 2-3-2 Premium Plus, 3-3-3 economy"
+  const segs = (cfg.layout || "").split(",").map(t => { const m = t.match(/\d(?:-\d)+/); return {pat: m ? m[0].split("-").map(Number) : null, label: t.toLowerCase()}; }).filter(x => x.pat);
+  const generic = new Set(["delta","united","flagship","cabin","class","seats"]);
+  const cabins = cfg.cabins.map(([name, seats]) => {
+    const cls = seatClass(name), words = name.toLowerCase().split(/\s+/).filter(w => w.length > 3 && !generic.has(w));
+    // economy-type cabins only match plain economy segments, never "premium economy" or "premium plus"
+    const pool = (cls === "plus" || cls === "eco") ? segs.filter(sg => !/premium|first|one|polaris|business|suite|flat/.test(sg.label)) : segs;
+    let seg = pool.find(sg => words.some(w => sg.label.includes(w)));
+    if (!seg && (cls === "flat" || cls === "first")) seg = segs.find(sg => /first|one|polaris|business|suite|flat/.test(sg.label));
+    if (!seg && cls === "pe") seg = segs.find(sg => /premium/.test(sg.label));
+    if (!seg && (cls === "plus" || cls === "eco")) seg = pool[pool.length - 1] || null;
+    const pat = seg ? seg.pat : F[cls === "plus" ? "eco" : cls];
+    const abreast = pat.reduce((a,b)=>a+b,0), D = CLASS_DIM[cls];
+    const sw = Math.min(D.maxsw, (inner - (pat.length-1)*aisle)/abreast);
+    const rows = Math.ceil(seats/abreast), lastRow = seats - (rows-1)*abreast;
+    return {name, seats, cls, groups:pat, abreast, sw, depth:D.depth, pitch:D.pitch, rows, lastRow, tint:D.tint};
+  });
+  return {W, cabins, who:`${cfg.air}${cfg.cfg ? " · " + cfg.cfg : ""} · ${cfg.seats} seats`};
+}
+
+// Half-width of the fuselage seen from above at station x.
+function halfWidth(p, W, x){
+  const nose = p.c.noseTop[3][0]*.95, tail0 = p.c.tailBot[0][0], end = p.end, R = W/2;
+  if (x <= 0) return 0;
+  if (x < nose) { const u = x/nose; return R*Math.pow(1 - Math.pow(1-u, 2.3), .5); }
+  if (x > tail0) { const u = Math.min(1, (x - tail0)/(end - tail0)); return R*Math.max(.12, 1 - Math.pow(u, 1.7)*.88); }
+  return R;
+}
+function planOutline(p, W){
+  const top = [], bot = [];
+  for (let i = 0; i <= 120; i++){ const x = p.end*i/120, h = halfWidth(p, W, x); top.push([x, -h]); bot.push([x, h]); }
+  return "M" + top.map(q => f2(q[0])+","+f2(q[1])).join(" L") + " L" + bot.reverse().map(q => f2(q[0])+","+f2(q[1])).join(" L") + " Z";
+}
+// Place seat rows between the forward and aft service areas, stepping over mid-cabin door zones,
+// and compress pitch evenly if the layout needs more room than the cabin has.
+function layoutRows(p, lay){
+  const doors = p.doors.filter(d => d.t !== "III" && d.t !== "tail"), first = doors[0].x, last = doors[doors.length-1].x;
+  const start = first + 1.7, stop = (p.doors.some(d=>d.t==="tail") ? p.end - 7.5 : last - 2.6);
+  const blocks = doors.slice(1, p.doors.some(d=>d.t==="tail") ? doors.length : -1).map(d => [d.x - 1.25, d.x + (p.H > 5 ? 2.1 : 1.15)]);
+  const place = k => { const rows = []; let x = start;
+    for (const cab of lay.cabins) for (let r = 0; r < cab.rows; r++){
+      for (const [a, b] of blocks) if (x + cab.depth > a && x < b) x = b;
+      rows.push({x, cab, n: r === cab.rows - 1 ? cab.lastRow : cab.abreast}); x += cab.pitch*k; }
+    return {rows, endX: x}; };
+  let lo = .45, hi = 1.0, res = place(1);
+  if (res.endX > stop) { for (let i = 0; i < 25; i++){ const mid = (lo+hi)/2; if (place(mid).endX > stop) hi = mid; else lo = mid; } res = place(lo); }
+  return {rows: res.rows, blocks, first, last, overflow: res.endX - stop};
+}
+function exitPlanRects(p, W){
+  // every exit appears on both sides; the 717 tailcone exit is a single opening on the centerline
+  const out = [];
+  p.doors.forEach((e, i) => {
+    if (e.t === "tail") { out.push({i, side:"C", x:p.end - 1.2, y:-.35, w:1.1, h:.7, lab:"Tailcone"}); return; }
+    const w = EXIT[e.t][0], h = halfWidth(p, W, e.x), lab = e.lab;
+    out.push({i, side:"L", x:e.x - w/2, y:-h - .14, w, h:.32, lab});
+    out.push({i, side:"R", x:e.x - w/2, y: h - .18, w, h:.32, lab: lab.replace(/L$/, "R")});
+  });
+  return out;
+}
+function planSvg(p, state = {}, lay){
+  const W = lay.W, R = W/2, id = `p${++svgSeq}`;
+  const wingOut = R + 2.6, vb = `-1 ${f2(-wingOut - 1.4)} ${f2(p.end + 2)} ${f2(2*wingOut + 2.8)}`;
+  const outline = planOutline(p, W);
+  let g = `<defs><clipPath id="${id}"><path d="${outline}"/></clipPath></defs>`;
+  // wing roots for orientation (both sides)
+  const w = p.wing, chord = w.rootTE - w.rootLE;
+  for (const sgn of [-1, 1]) g += `<path class="wingstub" d="M${f2(w.rootLE)},${f2(sgn*R*.98)} L${f2(w.rootLE + 2.2)},${f2(sgn*wingOut)} L${f2(w.rootLE + chord*.9 + 1.2)},${f2(sgn*wingOut)} L${f2(w.rootTE + .3)},${f2(sgn*R*.98)} Z"/>`;
+  g += `<path class="part" d="${outline}"/>`;
+  g += `<g clip-path="url(#${id})">`;
+  // flight deck
+  const {rows, blocks, first, last} = layoutRows(p, lay);
+  const fd = Math.min(p.c.noseTop[3][0]*.9, first - 2.3);   // flight deck ends ahead of the forward galley
+  g += `<rect class="deck" x="0" y="${f2(-R)}" width="${f2(fd)}" height="${f2(W)}"/><path class="det" d="M${f2(fd)},${f2(-R)} L${f2(fd)},${f2(R)}"/>`;
+  // service areas: forward galley/lav, aft galley and lavs, galleys at widebody mid doors
+  const box = (x0, x1, y0, y1, cls="galley") => `<rect class="${cls}" x="${f2(x0)}" y="${f2(y0)}" width="${f2(x1-x0)}" height="${f2(y1-y0)}" rx=".08"/>`;
+  g += box(fd + .15, first - .62, -R*.82, -.45) + box(fd + .15, first - .62, .45, R*.82, "lav");
+  const aftX = p.doors.some(d=>d.t==="tail") ? p.end - 7.2 : last;
+  if (p.doors.some(d=>d.t==="tail")) g += box(aftX, aftX + 1.6, -R*.8, -.42, "lav") + box(aftX, aftX + 1.6, .42, R*.8, "galley");
+  else g += box(last + .6, Math.min(last + 2.3, p.end - 2), -R*.62, R*.62) + box(last - 2.45, last - .7, -R*.86, -.5, "lav") + box(last - 2.45, last - .7, .5, R*.86, "lav");
+  if (p.H > 5) blocks.forEach(([a, b]) => g += box(a + 1.5, b - .15, -.85, .85));
+  // seats
+  rows.forEach(({x, cab, n}) => {
+    const aisles = cab.groups.length - 1, aisle = p.H > 5 ? .5 : .48;
+    const total = cab.abreast*cab.sw + aisles*aisle; let y = -total/2, idx = 0;
+    const drop = cab.abreast - n, skip = new Set();   // remove seats alternately from the two window ends
+    for (let i = 0; i < drop; i++) skip.add(i % 2 ? cab.abreast - 1 - Math.floor(i/2) : Math.floor(i/2));
+    cab.groups.forEach((cnt, gi) => { for (let k = 0; k < cnt; k++, idx++){ if (!skip.has(idx)) g += `<rect class="seat ${cab.tint}" x="${f2(x)}" y="${f2(y + .03)}" width="${cab.depth}" height="${f2(cab.sw - .06)}" rx=".07"/><path class="seatback" d="M${f2(x + cab.depth - .02)},${f2(y + .05)} L${f2(x + cab.depth - .02)},${f2(y + cab.sw - .05)}"/>`; y += cab.sw; } if (gi < aisles) y += aisle; });
+  });
+  // cabin dividers between classes
+  for (let i = 1; i < rows.length; i++) if (rows[i].cab !== rows[i-1].cab) { const x = rows[i].x - .18; g += `<path class="divider" d="M${f2(x)},${f2(-R*.92)} L${f2(x)},${f2(-.3)} M${f2(x)},.3 L${f2(x)},${f2(R*.92)}"/>`; }
+  // flight attendant jumpseats beside each floor-level door
+  if (state.reveal) p.doors.filter(d => d.t !== "III" && d.t !== "tail").forEach(d => { const h = halfWidth(p, W, d.x);
+    for (const sgn of [-1, 1]) g += `<rect class="jump" x="${f2(d.x + EXIT[d.t][0]/2 + .08)}" y="${f2(sgn < 0 ? -h + .12 : h - .52)}" width=".38" height=".4" rx=".06"/>`; });
+  g += `</g>`;
+  // exits: hidden until found or revealed
+  const all = exitPlanRects(p, W);
+  all.forEach((r, k) => {
+    const found = state.found?.has(k), cls = found ? "exit found" : state.reveal ? (state.show ? "exit" : "exit missed") : null;
+    if (cls) g += `<rect class="${cls}" x="${f2(r.x)}" y="${f2(r.y)}" width="${f2(r.w)}" height="${f2(r.h)}" rx=".08"/>`;
+    const prev = all[k-2];
+    const pairOW = p.doors[r.i].t === "III" && prev && p.doors[prev.i].t === "III" && prev.side === r.side && r.x - prev.x < 3;
+    if ((found || state.reveal) && !pairOW) { const ty = r.side === "L" ? r.y - .35 : r.side === "R" ? r.y + r.h + 1.0 : r.y - .4;
+      g += `<text class="tag" x="${f2(r.x + r.w/2)}" y="${f2(ty)}" font-size="${f2(Math.max(.75, p.end*.019))}" stroke-width=".16" text-anchor="${r.side==="C" ? "end" : "middle"}">${r.lab}</text>`; }
+    if (pairOW && (found || state.reveal)) { /* label already placed on the first hatch of the pair */ }
+    g += `<rect class="hit" data-i="${k}" x="${f2(r.x - .8)}" y="${f2(r.y - .9)}" width="${f2(r.w + 1.6)}" height="${f2(r.h + 1.8)}"/>`;
+  });
+  (state.misses || []).forEach(([x,y]) => g += `<circle class="miss-dot" cx="${f2(x)}" cy="${f2(y)}" r=".45"/>`);
+  return `<svg viewBox="${vb}" role="img" aria-label="${p.name} cabin plan" class="line plan">${g}</svg>`;
+}
+const planExitCount = p => exitPlanRects(p, CABIN_W[p.key]).length;
+
+return {PLANES, byKey, planeSvg, planSvg, layoutFromConfig, planExitCount, exitPlanRects, CONFIGS, FAM};
+})();
+// app type key <-> outline key
+const OK = k => k === '737-800' ? '738' : k === '787-9' ? '789' : k;
+const AK = k => k === '738' ? '737-800' : k === '789' ? '787-9' : k;
+
+// ---------- fleet track ----------
+// Seat, cabin, exit and crew facts for each airline's mainline fleet (Oct 2026 seed data).
+const FA_RULE = "FAA rule (14 CFR 121.391): 1 flight attendant for 20–50 seats, 2 for 51–100, then 1 more for every 50 seats or part of 50. Airlines often staff above this minimum.";
+function minFA(s){ if (s<=19) return 0; if (s<=50) return 1; if (s<=100) return 2; return 2 + Math.ceil((s-100)/50); }
+const shortType = n => n.replace(/^(Airbus|Boeing) /, "");
+const CONFIGS = FLEET_C.map(([air,tk,tn,cfg,seats,cabins,layout,conf,count]) =>
+  ({air, tk, tn, cfg, seats, cabins, layout, conf, count, id:(air+"|"+tn+"|"+cfg).replace(/\s+/g,"_")}));
+const airName = k => (AIRLINES[k]||{}).name || "";
+const FDECKS = [
+ {id:"fmix",  name:"Mixed",          hint:"A bit of everything from your fleet."},
+ {id:"fseat", name:"Seat counts",    hint:"Total seats on each aircraft and layout."},
+ {id:"fcab",  name:"Premium cabins", hint:"How many seats up front — what you'll be serving."},
+ {id:"fexit", name:"Exits",          hint:"Exit counts, overwing hatches and door pairs for each type."},
+ {id:"fplan", name:"Find the exits", hint:"Tap every exit on your airline's cabin plan, both sides. Any tap that misses an exit costs the card."},
+ {id:"fcrew", name:"Crew minimum",   hint:"FAA minimum flight attendants from the seat count."},
+ {id:"fspot", name:"Spot the plane", hint:"Name the aircraft from its side-view drawing."},
+ {id:"feng",  name:"Engines",        hint:"Which engines hang on each type."},
+ {id:"frev",  name:"Today's review", hint:"Fleet cards due today."}
+];
+let fdeckSel = "fmix";
+
+function myConfigs(){ const k = store.airline; return CONFIGS.filter(c => AIRLINES[k] ? c.air===k : true); }
+function myTypes(){ return [...new Set(myConfigs().map(c=>c.tk))].filter(k=>FLEET_T[k]); }
+const cfgLabel = c => `${AIRLINES[store.airline] ? "" : airName(c.air)+" "}${c.tn}`.trim();
+
+// Build every card for the current airline. Each card: id, kind, type key, prompt pieces, numeric or option answer.
+function fleetCards(){
+  const cards = [], cfgs = myConfigs(), solid = c => c.conf !== "low";
+  const cabinOf = c => c.cabins.find(([,n]) => n != null);
+  const multi = c => cfgs.filter(x => x.air===c.air && x.tn===c.tn).length > 1;
+  const subOf = c => [airName(c.air), multi(c) && c.cfg ? `version ${c.cfg}` : ""].filter(Boolean).join(" · ");
+  for (const c of cfgs) {
+    if (!solid(c)) continue;
+    cards.push({id:"seat:"+c.id, kind:"fseat", tk:c.tk, cfg:c, num:c.seats,
+      q:"How many seats?", big:cfgLabel(c), sub:subOf(c)});
+    const cab = cabinOf(c);
+    if (cab) cards.push({id:"cab:"+c.id, kind:"fcab", tk:c.tk, cfg:c, num:cab[1], cabin:cab[0],
+      q:`How many seats in ${cab[0]}?`, big:cfgLabel(c), sub:subOf(c)});
+    cards.push({id:"crew:"+c.id, kind:"fcrew", tk:c.tk, cfg:c, num:minFA(c.seats),
+      q:"FAA minimum flight attendants?", big:cfgLabel(c), sub:`${subOf(c)} · ${c.seats} seats`});
+  }
+  for (const k of myTypes()) {
+    const t = FLEET_T[k];
+    if (t.ex != null) cards.push({id:"exit:"+k, kind:"fexit", tk:k, num:t.ex,
+      q:"How many emergency exits?", big:t.n, sub:"Maximum the type is certified with"});
+    const pl = OUT.byKey[OK(k)];
+    // A321XLR looks identical to the A321neo from outside, so it gets no Spot the Plane card
+    if (pl && k !== "A321XLR") cards.push({id:"spot:"+k, kind:"fspot", tk:k, ans:k, q:"Which aircraft is this?"});
+    if (pl) {
+      const ow = pl.doors.filter(d => d.t === "III").length, dp = pl.doors.filter(d => d.t !== "III" && d.t !== "tail").length;
+      cards.push({id:"ow:"+k, kind:"fexit", tk:k, num:ow, pool:[0,1,2,3], q:"Overwing exits on each side?", big:t.n, sub:"Window-size hatches over the wing"});
+      cards.push({id:"dp:"+k, kind:"fexit", tk:k, num:dp, pool:[1,2,3,4,5,6], q:"Floor-level door pairs?", big:t.n, sub:"Full-size doors, left and right"});
+    }
+    cards.push({id:"eng:"+k, kind:"feng", tk:k, ans:k, q:"What engines power it?", big:t.n, sub:t.f});
+  }
+  const airFull = AIRLINES[store.airline] ? airName(store.airline) : null;
+  for (const [okey, list] of Object.entries(OUT.CONFIGS)) list.forEach((cfg, ci) => {
+    if (airFull && cfg.air !== airFull) return;
+    const tk = AK(okey); if (!FLEET_T[tk]) return;
+    cards.push({id:`plan:${okey}|${ci}`, kind:"fplan", tk, okey, ci, cfg, q:"Tap every exit, both sides",
+      big:FLEET_T[tk].n, sub:`${airFull ? "" : cfg.air + " · "}${cfg.cfg && cfg.cfg.length < 26 ? cfg.cfg + " · " : ""}${cfg.seats} seats`});
+  });
+  return cards;
+}
+const fsrs = () => (store.fsrs = store.fsrs || {});
+function fStatus(id){ const r = fsrs()[id]; if (!r) return "un"; if (r.b >= MASTER_BOX) return "mast"; if (r.b === 0) return "bad"; return "learn"; }
+function fDue(id){ const r = fsrs()[id]; return !!r && r.d <= today(); }
+function frecord(id, right){
+  const S = fsrs(), r = S[id] || {b:0, d:0};
+  if (right) { r.b = Math.min(INTERVALS.length-1, r.b+1); r.d = today() + INTERVALS[r.b]; }
+  else { r.b = 0; r.d = today(); }
+  S[id] = r;
+  // Fleet cards count toward the same daily goal and streak.
+  if (store.daily.day !== today()) store.daily = {day:today(), count:0};
+  store.daily.count++;
+  if (store.daily.count === GOAL) {
+    const t = today();
+    if (store.streak.last === t-1) store.streak.n++; else if (store.streak.last !== t) store.streak.n = 1;
+    store.streak.last = t;
+  }
+  save();
+}
+
+// Numeric decoys: Standard spreads them out, Advanced packs them tight around the answer.
+function numOptions(card, level, cards){
+  const ans = card.num, tight = level === "adv";
+  let pool;
+  if (card.pool) pool = card.pool;
+  else if (card.kind === "fexit") pool = [4,6,7,8,10,12,14];
+  else if (card.kind === "fcrew") pool = [1,2,3,4,5,6,7,8,9,10];
+  else {
+    pool = cards.filter(c => c.kind === card.kind).map(c => c.num);
+    const step = Math.max(card.kind==="fcab" ? 2 : 4, Math.round(ans * (tight ? .04 : .12)));
+    for (let k=1;k<=4;k++) pool.push(ans + k*step, ans - k*step);
+  }
+  pool = [...new Set(pool)].filter(v => (card.pool ? v >= 0 : v > 0) && v !== ans).sort((a,b) => Math.abs(a-ans) - Math.abs(b-ans));
+  const near = tight ? pool.slice(0, 3) : shuffle(pool.slice(0, 7)).slice(0, 3);
+  return shuffle([ans, ...near]);
+}
+function typeOptions(card, level){
+  const mine = myTypes(), all = Object.keys(FLEET_T), t = FLEET_T[card.ans];
+  let pool = mine.filter(k => k !== card.ans);
+  if (pool.length < 3) pool = pool.concat(all.filter(k => k !== card.ans && !pool.includes(k)));
+  if (level === "adv") pool.sort((a,b) => (FLEET_T[b].f===t.f) - (FLEET_T[a].f===t.f) || (FLEET_T[b].m===t.m) - (FLEET_T[a].m===t.m));
+  else pool = shuffle(pool);
+  const picks = [];
+  for (const k of pool) {   // never offer two types with identical engine text on an engine card
+    if (card.kind === "feng" && (FLEET_T[k].eng === t.eng || picks.some(p => FLEET_T[p].eng === FLEET_T[k].eng))) continue;
+    picks.push(k); if (picks.length === 3) break;
+  }
+  return shuffle([card.ans, ...picks]);
+}
+
+function startFleet(){
+  const all = fleetCards();
+  let pool = fdeckSel==="fmix" ? all.filter(c => c.kind !== "fplan").concat(shuffle(all.filter(c => c.kind === "fplan")).slice(0, 2))
+           : fdeckSel==="frev" ? all.filter(c=>fDue(c.id)) : all.filter(c=>c.kind===fdeckSel);
+  if (fdeckSel === "frev") {
+    pool.sort((x,y) => fsrs()[x.id].b - fsrs()[y.id].b);
+    if (pool.length < GOAL) pool = pool.concat(shuffle(all.filter(c=>!fsrs()[c.id])).slice(0, GOAL - pool.length));
+  } else {
+    const due = shuffle(pool.filter(c=>fDue(c.id))), rest = shuffle(pool.filter(c=>!fDue(c.id)));
+    pool = shuffle(due.concat(rest).slice(0, 15));
+  }
+  const queue = pool.slice(0, 15).map(card => ({card, kind:"std", tries:0}));
+  if (!queue.length) return;
+  try { localStorage.setItem(KEY+"-prefs", JSON.stringify({deck:deckSel, fdeck:fdeckSel, mode:modeSel, level:levelSel, clock:$("clockOn").checked})); } catch(e){}
+  G = { fleet:true, all, queue, idx:0, score:0, streak:0, bestStreak:0, firstRight:0, unique:queue.length, missed:new Map(),
+        clock:$("clockOn").checked, level:levelSel };
+  const d = FDECKS.find(x=>x.id===fdeckSel);
+  $("hDeck").textContent = `${AIRLINES[store.airline] ? airName(store.airline)+" fleet" : "All fleets"} · ${d.name}` + ({adv:" · Advanced", exp:" · Expert"}[levelSel] || "");
+  show("play"); fleetNext(true);
+}
+
+const answerText = card => card.kind === "fplan" ? `${OUT.planExitCount(OUT.byKey[card.okey])} exits` : card.num != null ? String(card.num)
+  : card.kind === "feng" ? FLEET_T[card.ans].eng : FLEET_T[card.ans].n;
+
+function fleetNext(first){
+  cancelAnimationFrame(raf);
+  if (!first) G.idx++;
+  if (G.idx >= G.queue.length) return finish();
+  const item = G.queue[G.idx], c = item.card;
+  item.view = c.kind === "fplan" ? "plan" : (G.level === "exp" && c.num != null) ? "type" : "pick";
+  item.answered = false;
+  $("hCard").textContent = G.idx+1; $("hLeft").textContent = G.queue.length - G.idx - 1;
+  $("hStreak").textContent = G.streak; $("hScore").textContent = G.score.toLocaleString();
+  $("reveal").hidden = true; $("quitBtn").hidden = false; $("pTrip").hidden = true;
+  $("pQ").textContent = (item.tries === 1 ? "Second look. " : "") + c.q;
+  $("pCity").hidden = false;
+  if (c.kind === "fspot") { $("pCity").innerHTML = `<div class="ol spotdraw">${OUT.planeSvg(OUT.byKey[OK(c.tk)], "spot")}</div>`; $("pTiles").innerHTML = ""; }
+  else {
+    $("pCity").innerHTML = `${c.big}<small>${c.sub}</small>`;
+    if (c.num != null) setTiles(item.view==="type" ? "···".slice(0, String(c.num).length) : "?".repeat(String(c.num).length), false);
+    else $("pTiles").innerHTML = "";
+  }
+  if (item.view === "plan") {
+    $("pTiles").innerHTML = "";
+    item.ps = {found:new Set(), misses:[], reveal:false};
+    item.lay = OUT.layoutFromConfig(OUT.byKey[c.okey], c.cfg);
+    renderPlanCard(item);
+  } else if (item.view === "type") {
+    const len = String(c.num).length;
+    $("opts").className = "opts";
+    $("opts").innerHTML = `<form class="typer" id="typeForm" autocomplete="off"><input id="typeIn" type="text" inputmode="numeric" pattern="[0-9]*" autocorrect="off" spellcheck="false" maxlength="3" placeholder="___" aria-label="Your answer"><button class="btn" type="submit">Check</button></form>`;
+    const inp = $("typeIn");
+    inp.addEventListener("input", () => { inp.value = inp.value.replace(/\D/g,"").slice(0,3); setTiles((inp.value + "···").slice(0, Math.max(len, inp.value.length)), false); });
+    $("typeForm").addEventListener("submit", e => { e.preventDefault(); if (inp.value.length) fleetTyped(inp.value); });
+    inp.addEventListener("keydown", e => { if (e.key==="Enter") e.stopPropagation(); });
+    setTimeout(() => inp.focus({preventScroll:true}), 30);
+  } else if (c.num != null) {
+    item.opts = numOptions(c, G.level, G.all);
+    $("opts").className = "opts codes";
+    $("opts").innerHTML = item.opts.map((v,i)=>`<button class="opt" data-i="${i}"><span class="k">${i+1}</span><span class="t"><b>${v}</b></span></button>`).join("");
+  } else {
+    item.opts = typeOptions(c, G.level);
+    $("opts").className = "opts";
+    $("opts").innerHTML = item.opts.map((k,i)=>`<button class="opt" data-i="${i}"><span class="k">${i+1}</span><span class="t">${
+      c.kind==="feng" ? `<b style="font-size:15px">${FLEET_T[k].eng}</b>` : `<b>${FLEET_T[k].n}</b><span>${FLEET_T[k].f}</span>`}</span></button>`).join("");
+  }
+  G.t0 = performance.now();
+  $("clock").style.visibility = G.clock ? "visible" : "hidden";
+  $("clock").classList.remove("low"); $("clockBar").style.transform = "scaleX(1)";
+  if (G.clock) tick();
+}
+
+function renderPlanCard(item){
+  const p = OUT.byKey[item.card.okey], ps = item.ps, n = OUT.planExitCount(p);
+  $("opts").className = "opts";
+  const sx = $("planDraw") ? $("planDraw").scrollLeft : 0;   // keep the scroll position between taps
+  $("opts").innerHTML = `<div class="ol planplay" id="planDraw"><div style="min-width:${Math.round(Math.max(520, p.end*11))}px">${OUT.planSvg(p, ps, item.lay)}</div></div>
+    <div class="planbar"><span><b>${ps.found.size}/${n}</b> found${ps.misses.length ? ` · ${ps.misses.length} miss${ps.misses.length===1?"":"es"}` : ""}</span>${item.answered ? "" : `<button class="linkbtn" id="planGive">Show answers</button>`}</div>`;
+  $("planDraw").scrollLeft = sx;
+}
+function planFinish(item, right, timedOut){
+  const ps = item.ps, p = OUT.byKey[item.card.okey], n = OUT.planExitCount(p);
+  ps.reveal = true; item.answered = false;
+  fleetSettle(item, right, timedOut, right ? "" : `${ps.found.size} of ${n} exits found${ps.misses.length ? `, ${ps.misses.length} tap${ps.misses.length===1?"":"s"} away from any exit` : ""}.`);
+  renderPlanCard(item);
+}
+$("opts").addEventListener("click", e => {
+  if (!G || !G.fleet) return;
+  const item = G.queue[G.idx]; if (!item || item.view !== "plan" || item.answered) return;
+  if (e.target.closest("#planGive")) return planFinish(item, false, false);
+  const svg = e.target.closest("#planDraw svg"); if (!svg) return;
+  const hit = e.target.closest(".hit"), ps = item.ps;
+  if (hit) ps.found.add(+hit.dataset.i);
+  else { const pt = svg.createSVGPoint(); pt.x = e.clientX; pt.y = e.clientY; const loc = pt.matrixTransform(svg.getScreenCTM().inverse()); ps.misses.push([loc.x, loc.y]); }
+  const n = OUT.planExitCount(OUT.byKey[item.card.okey]);
+  if (ps.found.size === n) return planFinish(item, ps.misses.length === 0, false);
+  renderPlanCard(item);
+});
+function fleetAnswer(i){
+  const item = G.queue[G.idx]; if (!item || item.answered) return;
+  if (item.view === "plan") { if (i < 0) planFinish(item, false, true); return; }
+  const c = item.card, correct = c.num != null ? c.num : c.ans;
+  const right = i >= 0 && item.opts[i] === correct;
+  [...$("opts").children].forEach((b,k)=>{
+    b.disabled = true;
+    if (item.opts[k] === correct) b.classList.add("right"); else if (k===i) b.classList.add("wrong"); else b.classList.add("dim");
+  });
+  if (c.num != null) setTiles(String(c.num), true);
+  fleetSettle(item, right, i < 0);
+}
+function fleetTyped(val){
+  const item = G.queue[G.idx]; if (!item || item.answered) return;
+  const c = item.card, right = val !== "" && +val === c.num;
+  const inp = $("typeIn"); if (inp) { inp.disabled = true; inp.blur(); }
+  const sub = $("typeForm") && $("typeForm").querySelector("button"); if (sub) sub.disabled = true;
+  setTiles(String(c.num), true);
+  fleetSettle(item, right, !val, (!right && val) ? `You entered ${val}.` : "");
+}
+
+function cabinTable(lay){
+  return `<table class="ol-table"><thead><tr><th>Cabin</th><th>Seats</th><th>Layout</th><th>Rows</th></tr></thead><tbody>${lay.cabins.map(k =>
+    `<tr><td><i class="lgs ${k.tint}"></i>${k.name}</td><td>${k.seats}</td><td>${k.groups.join("-")}</td><td>${k.rows}</td></tr>`).join("")}<tr class="tot"><td>Total</td><td>${lay.cabins.reduce((a,k)=>a+k.seats,0)}</td><td></td><td>${lay.cabins.reduce((a,k)=>a+k.rows,0)}</td></tr></tbody></table>`;
+}
+function cardExplain(c){
+  const t = FLEET_T[c.tk], cfg = c.cfg;
+  const cabinLine = cfg ? cfg.cabins.map(([n,v]) => `${n} ${v ?? "?"}`).join(" · ") : "";
+  switch (c.kind) {
+    case "fseat": return `<div><b>${cfgLabel(cfg)}${cfg.cfg ? " ("+cfg.cfg+")" : ""}</b> seats ${cfg.seats}: ${cabinLine}.</div>${cfg.layout ? `<div class="hint">Layout: ${cfg.layout}.</div>` : ""}`;
+    case "fcab":  return `<div><b>${c.cabin}</b> has ${c.num} seats on the ${cfgLabel(cfg)}${cfg.cfg ? " ("+cfg.cfg+")" : ""}.</div><div class="hint">Full cabin: ${cabinLine}.</div>`;
+    case "fcrew": return `<div>${cfg.seats} seats → at least <b>${c.num}</b> flight attendant${c.num===1?"":"s"}.</div><div class="note"><span class="label">The rule</span>${FA_RULE}</div>`;
+    case "fexit": return `<div>The <b>${t.n}</b> has ${t.ex ?? "a varying number of"} exits: ${t.dp} floor-level door pair${t.dp===1?"":"s"}; overwing: ${t.ow}.</div>` +
+      (OUT.byKey[OK(c.tk)] ? `<div class="ol revealdraw">${OUT.planeSvg(OUT.byKey[OK(c.tk)], "exits")}</div>` : "") + `<div class="note"><span class="label">Exit layout</span>${t.en}</div>`;
+    case "fspot": return `<div>That's the <b>${t.n}</b>.</div><div class="note"><span class="label">How to spot it</span>${t.rec || t.en}</div>`;
+    case "fplan": { const p = OUT.byKey[c.okey], lay = OUT.layoutFromConfig(p, c.cfg), ex = OUT.exitPlanRects(p, lay.W);
+      return `<div>The <b>${t.n}</b> (${c.cfg.air}${c.cfg.cfg && c.cfg.cfg.length < 26 ? ", " + c.cfg.cfg : ""}) has <b>${ex.length}</b> exits: ${[...new Set(ex.map(r => r.lab))].join(", ")}.</div>` + cabinTable(lay); }
+    case "feng":  return `<div>The <b>${t.n}</b> flies with ${t.eng}.</div>`;
+  }
+  return "";
+}
+
+function fleetSettle(item, right, timedOut, extra=""){
+  item.answered = true; cancelAnimationFrame(raf);
+  const c = item.card, firstTry = item.tries === 0;
+  if (firstTry) frecord(c.id, right);
+  const lvl = {adv:1.5, exp:2}[G.level] || 1;
+  if (right) {
+    const elapsed = performance.now()-G.t0;
+    const speed = G.clock ? Math.round(50*Math.max(0,1-elapsed/clockMs())) : 0;
+    G.streak++; G.bestStreak = Math.max(G.bestStreak, G.streak);
+    const mult = Math.min(2, 1 + 0.1*(G.streak-1));
+    const pts = Math.round((item.tries===1 ? 40 : (100+speed)*mult) * lvl);
+    G.score += pts; if (firstTry) G.firstRight++;
+    $("verdict").className = "verdict ok";
+    $("verdict").textContent = `Cleared · +${pts}${mult>1 && item.tries!==1 ? ` (×${mult.toFixed(1)})` : ""}`;
+  } else {
+    G.streak = 0; G.missed.set(c.id, c);
+    if (item.tries === 0) G.queue.splice(Math.min(G.queue.length, G.idx + 4), 0, {card:c, kind:"std", tries:1});
+    $("verdict").className = "verdict bad";
+    $("verdict").textContent = timedOut ? "Out of time" : `Not quite · it's ${answerText(c)}`;
+  }
+  const r = fsrs()[c.id];
+  const srsLine = firstTry && r ? (right ? (r.b >= MASTER_BOX ? `Mastered. Next review in ${INTERVALS[r.b]} days.` : `Next review in ${INTERVALS[r.b]} day${INTERVALS[r.b]===1?"":"s"}.`) : "Back in tomorrow's review.") : "";
+  $("revealBody").innerHTML = (extra ? `<div class="hint">${extra}</div>` : "") + cardExplain(c) +
+    `<div class="hint">${[srsLine, (!right && item.tries===0) ? "It also comes back later in this round." : ""].filter(Boolean).join(" ")}</div>`;
+  $("hStreak").textContent = G.streak; $("hScore").textContent = G.score.toLocaleString();
+  $("hLeft").textContent = G.queue.length - G.idx - 1;
+  $("reveal").hidden = false; $("nextBtn").focus({preventScroll:true});
+  $("nextBtn").firstElementChild.textContent = G.idx >= G.queue.length-1 ? "See results" : "Next card";
+}
+
+// ---------- hangar ----------
+let hangarSel = null;
+function typeStatus(k, cards){
+  const ids = cards.filter(c=>c.tk===k).map(c=>c.id), st = ids.map(fStatus);
+  const mast = st.filter(s=>s==="mast").length;
+  const s = !st.some(x=>x!=="un") ? "un" : st.includes("bad") ? "bad" : mast === st.length ? "mast" : "learn";
+  return {s, mast, total: ids.length};
+}
+function renderHangar(){
+  const cards = fleetCards(), types = myTypes();
+  const order = k => [FLEET_T[k].m, FLEET_T[k].n];
+  types.sort((a,b) => order(a).join() < order(b).join() ? -1 : 1);
+  const mine = AIRLINES[store.airline];
+  $("hangarTitle").textContent = mine ? `${mine.name} hangar` : "All fleets";
+  const stats = types.map(k => typeStatus(k, cards));
+  $("hangarSub").textContent = `${stats.filter(x=>x.s==="mast").length} of ${types.length} types mastered`;
+  $("hangar").innerHTML = types.map((k,i) => {
+    const cf = myConfigs().filter(c=>c.tk===k), seats = cf.map(c=>c.seats);
+    const range = seats.length ? (Math.min(...seats)===Math.max(...seats) ? `${seats[0]} seats` : `${Math.min(...seats)}–${Math.max(...seats)} seats`) : "";
+    const pl = OUT.byKey[OK(k)];
+    return `<button class="stand ${stats[i].s}" data-k="${k}" aria-pressed="${hangarSel===k}">${pl ? `<span class="ol sthumb">${OUT.planeSvg(pl, "spot")}</span>` : ""}<b>${shortType(FLEET_T[k].n)}</b><span>${range}</span><span>${stats[i].mast}/${stats[i].total} cards</span></button>`;
+  }).join("");
+  const cnt = s => stats.filter(x=>x.s===s).length;
+  const sw = cls => `<svg viewBox="0 0 12 12"><rect x="1" y="1" width="10" height="10" rx="2" class="d-${cls}"/></svg>`;
+  $("hLegend").innerHTML = `<span>${sw("mast")}Mastered <b>${cnt("mast")}</b></span><span>${sw("learn")}Learning <b>${cnt("learn")}</b></span><span>${sw("bad")}Needs work <b>${cnt("bad")}</b></span><span>${sw("un")}Not yet seen <b>${cnt("un")}</b></span>`;
+  if (hangarSel && types.includes(hangarSel)) {
+    const t = FLEET_T[hangarSel], cf = myConfigs().filter(c=>c.tk===hangarSel);
+    const pl = OUT.byKey[OK(hangarSel)], airFull = mine ? mine.name : null;
+    const pcfgs = pl ? (OUT.CONFIGS[pl.key] || []).filter(c => !airFull || c.air === airFull) : [];
+    if (hangarCfg >= pcfgs.length) hangarCfg = 0;
+    const lay = pcfgs.length ? OUT.layoutFromConfig(pl, pcfgs[hangarCfg]) : null;
+    const planHtml = lay ? `<span class="label">Cabin plan · nose left · ${pcfgs[hangarCfg].air} · ${pcfgs[hangarCfg].seats} seats</span>
+        ${pcfgs.length > 1 ? `<div class="hchips">${pcfgs.map((c,i) => `<button class="chip" data-hcfg="${i}" aria-pressed="${i===hangarCfg}">${airFull ? "" : c.air + " "}${c.cfg && c.cfg.length < 22 ? c.cfg : c.seats + " seats"}</button>`).join("")}</div>` : ""}
+        <div class="ol">${OUT.planSvg(pl, {reveal:true, show:true}, lay)}</div>
+        <div class="ol-legend"><span><i class="lgs prem"></i>Premium</span><span><i class="lgs plus"></i>Premium economy / extra legroom</span><span><i class="lgs"></i>Economy</span><span><i class="lgs jump"></i>Jumpseat</span></div>
+        ${cabinTable(lay)}` : "";
+    $("hInfo").innerHTML = `<h3>${t.n}</h3>
+      ${pl ? `<div class="ol">${OUT.planeSvg(pl, "exits")}</div>` : ""}
+      ${planHtml}
+      <dl class="facts">
+        <dt>Exits</dt><dd>${t.ex ?? "Varies"} · ${t.dp} door pair${t.dp===1?"":"s"} · overwing ${t.ow}</dd>
+        <dt>Layout</dt><dd>${t.en}</dd>
+        <dt>Engines</dt><dd>${t.eng}</dd>
+        <dt>Spot it</dt><dd>${t.rec}</dd>
+      </dl>
+      <ul class="cfgs">${cf.map(c=>`<li><code>${c.seats}</code><span>${mine ? "" : airName(c.air)+" · "}${c.cfg || "Standard"} · min ${minFA(c.seats)} FAs${c.count ? ` · ${c.count} aircraft` : ""}<small>${c.cabins.map(([n,v])=>`${n} ${v ?? "?"}`).join(" · ")}</small></span></li>`).join("")}</ul>`;
+  } else $("hInfo").innerHTML = `<span class="hint">Tap an aircraft to see its cabins, exits and recognition cues. Fleet data as of Oct 2026.</span>`;
+}
+let hangarCfg = 0;
+$("hangar").addEventListener("click", e => { const b = e.target.closest("[data-k]"); if (!b) return; hangarSel = hangarSel===b.dataset.k ? null : b.dataset.k; hangarCfg = 0; renderHangar(); if (hangarSel) $("hInfo").scrollIntoView({block:"nearest"}); });
+$("hInfo").addEventListener("click", e => { const b = e.target.closest("[data-hcfg]"); if (!b) return; hangarCfg = +b.dataset.hcfg; renderHangar(); });
+
+// ---------- track switch ----------
+function renderTrack(){
+  const fleet = store.track === "fleet";
+  $("tabAir").setAttribute("aria-selected", !fleet); $("tabFleet").setAttribute("aria-selected", fleet);
+  $("airFields").hidden = fleet; $("fleetFields").hidden = !fleet;
+  if (!$("setup").hidden) { $("mapCard").hidden = fleet; $("hangarCard").hidden = !fleet; }
+  // Hero tiles: the airline's main hub on the airport track, its most common aircraft (IATA type code) on the aircraft track.
+  const HERO = {
+    dl:{hub:"ATL", hubCap:"Atlanta · Delta's largest hub", ac:"739", acCap:"Boeing 737-900ER · Delta's most common aircraft"},
+    ua:{hub:"ORD", hubCap:"Chicago O'Hare · United's largest hub", ac:"7M9", acCap:"Boeing 737 MAX 9 · United's most common aircraft"},
+    aa:{hub:"DFW", hubCap:"Dallas/Fort Worth · American's largest hub", ac:"738", acCap:"Boeing 737-800 · American's most common aircraft"},
+    wn:{hub:"DEN", hubCap:"Denver · Southwest's busiest airport", ac:"7M8", acCap:"Boeing 737 MAX 8 · Southwest's most common aircraft"}
+  }[store.airline] || {hub:"ATL", hubCap:"Atlanta · the busiest airport in the US", ac:"738", acCap:"Boeing 737-800 · the most common jet across the four majors"};
+  const tiles = (fleet ? HERO.ac : HERO.hub).split("");
+  [...$("heroTiles").children].forEach((el,i)=> el.textContent = tiles[i]);
+  $("heroCap").textContent = fleet ? HERO.acCap : HERO.hubCap;
+  $("heroH").textContent = fleet ? "Know the aircraft before you board it" : "Learn the board before you work the cabin";
+  $("heroP").textContent = fleet
+    ? "Seats, cabins, exits and crew minimums for every aircraft your airline flies, with drawings and cabin plans. Same ten-a-day goal and spaced review as airport codes; three correct reviews in a row masters a card."
+    : "Ten cards a day keeps the streak alive. Codes you get right come back after 1, 3, 7, 14 and 30 days. Codes you miss come back tomorrow. Three correct reviews in a row marks an airport as mastered on your map.";
+  if (fleet) {
+    const cards = fleetCards();
+    const n = id => id==="fmix" ? cards.length : id==="frev" ? cards.filter(c=>fDue(c.id)).length : cards.filter(c=>c.kind===id).length;
+    $("fdecks").innerHTML = FDECKS.map(d => `<button class="chip" data-fdeck="${d.id}" aria-pressed="${d.id===fdeckSel}">${d.name}<em>${n(d.id)}${d.id==="frev"?" due":""}</em></button>`).join("");
+    $("fdeckHint").textContent = FDECKS.find(d=>d.id===fdeckSel).hint;
+    $("levelHint").textContent = {
+      std: "Four choices, spread out.",
+      adv: "Four choices packed close to the answer, or aircraft from the same family. Worth 1.5× points.",
+      exp: "Type the number yourself for seat, cabin, exit and crew cards. Worth 2× points."
+    }[levelSel];
+    const due = cards.filter(c=>fDue(c.id)).length;
+    $("dDue").textContent = due;
+    renderHangar();
+  }
+}
+$("fdecks").addEventListener("click", e => { const b = e.target.closest("[data-fdeck]"); if (!b) return; fdeckSel = b.dataset.fdeck; renderTrack(); });
+document.querySelector(".seg").addEventListener("click", e => {
+  const b = e.target.closest("[data-track]"); if (!b) return;
+  store.track = b.dataset.track; save(); renderSetup();
+});
+try { const p = JSON.parse(localStorage.getItem(KEY+"-prefs")||"{}"); if (p.fdeck && FDECKS.some(d=>d.id===p.fdeck)) fdeckSel = p.fdeck; } catch(e){}
+
 // ---------- logo ----------
 const FLAPS = " ABCDEFGHIJKLMNOPQRSTUVWXYZ";
 function flipLogo(){
-  const word = "JUMPSEAT";
-  const reduce = window.matchMedia && matchMedia("(prefers-reduced-motion: reduce)").matches;
   [...document.querySelectorAll("#logo .f")].forEach((f, i) => {
-    const inner = f.firstElementChild;
-    if (reduce) { inner.textContent = word[i]; return; }
-    const target = FLAPS.indexOf(word[i]);
-    let pos = (target - 6 - Math.floor(Math.random()*10) + FLAPS.length*2) % FLAPS.length;
-    clearInterval(f._t);
-    setTimeout(() => {
-      f._t = setInterval(() => {
-        pos = (pos + 1) % FLAPS.length;
-        inner.textContent = FLAPS[pos];
-        f.classList.remove("tick"); void f.offsetWidth; f.classList.add("tick");
-        if (pos === target) clearInterval(f._t);
-      }, 55);
-    }, i * 60);
+    f.classList.remove("in"); void f.offsetWidth;
+    f.firstElementChild.style.animationDelay = (i * 45) + "ms";
+    f.classList.add("in");
   });
 }
 $("logo").addEventListener("click", flipLogo);
+
+// ---------- landing: airline first ----------
+const FLEET_TYPES = Object.fromEntries(Object.keys(AIRLINES).map(k => [k, new Set(FLEET_C.filter(c=>c[0]===k).map(c=>c[1])).size]));
+const IATA = {dl:"DL", ua:"UA", aa:"AA", wn:"WN"};
+function renderLanding(){
+  const rows = Object.keys(AIRLINES).map(k => {
+    const a = AIRLINES[k];
+    const hubs = a.hubSet.size ? "Hubs " + [...a.hubSet].slice(0,6).join(" · ") : "Point to point · " + WN_FOCUS.split(" ").slice(0,5).join(" · ");
+    return `<button class="air" data-air="${k}" aria-pressed="${store.airline===k}">
+      <span class="code" aria-hidden="true">${IATA[k].split("").map(c=>`<b>${c}</b>`).join("")}</span>
+      <span class="nm"><strong>${a.name}</strong><span>${hubs}</span><span class="stat-ln">${a.set.size} stations · ${FLEET_TYPES[k]} aircraft</span></span>
+      <span class="go" aria-hidden="true">→</span></button>`;
+  }).join("");
+  $("airList").innerHTML = rows + `<button class="air any" data-air="all">
+      <span class="code" aria-hidden="true"><b>✈</b><b>?</b></span>
+      <span class="nm"><strong>Not hired yet</strong><span>Study every airline's network</span></span>
+      <span class="go">→</span></button>`;
+}
+$("airList").addEventListener("click", e => {
+  const b = e.target.closest("[data-air]"); if (!b) return;
+  const k = b.dataset.air;
+  store.airline = k;
+  deckSel = AIRLINES[k] ? k : "hubs";
+  store.home = deckSel; save();
+  mapSel = null; renderSetup(); show("setup"); flipLogo();
+});
+$("changeAir").addEventListener("click", () => { renderLanding(); show("landing"); });
+
+// ---------- splash: split-flap board ----------
+function runSplash(done){
+  const word = "JUMPSEAT", board = $("sfBoard"), splash = $("splash");
+  const reduce = window.matchMedia && matchMedia("(prefers-reduced-motion: reduce)").matches;
+  board.innerHTML = word.split("").map(() =>
+    `<div class="sf"><div class="top"><span></span></div><div class="bot"><span></span></div><div class="ltop"><span></span></div><div class="lbot"><span></span></div></div>`).join("");
+  let finished = false, pending = word.length, timers = [];
+  const end = () => {
+    if (finished) return; finished = true;
+    timers.forEach(clearTimeout);
+    splash.classList.add("out");
+    setTimeout(() => { splash.hidden = true; }, 650);
+    done();
+  };
+  splash.addEventListener("click", end, {once:true});
+  const settle = () => { $("sfSub").classList.add("on"); timers.push(setTimeout(end, 1100)); };
+  [...board.children].forEach((el, i) => {
+    const [top, bot, ltop, lbot] = [...el.children].map(d => d.firstElementChild);
+    const set = (s, ch) => s.textContent = ch;
+    const target = FLAPS.indexOf(word[i]);
+    if (reduce) { [top, bot].forEach(s => set(s, word[i])); if (--pending === 0) settle(); return; }
+    let pos = FLAPS.indexOf("A");                 // every module starts at A and steps through the alphabet
+    [top, bot, ltop, lbot].forEach(s => set(s, FLAPS[pos]));
+    if (pos === target) { timers.push(setTimeout(() => { if (--pending === 0) settle(); }, 250)); return; }
+    const flipOnce = () => {
+      if (finished) return;
+      const cur = FLAPS[pos]; pos = (pos + 1) % FLAPS.length; const nxt = FLAPS[pos];
+      set(top, nxt); set(ltop, cur); set(lbot, nxt);
+      const D = 64;
+      (el._a || []).forEach(a => a.cancel());
+      const a1 = el.children[2].animate([{transform:"rotateX(0)"},{transform:"rotateX(-90deg)"}], {duration:D, easing:"ease-in", fill:"both"});
+      const a2 = el.children[3].animate([{transform:"rotateX(90deg)"},{transform:"rotateX(0)"}], {duration:D, delay:D, easing:"ease-out", fill:"both"});
+      el._a = [a1, a2];
+      a2.onfinish = () => {
+          set(bot, nxt);
+          if (pos === target) { if (--pending === 0) settle(); }
+          else timers.push(setTimeout(flipOnce, 4));
+        };
+    };
+    timers.push(setTimeout(flipOnce, 250 + i*90));
+  });
+}
+
 renderSetup();
-flipLogo();
+renderLanding();
+if (store.airline) { show("setup"); } else { show("landing"); }
+runSplash(() => { if (store.airline) flipLogo(); });
 </script>
 
-</body>
-</html>
+</body></html>
