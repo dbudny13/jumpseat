@@ -1,4 +1,11 @@
-<!doctype html><html><head><meta charset=utf8><meta name=viewport content="width=device-width,initial-scale=1,viewport-fit=cover"><style>:root{color-scheme:light;box-sizing:border-box;padding-top:env(safe-area-inset-top,0px);padding-bottom:env(safe-area-inset-bottom,0px)}html{scroll-padding-top:env(safe-area-inset-top,0px)}body{margin:0;padding:0;font:14px -apple-system,BlinkMacSystemFont,sans-serif;background:#fff;color:#000}img{max-width:100%}[hidden]:not([hidden=until-found i]){display:none!important}</style></head><body>
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover">
+<style>:root{box-sizing:border-box;padding-top:env(safe-area-inset-top,0px);padding-bottom:env(safe-area-inset-bottom,0px)}body{margin:0}[hidden]{display:none!important}</style>
+</head>
+<body>
 <title>Jumpseat</title>
 <meta name="claude:viewport-fit-sides" content="cover">
 <link rel="preconnect" href="https://fonts.googleapis.com">
@@ -320,7 +327,7 @@ header.top { display: flex; align-items: center; justify-content: space-between;
 .hchips .chip { padding: 6px 11px; font-size: 13px; }
 
 /* Track switch */
-.seg { display: grid; grid-template-columns: 1fr 1fr 1fr; gap: 4px; padding: 4px; background: var(--chip); border: 1px solid var(--line); border-radius: 12px; }
+.seg { display: grid; grid-template-columns: repeat(4, minmax(0, 1fr)); gap: 4px; padding: 4px; background: var(--chip); border: 1px solid var(--line); border-radius: 12px; }
 .seg button { font: 800 15px/1.1 var(--f-display); text-transform: uppercase; letter-spacing: .05em; padding: 11px 8px; border: 0; border-radius: 9px; background: transparent; color: var(--muted); cursor: pointer; }
 .seg button[aria-selected="true"] { background: var(--tile); color: var(--sign); box-shadow: 0 1px 0 rgba(0,0,0,.25); }
 
@@ -361,6 +368,24 @@ header.top { display: flex; align-items: center; justify-content: space-between;
 .card-sub { font-family: var(--f-body); font-weight: 500; font-size: 15px; color: var(--muted); }
 .clue { font-size: 18px; font-weight: 600; line-height: 1.35; text-wrap: pretty; max-width: 36ch; margin: 0 auto; }
 
+@media (max-width: 460px) { .seg { grid-template-columns: 1fr 1fr; } }
+/* Safety track: equipment line drawings and hazard placards */
+.eq svg { display: block; width: 100%; height: auto; }
+.eq .p { fill: var(--body-fill); stroke: var(--ink); stroke-width: 1.5; stroke-linejoin: round; vector-effect: non-scaling-stroke; }
+.eq .a { fill: var(--chip); stroke: var(--ink); stroke-width: 1.5; stroke-linejoin: round; vector-effect: non-scaling-stroke; }
+.eq .y { fill: var(--sign); stroke: var(--ink); stroke-width: 1.5; stroke-linejoin: round; vector-effect: non-scaling-stroke; }
+.eq .k { fill: var(--ink); }
+.eq .l { fill: none; stroke: var(--ink); stroke-width: 1.5; stroke-linecap: round; stroke-linejoin: round; vector-effect: non-scaling-stroke; }
+.eq .t { fill: none; stroke: var(--ink); stroke-width: 1; opacity: .45; stroke-linecap: round; vector-effect: non-scaling-stroke; }
+.eq .g { fill: var(--ink); opacity: .07; }
+.eqdraw { max-width: 300px; margin: 0 auto; }
+.hzdraw { width: min(170px, 46vw); margin: 0 auto; }
+.hz { display: block; width: 100%; height: auto; }
+.hzrow { display: grid; grid-template-columns: 76px 1fr; gap: 12px; align-items: center; }
+.hzmini { width: 76px; }
+.locker { grid-template-columns: repeat(auto-fill, minmax(118px, 1fr)); }
+.locker .stand b { font-size: 16px; line-height: 1.05; }
+.lbig { max-width: 260px; }
 @media (prefers-reduced-motion: reduce) { #splash { transition: opacity .3s; } #splash.out { transform: none; opacity: 0; } #splash .sub i { animation: none; } }
 @media (prefers-reduced-motion: reduce) { .tile.flip { animation: none; } .clock i { transition: none !important; } .brand .f.in > span { animation: none; } }
 </style>
@@ -382,7 +407,7 @@ header.top { display: flex; align-items: center; justify-content: space-between;
     <div class="sec land-hero">
       <span class="label">Welcome aboard</span>
       <h1>Let's Takeoff</h1>
-      <p>Pick your airline. Your training is built around it: its stations, its fleet, and the radio alphabet and codes crews use. You can switch any time.</p>
+      <p>Pick your airline. Your training is built around it: its stations, its fleet, the radio alphabet and codes crews use, and the safety equipment you'll train on. You can switch any time.</p>
     </div>
     <div class="perf"></div>
     <div class="sec stack">
@@ -393,6 +418,7 @@ header.top { display: flex; align-items: center; justify-content: space-between;
           <span class="track live">Airport codes <em>Live</em></span>
           <span class="track live">Aircraft <em>Live</em></span>
           <span class="track live">Phonetics &amp; codes <em>Live</em></span>
+          <span class="track live">Safety <em>Live</em></span>
         </div>
       </div>
     </div>
@@ -406,6 +432,7 @@ header.top { display: flex; align-items: center; justify-content: space-between;
         <button role="tab" data-track="air" id="tabAir">Airport codes</button>
         <button role="tab" data-track="fleet" id="tabFleet">Aircraft</button>
         <button role="tab" data-track="codes" id="tabCodes">Phonetics &amp; codes</button>
+        <button role="tab" data-track="safety" id="tabSafety">Safety</button>
       </div>
       <div class="daily" id="dailyBar">
         <span>Today <b id="dToday">0/10</b></span>
@@ -446,6 +473,13 @@ header.top { display: flex; align-items: center; justify-content: space-between;
           <span class="label">Study</span>
           <div class="chips" id="cdecks"></div>
           <span class="hint" id="cdeckHint"></span>
+        </div>
+      </div>
+      <div class="stack" id="safetyFields" hidden>
+        <div class="field">
+          <span class="label">Study</span>
+          <div class="chips" id="sdecks"></div>
+          <span class="hint" id="sdeckHint"></span>
         </div>
       </div>
       <div class="field">
@@ -497,6 +531,19 @@ header.top { display: flex; align-items: center; justify-content: space-between;
       <div class="board" id="board"></div>
       <div class="legend"><span><i class="sw"></i>New</span><span><i class="sw learn"></i>Learning</span><span><i class="sw mast"></i>Mastered</span><span><i class="sw bad"></i>Missed</span></div>
       <span class="hint">ICAO pronunciation, stress in capitals. Numbers are said digit by digit: flight 1593 is "one fife niner tree".</span>
+    </div>
+  </section>
+
+  <!-- SAFETY LOCKER -->
+  <section id="lockerCard" class="pass" hidden>
+    <div class="sec stack">
+      <div class="maphead">
+        <h2>Safety locker</h2>
+        <span class="label" id="lockerSub"></span>
+      </div>
+      <div class="hangar locker" id="locker"></div>
+      <div class="legend"><span><i class="sw"></i>New</span><span><i class="sw learn"></i>Learning</span><span><i class="sw mast"></i>Mastered</span><span><i class="sw bad"></i>Missed</span></div>
+      <div class="hinfo" id="lInfo"></div>
     </div>
   </section>
 
@@ -855,6 +902,7 @@ let deckSel = "hubs", modeSel = "c2a", levelSel = "std";
 try { const p = JSON.parse(localStorage.getItem(KEY+"-prefs")||"{}"); if(p.deck && deckById(p.deck)) deckSel=p.deck; if(p.mode && MODES.some(m=>m.id===p.mode)) modeSel=p.mode; if(p.level && LEVELS.some(m=>m.id===p.level)) levelSel=p.level; if(p.clock===false) document.getElementById("clockOn").checked=false; } catch(e){}
 
 const $ = id => document.getElementById(id);
+function savePrefs(){ try { localStorage.setItem(KEY+"-prefs", JSON.stringify({deck:deckSel, fdeck:fdeckSel, cdeck:cdeckSel, sdeck:sdeckSel, mode:modeSel, level:levelSel, clock:$("clockOn").checked})); } catch(e){} }
 function deckChip(d, label){
   const n = DATA.filter(d.f).length;
   return `<button class="chip" data-deck="${d.id}" aria-pressed="${d.id===deckSel}">${label || d.name}<em>${d.id==="review" ? n+" due" : n}</em></button>`;
@@ -1021,11 +1069,12 @@ let G = null, raf = 0;
 function startRound(){
   if (store.track === "fleet") return startFleet();
   if (store.track === "codes") return startCodes();
+  if (store.track === "safety") return startSafety();
   const deck = deckById(deckSel);
   let pool = DATA.filter(deck.f);
   const netDeck = deckSel==="review" ? homeDeck() : deck;
   const net = DATA.filter(netDeck.f);
-  try { localStorage.setItem(KEY+"-prefs", JSON.stringify({deck:deckSel, fdeck:fdeckSel, cdeck:cdeckSel, mode:modeSel, level:levelSel, clock:$("clockOn").checked})); } catch(e){}
+  savePrefs();
   let queue;
   if (modeSel === "pair") {
     const air = AIRLINES[netDeck.id];
@@ -1064,6 +1113,7 @@ function show(id){
   $("mapCard").hidden = id !== "setup" || store.track !== "air";
   $("hangarCard").hidden = id !== "setup" || store.track !== "fleet";
   $("boardCard").hidden = id !== "setup" || store.track !== "codes";
+  $("lockerCard").hidden = id !== "setup" || store.track !== "safety";
   window.scrollTo({top:0});
 }
 
@@ -1074,6 +1124,7 @@ function setTiles(str, flip){
 function nextCard(first){
   if (G && G.fleet) return fleetNext(first);
   if (G && G.codes) return codesNext(first);
+  if (G && G.safety) return safetyNext(first);
   cancelAnimationFrame(raf);
   if (!first) G.idx++;
   if (G.idx >= G.queue.length) return finish();
@@ -1169,6 +1220,7 @@ function tick(){
 function answer(i){
   if (G.fleet) return fleetAnswer(i);
   if (G.codes) return codesAnswer(i);
+  if (G.safety) return safetyAnswer(i);
   const item = G.queue[G.idx];
   if (!item || item.answered) return;
   const t = item.a;
@@ -1189,6 +1241,7 @@ function answer(i){
 function answerTyped(val){
   if (G.fleet) return fleetTyped(val);
   if (G.codes) return codesTyped(val);
+  if (G.safety) return safetyTyped(val);
   const item = G.queue[G.idx];
   if (!item || item.answered) return;
   const t = item.a;
@@ -1261,10 +1314,12 @@ function finish(){
   $("rDaily").innerHTML = `<span>Today <b>${tc}/${GOAL}</b></span><span>Streak <b>${st} day${st===1?"":"s"}</b></span><span>${tc >= GOAL ? "Daily goal met" : `${GOAL-tc} more to keep the streak`}</span>`;
   const m = [...G.missed.values()];
   $("rMissLbl").textContent = m.length ? `Missed this round · ${m.length} added to tomorrow's review` : "Clean round. Nothing missed.";
-  $("rMiss").innerHTML = G.codes
+  $("rMiss").innerHTML = G.safety
+    ? m.map(c=>`<li><code>${c.placard ? c.placard.n : "!"}</code><span>${c.big || (c.draw ? "Spot the equipment" : c.q)}<small>${c.ans}</small></span></li>`).join("")
+    : G.codes
     ? m.map(c=>`<li><code>${c.tiles || (c.ans.length <= 4 ? c.ans : "··")}</code><span>${c.tiles ? c.q : (c.big || c.q)}<small>${c.ans}</small></span></li>`).join("")
     : G.fleet
-    ? m.map(c=>`<li><code>${c.kind==="fplan" ? OUT.planExitCount(OUT.byKey[c.okey]) : c.num ?? "✈"}</code><span>${c.kind==="fspot" ? FLEET_T[c.tk].n : c.big}<small>${c.kind==="fspot" ? "Spot the plane" : c.kind==="feng" ? answerText(c) : c.kind==="fplan" ? "Find the exits · " + c.sub : c.q}</small></span></li>`).join("")
+    ? m.map(c=>`<li><code>${c.kind==="fplan" ? OUT.planExitCount(OUT.byKey[c.okey]) : c.num ?? "✈"}</code><span>${c.kind==="fspot" ? FLEET_T[c.tk].n : c.big}<small>${c.kind==="fspot" ? "Spot the plane" : c.kind==="feng" || c.kind==="fexd" ? answerText(c) : c.kind==="fplan" ? "Find the exits · " + c.sub : c.q}</small></span></li>`).join("")
     : m.map(a=>`<li><code>${a.code}</code><span>${a.city}, ${a.name}${NOTES[a.code]?`<small>${NOTES[a.code]}</small>`:""}</span></li>`).join("");
   $("rMiss").hidden = !m.length;
   renderSetup();
@@ -1670,6 +1725,7 @@ const FDECKS = [
  {id:"fseat", name:"Seat counts",    hint:"Total seats on each aircraft and layout."},
  {id:"fcab",  name:"Premium cabins", hint:"How many seats up front — what you'll be serving."},
  {id:"fexit", name:"Exits",          hint:"Exit counts, overwing hatches and door pairs for each type."},
+ {id:"fexd",  name:"Exit types & slides", hint:"Exit sizes and ratings, slides and slide/rafts, overwing hatches, plugged doors and the quirks of your airline's types. General familiarization; your airline's manual sets the procedures."},
  {id:"fplan", name:"Find the exits", hint:"Tap every exit on your airline's cabin plan, both sides. Any tap that misses an exit costs the card."},
  {id:"fcrew", name:"Crew minimum",   hint:"FAA minimum flight attendants from the seat count."},
  {id:"fspot", name:"Spot the plane", hint:"Name the aircraft from its side-view drawing."},
@@ -1677,6 +1733,84 @@ const FDECKS = [
  {id:"frev",  name:"Today's review", hint:"Fleet cards due today."}
 ];
 let fdeckSel = "fmix";
+
+// ---------- exit details: exit types, slides and plugged exits ----------
+// General familiarization. Sizes and seat ratings: 14 CFR 25.807. Assist means: 25.810. 90-second demo: 25.803.
+// Each card: id, tk (type key, or null for cards that apply to every fleet), q (short label), ask (the question), ans, wrong (3 decoys), why.
+const EXD_GENERIC = [
+ {id:"typeA", ask:"Minimum opening of a Type A exit?", ans:"42 in wide × 72 in tall", wrong:["32 in wide × 72 in tall","24 in wide × 48 in tall","20 in wide × 36 in tall"],
+  why:"Type A is the full-size floor-level door on widebodies. The opening must be at least 42 × 72 inches (14 CFR 25.807)."},
+ {id:"typeAseats", ask:"How many passenger seats can one Type A exit on each side support?", ans:"110", wrong:["75","45","35"],
+  why:"Each Type A exit (one on each side) is rated for 110 seats. For comparison: Type B 75, Type C 55, Type I 45, Type III 35 (14 CFR 25.807(g))."},
+ {id:"typeI", ask:"Minimum opening of a Type I exit?", ans:"24 in wide × 48 in tall", wrong:["42 in wide × 72 in tall","20 in wide × 36 in tall","19 in wide × 26 in tall"],
+  why:"Type I is a smaller floor-level exit, at least 24 × 48 inches, rated for 45 seats per side. Door 3 on the A330 and the exit behind the wing on the 767-400ER are Type I."},
+ {id:"typeIII", ask:"Minimum opening of a Type III exit?", ans:"20 in wide × 36 in tall", wrong:["24 in wide × 48 in tall","30 in wide × 48 in tall","42 in wide × 72 in tall"],
+  why:"Type III is the window-size overwing hatch: at least 20 × 36 inches, with a step up of no more than 20 inches inside. Each one is rated for 35 seats per side."},
+ {id:"IIIseats", ask:"How many passenger seats can one Type III exit on each side support?", ans:"35", wrong:["45","55","110"],
+  why:"A Type III exit is rated for 35 seats per side. That's why a 737-800, with two overwing exits per side plus doors, can hold up to 189 seats."},
+ {id:"floor", ask:"Which of these exits is not at floor level?", ans:"Type III", wrong:["Type A","Type C","Type I"],
+  why:"Types A, B, C and I are floor-level doors. Type III sits higher, usually over the wing, so passengers step up and through it."},
+ {id:"sill", ask:"A floor-level exit needs a slide when its sill is more than how high off the ground?", ans:"6 feet", wrong:["4 feet","10 feet","15 feet"],
+  why:"Any non-overwing floor-level exit more than 6 feet above the ground, with the gear down, needs an approved assist means, which in practice means a slide (14 CFR 25.810)."},
+ {id:"demo", ask:"To be certified, a full airliner must be evacuated in how long?", ans:"90 seconds, using only half the exits", wrong:["60 seconds, using all exits","90 seconds, using all exits","3 minutes, using half the exits"],
+  why:"The certification demonstration has to get a full load of passengers and crew to the ground within 90 seconds, in the dark, with only half the exits usable (14 CFR 25.803 and Appendix J)."},
+ {id:"armed", ask:"What happens when an armed door is opened?", ans:"The slide deploys and inflates on its own", wrong:["An alarm sounds but nothing deploys","The door stays locked until disarmed","The slide drops out but must be inflated by hand"],
+  why:"Arming connects the slide to the floor (on many types with a girt bar), so opening the door pulls the slide out and fires its inflation. That's why doors are disarmed and cross-checked before anyone opens them at the gate."},
+ {id:"manual", ask:"A slide drops out but doesn't inflate. What do you pull?", ans:"The manual inflation handle", wrong:["The slide disconnect handle","The door assist handle","The girt bar"],
+  why:"Every slide has a manual inflation handle for exactly this case. The disconnect handle is different: it frees a slide/raft from the aircraft on water."},
+ {id:"raft", ask:"What does a slide/raft do that a plain slide doesn't?", ans:"Detaches and floats as a raft after a water landing", wrong:["Inflates faster on land","Holds two lanes of people","Lowers itself to the ground on a cable"],
+  why:"Slide/rafts are fitted on aircraft that fly over water. On a ditching the crew disconnects them from the door and they serve as life rafts."},
+ {id:"offwing", ask:"What is an off-wing slide for?", ans:"Getting people from the wing down to the ground", wrong:["Bridging the gap between two overwing exits","Evacuating the flight deck","Carrying stretchers off the aircraft"],
+  why:"Passengers leave through the overwing exit onto the wing, then go down an off-wing slide that inflates from the wing or the wing-to-body fairing."},
+ {id:"selfhelp", ask:"Who usually opens an overwing exit in an evacuation?", ans:"The passenger sitting next to it", wrong:["The nearest flight attendant","The captain, by remote release","It opens automatically on landing"],
+  why:"Overwing exits are self-help exits. That's why exit-row passengers must be willing and able to open them, and why they're briefed before departure."},
+ {id:"outside", ask:"Before opening any exit in an evacuation, you first:", ans:"Check outside for fire, water or debris", wrong:["Remove your shoes","Disarm the door","Wait for the passengers to line up"],
+  why:"An exit that opens onto fire, water or wreckage is blocked. Assess conditions outside first, then open it or redirect people to another exit. Exact commands come from your airline's manual."},
+ {id:"cert", ask:"When can a type need more flight attendants than the seat formula gives?", ans:"When more were used in its evacuation certification demo", wrong:["Only on flights over 8 hours","Only when meals are served","Never; the formula is the maximum"],
+  why:"14 CFR 121.391(b): if the evacuation demonstration was done with more flight attendants than the formula, that larger number becomes the minimum."}
+];
+// Type-specific facts. Only shown when the type is in the selected airline's fleet.
+const EXD_TYPE = [
+ {tk:"A319", id:"hatch", ask:"How does the A319's overwing exit open?", ans:"Lift the hatch out and put it outside on the wing", wrong:["It swings up on a top hinge by itself","It slides down into the floor","It opens inward like a door"],
+  why:"The A320 family uses a removable plug-type hatch: pull the handle, lift the hatch out of its frame and dispose of it outside so it can't block the exit."},
+ {tk:"A320", id:"hatch", ask:"How does the A320's overwing exit open?", ans:"Lift the hatch out and put it outside on the wing", wrong:["It swings up on a top hinge by itself","It slides down into the floor","It opens inward like a door"],
+  why:"The A320 family uses a removable plug-type hatch: pull the handle, lift the hatch out of its frame and dispose of it outside so it can't block the exit."},
+ {tk:"A320", id:"owslide", ask:"Where is the A320's off-wing slide stowed?", ans:"In the wing-to-body fairing behind the wing", wrong:["Inside the overwing hatch","Under the cabin floor","In the cargo hold"],
+  why:"The off-wing slide sits in a compartment in the wing-to-body fairing, above and behind the inboard flaps. When the overwing exit opens, the compartment door releases and the slide inflates on the wing."},
+ {tk:"737MAX8", id:"hatch", ask:"How does the 737 MAX 8's overwing exit open?", ans:"It swings up and out on a hinge at the top", wrong:["Lift it out and throw it onto the wing","It slides down into the floor","It opens inward like a door"],
+  why:"The MAX has self-disposing overwing exits: pull the handle and the door rotates up and out on its top hinge, so there's no loose hatch to deal with."},
+ {tk:"737MAX9", id:"hatch", ask:"How does the 737 MAX 9's overwing exit open?", ans:"It swings up and out on a hinge at the top", wrong:["Lift it out and throw it onto the wing","It slides down into the floor","It opens inward like a door"],
+  why:"The MAX has self-disposing overwing exits: pull the handle and the door rotates up and out on its top hinge, so there's no loose hatch to deal with."},
+ {tk:"737MAX9", id:"plug", ask:"At lower seat counts, what fills the MAX 9's mid-cabin exit opening?", ans:"A door plug, so there's no usable exit there", wrong:["A smaller Type III hatch","A galley cart bay","An extra overwing exit"],
+  why:"With fewer seats the mid-cabin exit isn't needed, so a door plug closes the opening. That plug is the part that blew out on Alaska 1282 in January 2024. United's 179-seat MAX 9s use the plug."},
+ {tk:"737-900ER", id:"plug", ask:"When can an airline plug the 737-900ER's mid-cabin exit?", ans:"At 189 seats or fewer", wrong:["At 220 seats or fewer","Only on freighter conversions","Never; it must stay active"],
+  why:"The extra exit behind the wing lets the -900ER carry up to 220. At 189 seats or fewer the doors and four overwing exits are enough, so it can be deactivated."},
+ {tk:"A321neo", id:"flex", ask:"Which door does the A321neo Cabin Flex layout remove?", ans:"Door 2, just ahead of the wing", wrong:["Door 1 at the front","Door 4 at the back","The overwing exits"],
+  why:"Cabin Flex deletes door 2, adds two overwing exits per side and moves door 3 behind the wing. An airline can plug door 3 or an overwing pair at lower seat counts."},
+ {tk:"A321ceo", id:"doors", ask:"How is the A321ceo's exit layout different from the A321neo's?", ans:"Four door pairs and no overwing exits", wrong:["Two door pairs and two overwing pairs","Three door pairs and one overwing pair","Four door pairs plus two overwing pairs"],
+  why:"The classic A321 has four floor-level door pairs, two ahead of the wing and two behind, with no overwing hatches. Most A321neos use Cabin Flex instead."},
+ {tk:"A330-200", id:"door3", ask:"What kind of exit is door 3 on the A330-200?", ans:"A smaller Type I door over the wing", wrong:["A full-size Type A door","A Type III hatch","A plugged door"],
+  why:"The basic A330 layout is A-A-I-A: door 3 is a smaller Type I exit that sits over the wing, and its slide carries people off the wing to the ground."},
+ {tk:"A330-300", id:"door3", ask:"What kind of exit is door 3 on the A330-300?", ans:"A smaller Type I door over the wing", wrong:["A full-size Type A door","A Type III hatch","A plugged door"],
+  why:"The basic A330 layout is A-A-I-A: door 3 is a smaller Type I exit that sits over the wing, and its slide carries people off the wing to the ground."},
+ {tk:"A350-900", id:"crew", ask:"Minimum cabin crew the A350-900 was certified with?", ans:"8", wrong:["6","7","10"],
+  why:"The A350-900's certified minimum is 8 cabin crew, which can be more than the seat formula gives: Delta's 306-seat version works out to 7 by formula."},
+ {tk:"717", id:"tail", ask:"What extra exit does the 717 have at the back?", ans:"A tailcone exit: the tailcone drops away and a slide deploys", wrong:["Aft side doors, L2 and R2","A drop-down airstair under the belly","A mid-cabin door pair"],
+  why:"The 717 has no aft side doors. Besides L1, R1 and four overwing exits, the tailcone can be jettisoned to open an exit with its own slide."},
+ {tk:"717", id:"ow", ask:"Do the 717's overwing exits have slides?", ans:"No; passengers step off the wing", wrong:["Yes, one slide per exit","Yes, a single slide shared by both","Only on overwater flights"],
+  why:"The 717's wing is low enough that there are no overwing slides. People step out onto the wing and off its trailing edge."},
+ {tk:"757-200", id:"layouts", ask:"The 757-200 was certified with which two exit layouts?", ans:"4 door pairs, or 3 door pairs plus 2 overwing pairs", wrong:["2 door pairs plus 3 overwing pairs","4 door pairs plus 2 overwing pairs","3 door pairs only, or 3 plus a tailcone"],
+  why:"Some 757-200s have four door pairs (8 exits, up to 239 seats); others have three door pairs and two overwing pairs (10 exits, up to 224). US fleets mostly fly the overwing version."},
+ {tk:"767-300ER", id:"owslide", ask:"Where does the 767-300ER's overwing slide come from?", ans:"A compartment in the wing-to-body fairing", wrong:["Inside the overwing hatch","Under the cabin floor","The trailing edge of the flaps"],
+  why:"The 767's off-wing slide stows in the wing-to-body fairing and inflates on the wing when the overwing exit opens."},
+ {tk:"767-400ER", id:"typeI", ask:"What exit sits behind the wing on the 767-400ER?", ans:"A smaller Type I door pair", wrong:["A full-size Type A door pair","Two overwing hatches per side","A tailcone exit"],
+  why:"The 767-400ER has three Type A door pairs plus a Type I pair behind the wing, and no overwing hatches. Only Delta and United fly it."}
+];
+function exdCards(types){
+  const mk = (d, tk) => ({id:`exd:${tk ? tk + ":" : ""}${d.id}`, kind:"fexd", tk:tk || null, q: tk ? "Exit details" : "Exit types & slides",
+    big:`<span class="cdef">${d.ask}</span>`, sub: tk ? FLEET_T[tk].n : "Every fleet", ans:d.ans, wrong:d.wrong, why:d.why});
+  return EXD_GENERIC.map(d => mk(d, null)).concat(EXD_TYPE.filter(d => types.includes(d.tk) && FLEET_T[d.tk]).map(d => mk(d, d.tk)));
+}
 
 function myConfigs(){ const k = store.airline; return CONFIGS.filter(c => AIRLINES[k] ? c.air===k : true); }
 function myTypes(){ return [...new Set(myConfigs().map(c=>c.tk))].filter(k=>FLEET_T[k]); }
@@ -1712,6 +1846,7 @@ function fleetCards(){
     }
     cards.push({id:"eng:"+k, kind:"feng", tk:k, ans:k, q:"What engines power it?", big:t.n, sub:t.f});
   }
+  cards.push(...exdCards(myTypes()));
   const airFull = AIRLINES[store.airline] ? airName(store.airline) : null;
   for (const [okey, list] of Object.entries(OUT.CONFIGS)) list.forEach((cfg, ci) => {
     if (airFull && cfg.air !== airFull) return;
@@ -1783,7 +1918,7 @@ function startFleet(){
   }
   const queue = pool.slice(0, 15).map(card => ({card, kind:"std", tries:0}));
   if (!queue.length) return;
-  try { localStorage.setItem(KEY+"-prefs", JSON.stringify({deck:deckSel, fdeck:fdeckSel, cdeck:cdeckSel, mode:modeSel, level:levelSel, clock:$("clockOn").checked})); } catch(e){}
+  savePrefs();
   G = { fleet:true, all, queue, idx:0, score:0, streak:0, bestStreak:0, firstRight:0, unique:queue.length, missed:new Map(),
         clock:$("clockOn").checked, level:levelSel };
   const d = FDECKS.find(x=>x.id===fdeckSel);
@@ -1791,7 +1926,7 @@ function startFleet(){
   show("play"); fleetNext(true);
 }
 
-const answerText = card => card.kind === "fplan" ? `${OUT.planExitCount(OUT.byKey[card.okey])} exits` : card.num != null ? String(card.num)
+const answerText = card => card.kind === "fplan" ? `${OUT.planExitCount(OUT.byKey[card.okey])} exits` : card.kind === "fexd" ? card.ans : card.num != null ? String(card.num)
   : card.kind === "feng" ? FLEET_T[card.ans].eng : FLEET_T[card.ans].n;
 
 function fleetNext(first){
@@ -1826,6 +1961,10 @@ function fleetNext(first){
     $("typeForm").addEventListener("submit", e => { e.preventDefault(); if (inp.value.length) fleetTyped(inp.value); });
     inp.addEventListener("keydown", e => { if (e.key==="Enter") e.stopPropagation(); });
     setTimeout(() => inp.focus({preventScroll:true}), 30);
+  } else if (c.kind === "fexd") {
+    item.opts = shuffle([c.ans, ...c.wrong]);
+    $("opts").className = "opts";
+    $("opts").innerHTML = item.opts.map((o,i)=>`<button class="opt" data-i="${i}"><span class="k">${i+1}</span><span class="t"><b style="font-size:15px;font-weight:600">${o}</b></span></button>`).join("");
   } else if (c.num != null) {
     item.opts = numOptions(c, G.level, G.all);
     $("opts").className = "opts codes";
@@ -1906,6 +2045,7 @@ function cardExplain(c){
     case "fplan": { const p = OUT.byKey[c.okey], lay = OUT.layoutFromConfig(p, c.cfg), ex = OUT.exitPlanRects(p, lay.W);
       return `<div>The <b>${t.n}</b> (${c.cfg.air}${c.cfg.cfg && c.cfg.cfg.length < 26 ? ", " + c.cfg.cfg : ""}) has <b>${ex.length}</b> exits: ${[...new Set(ex.map(r => r.lab))].join(", ")}.</div>` + cabinTable(lay); }
     case "feng":  return `<div>The <b>${t.n}</b> flies with ${t.eng}.</div>`;
+    case "fexd":  return `<div>${c.why}</div>` + (c.tk && OUT.byKey[OK(c.tk)] ? `<div class="ol revealdraw">${OUT.planeSvg(OUT.byKey[OK(c.tk)], "exits")}</div>` : "");
   }
   return "";
 }
@@ -1928,7 +2068,7 @@ function fleetSettle(item, right, timedOut, extra=""){
     G.streak = 0; G.missed.set(c.id, c);
     if (item.tries === 0) G.queue.splice(Math.min(G.queue.length, G.idx + 4), 0, {card:c, kind:"std", tries:1});
     $("verdict").className = "verdict bad";
-    $("verdict").textContent = timedOut ? "Out of time" : `Not quite · it's ${answerText(c)}`;
+    $("verdict").textContent = timedOut ? "Out of time" : c.kind === "fexd" ? "Not quite" : `Not quite · it's ${answerText(c)}`;
   }
   const r = fsrs()[c.id];
   const srsLine = firstTry && r ? (right ? (r.b >= MASTER_BOX ? `Mastered. Next review in ${INTERVALS[r.b]} days.` : `Next review in ${INTERVALS[r.b]} day${INTERVALS[r.b]===1?"":"s"}.`) : "Back in tomorrow's review.") : "";
@@ -2176,7 +2316,7 @@ function startCodes(){
   }
   const queue = pool.slice(0, 15).map(card => ({card, tries:0}));
   if (!queue.length) return;
-  try { localStorage.setItem(KEY+"-prefs", JSON.stringify({deck:deckSel, fdeck:fdeckSel, cdeck:cdeckSel, mode:modeSel, level:levelSel, clock:$("clockOn").checked})); } catch(e){}
+  savePrefs();
   const air = AIRLINES[store.airline];
   G = { codes:true, poolSet: new Set(air ? air.set : DATA.map(a=>a.code)), queue, idx:0, score:0, streak:0, bestStreak:0, firstRight:0, unique:queue.length, missed:new Map(), clock:$("clockOn").checked, level:levelSel };
   $("hDeck").textContent = `Phonetics & codes · ${CDECKS.find(d=>d.id===cdeckSel).name}` + ({adv:" · Advanced", exp:" · Expert"}[levelSel] || "");
@@ -2271,13 +2411,388 @@ function renderBoard(){
     RADIO_NUM.map(r => `<div class="bl num"><b>${r.d}</b><span>${r.ans}</span><small>${r.ans.toUpperCase()}</small></div>`).join("");
 }
 
+
+// ---------- safety track: line drawings ----------
+// Generic emergency equipment, drawn in the same line style as the aircraft outlines. Not any one maker's product.
+const EQ_SVG = {
+ halon: `<ellipse class="g" cx="80" cy="104" rx="30" ry="4"/>
+  <path class="p" d="M70 104 h-2 a8 8 0 0 1 -8 -8 v-46 a14 14 0 0 1 14 -14 h12 a14 14 0 0 1 14 14 v46 a8 8 0 0 1 -8 8 z"/>
+  <rect class="a" x="60" y="58" width="40" height="22"/>
+  <rect class="p" x="71" y="22" width="18" height="14" rx="2"/>
+  <path class="p" d="M89 27 h12 l10 -5 v14 l-10 -5 h-12 z"/>
+  <path class="p" d="M74 24 L44 26 a3 3 0 0 1 -0.4 -6 L74 18 z"/>
+  <path class="p" d="M80 18 L50 8 a3 3 0 0 1 1.6 -5.6 L84 12 z"/>
+  <circle class="l" cx="72" cy="29" r="3.5"/>
+  <circle class="p" cx="80" cy="46" r="6.5"/><path class="l" d="M80 46 l3.5 -3.5"/>`,
+ water: `<ellipse class="g" cx="80" cy="104" rx="26" ry="4"/>
+  <path class="p" d="M72 104 h-2 a7 7 0 0 1 -7 -7 v-54 a12 12 0 0 1 12 -12 h10 a12 12 0 0 1 12 12 v54 a7 7 0 0 1 -7 7 z"/>
+  <rect class="a" x="63" y="56" width="34" height="26"/>
+  <rect class="p" x="73" y="20" width="14" height="11" rx="2"/>
+  <path class="l" d="M80 20 V11"/><rect class="p" x="64" y="6" width="32" height="7" rx="3.5"/>
+  <path class="t" d="M58 13 a24 8 0 0 0 44 0"/><path class="t" d="M99 11 l3 2 l-3.5 1.5"/>
+  <path class="p" d="M87 25 h10 l7 6 v6 l-5 1 l-4 -7 h-8 z"/>`,
+ pbe: `<ellipse class="g" cx="80" cy="106" rx="40" ry="4"/>
+  <path class="p" d="M44 98 C34 66 44 16 80 14 C116 16 126 66 116 98 Z"/>
+  <path class="t" d="M54 30 C64 22 96 22 106 30"/>
+  <rect class="a" x="56" y="40" width="48" height="28" rx="12"/>
+  <path class="t" d="M62 46 l8 -3"/>
+  <rect class="k" x="71" y="74" width="18" height="12" rx="4"/>
+  <ellipse class="a" cx="80" cy="98" rx="38" ry="7"/>`,
+ o2: `<ellipse class="g" cx="78" cy="102" rx="54" ry="4"/>
+  <path class="l" d="M38 56 C44 30 96 30 102 56"/>
+  <rect class="p" x="22" y="52" width="94" height="34" rx="17"/>
+  <rect class="a" x="48" y="52" width="34" height="34"/>
+  <rect class="p" x="114" y="58" width="14" height="22" rx="3"/>
+  <circle class="p" cx="121" cy="48" r="7"/><path class="l" d="M121 48 l3 -4"/><path class="l" d="M121 55 V58"/>
+  <rect class="k" x="128" y="62" width="8" height="5" rx="1.5"/><rect class="k" x="128" y="71" width="8" height="5" rx="1.5"/>
+  <path class="l" d="M136 73 C150 82 140 102 100 100 C80 99 66 98 58 96"/>
+  <path class="y" d="M40 98 l8 -10 h12 l6 10 z"/>`,
+ aed: `<ellipse class="g" cx="80" cy="104" rx="48" ry="4"/>
+  <path class="l" d="M64 30 V20 a3 3 0 0 1 3 -3 h26 a3 3 0 0 1 3 3 V30" style="stroke-width:2.6"/>
+  <rect class="p" x="32" y="30" width="96" height="70" rx="10"/>
+  <path class="p" d="M80 88 C62 76 52 66 52 56 C52 47 59 41 66 41 C72 41 77 45 80 50 C83 45 88 41 94 41 C101 41 108 47 108 56 C108 66 98 76 80 88 Z"/>
+  <path class="y" d="M84 46 L72 62 h8 l-6 16 l14 -20 h-8 z"/>
+  <circle class="k" cx="114" cy="88" r="5"/>`,
+ mega: `<ellipse class="g" cx="80" cy="104" rx="46" ry="4"/>
+  <path class="p" d="M50 44 L110 24 V88 L50 68 Z"/>
+  <ellipse class="a" cx="110" cy="56" rx="7" ry="32"/>
+  <rect class="p" x="32" y="45" width="20" height="22" rx="5"/>
+  <path class="p" d="M66 72 L62 100 h11 l5 -24 z"/>
+  <path class="l" d="M64 80 h-6"/>`,
+ firstaid: `<ellipse class="g" cx="80" cy="104" rx="50" ry="4"/>
+  <path class="l" d="M64 34 V25 a3 3 0 0 1 3 -3 h26 a3 3 0 0 1 3 3 V34" style="stroke-width:2.6"/>
+  <rect class="p" x="28" y="34" width="104" height="66" rx="8"/>
+  <path class="t" d="M28 47 H132"/>
+  <rect class="k" x="44" y="42" width="10" height="7" rx="1.5"/><rect class="k" x="106" y="42" width="10" height="7" rx="1.5"/>
+  <path class="k" d="M74 56 h12 v11 h11 v12 h-11 v11 h-12 v-11 h-11 v-12 h11 z"/>`,
+ torch: `<ellipse class="g" cx="78" cy="102" rx="46" ry="4"/>
+  <g transform="rotate(-14 80 60)">
+   <rect class="p" x="22" y="51" width="72" height="20" rx="6"/>
+   <path class="t" d="M34 51 v20 M40 51 v20 M46 51 v20"/>
+   <rect class="k" x="62" y="47" width="12" height="5" rx="1.5"/>
+   <path class="p" d="M94 49 L116 41 V81 L94 73 Z"/>
+   <ellipse class="y" cx="116" cy="61" rx="4.5" ry="20"/>
+   <path class="t" d="M126 46 L146 40 M128 61 H150 M126 76 L146 82"/>
+  </g>`,
+ axe: `<ellipse class="g" cx="80" cy="106" rx="40" ry="4"/>
+  <g transform="rotate(24 80 60)">
+   <rect class="p" x="74" y="30" width="12" height="76" rx="5"/>
+   <path class="t" d="M74 84 h12 M74 90 h12 M74 96 h12"/>
+   <rect class="p" x="64" y="16" width="32" height="18" rx="2"/>
+   <path class="p" d="M96 12 Q120 25 96 38 Z"/>
+   <path class="p" d="M64 19 L42 25 L64 31 Z"/>
+  </g>`,
+ vest: `<ellipse class="g" cx="80" cy="106" rx="44" ry="4"/>
+  <path class="y" d="M80 14 C52 14 38 38 38 62 C38 86 50 98 62 98 L66 64 C66 52 72 46 80 46 C88 46 94 52 94 64 L98 98 C110 98 122 86 122 62 C122 38 108 14 80 14 Z"/>
+  <path class="t" d="M80 14 V46"/>
+  <path class="l" d="M60 26 l-8 -14 M100 26 l8 -14"/>
+  <path class="l" d="M62 98 C70 104 90 104 98 98"/>
+  <rect class="k" x="56" y="98" width="9" height="7" rx="1.5"/><rect class="k" x="95" y="98" width="9" height="7" rx="1.5"/>`,
+ mask: `<ellipse class="g" cx="80" cy="108" rx="34" ry="3.5"/>
+  <path class="l" d="M86 36 C96 22 112 14 128 10"/><circle class="l" cx="131" cy="9" r="3"/>
+  <path class="l" d="M62 52 C38 46 40 24 62 22 C78 20 96 24 104 34 C110 42 104 50 98 52"/>
+  <path class="y" d="M60 48 C60 36 100 36 100 48 L94 80 C92 88 68 88 66 80 Z"/>
+  <path class="a" d="M70 86 C60 104 100 104 90 86 Z"/>`
+};
+const eqSvg = k => `<svg viewBox="0 0 160 112" role="img" aria-label="Line drawing">${EQ_SVG[k]}</svg>`;
+
+// US DOT hazard class placards, simplified. Colors are the real placard colors in both themes.
+const HZ_SYM = {
+ flame: c => `<path fill="${c}" d="M60 14 C65 24 74 29 71 42 C70 50 65 54 60 54 C54 54 48 49 49 41 C50 35 54 33 55 26 C58 30 59 35 61 37 C63 30 61 22 60 14 Z"/><rect fill="${c}" x="47" y="57" width="26" height="3.5"/>`,
+ bomb: c => `<circle fill="${c}" cx="60" cy="38" r="7"/>` + [0,45,90,135,180,225,270,315].map(a => { const r = a*Math.PI/180; return `<path stroke="${c}" stroke-width="3" stroke-linecap="round" d="M${(60+11*Math.cos(r)).toFixed(1)} ${(38+11*Math.sin(r)).toFixed(1)} L${(60+19*Math.cos(r)).toFixed(1)} ${(38+19*Math.sin(r)).toFixed(1)}"/>`; }).join(""),
+ cyl: c => `<rect fill="${c}" x="53" y="24" width="14" height="34" rx="6"/><rect fill="${c}" x="56.5" y="17" width="7" height="8" rx="1.5"/>`,
+ skull: c => `<circle fill="${c}" cx="60" cy="31" r="12"/><rect fill="${c}" x="53" y="38" width="14" height="8" rx="2"/><circle fill="#fff" cx="55" cy="30" r="3.4"/><circle fill="#fff" cx="65" cy="30" r="3.4"/>
+   <path stroke="${c}" stroke-width="4" stroke-linecap="round" d="M44 48 L76 60 M76 48 L44 60"/>`,
+ trefoil: c => `<circle fill="${c}" cx="60" cy="38" r="3.6"/>` + [-150,-30,90].map(a => { const p = (ang, r) => [(60 + r*Math.cos(ang*Math.PI/180)).toFixed(1), (38 + r*Math.sin(ang*Math.PI/180)).toFixed(1)];
+   const [a1,a2] = [a-30, a+30], o1 = p(a1,18), o2 = p(a2,18), i2 = p(a2,6), i1 = p(a1,6);
+   return `<path fill="${c}" d="M${i1} L${o1} A18 18 0 0 1 ${o2} L${i2} A6 6 0 0 0 ${i1} Z"/>`; }).join(""),
+ ocircle: c => `<path fill="${c}" d="M60 12 C64 20 70 23 68 32 C67 37 64 40 60 40 C56 40 52 37 53 31 C54 27 57 25 57 20 C59 23 59 26 60 27 C61 22 60 17 60 12 Z"/><circle fill="none" stroke="${c}" stroke-width="4.5" cx="60" cy="47" r="7"/><rect fill="${c}" x="47" y="57" width="26" height="3.5"/>`,
+ corr: c => `<g transform="translate(0 8)"><path fill="${c}" d="M42 24 l9 -3.5 l4.5 12 l-9 3.5 z M69 20.5 l9 3.5 l-4.5 12 l-9 -3.5 z"/><path stroke="${c}" stroke-width="2.4" stroke-linecap="round" d="M48 39 v5 M72 39 v5"/>
+   <path fill="${c}" d="M40 48 h20 v7 h-20 z M64 46 c4 -2 11 -2 15 2 l2 7 h-17 z"/></g>`
+};
+const PLACARDS = [
+ {n:1, name:"Explosives",                         bg:["#F2711C"], sym:"bomb"},
+ {n:2, name:"Gases",                              bg:["#14965A"], sym:"cyl", note:"Green is non-flammable gas (2.2). Flammable gas (2.1) is red and toxic gas (2.3) is white."},
+ {n:3, name:"Flammable liquids",                  bg:["#D9262C"], sym:"flame"},
+ {n:4, name:"Flammable solids",                   bg:["stripes"], sym:"flame", note:"Division 4.1 has red and white stripes. 4.2 is half white, half red; 4.3 (dangerous when wet) is blue."},
+ {n:5, name:"Oxidizers and organic peroxides",    bg:["#F7D117"], sym:"ocircle", num:"5.1"},
+ {n:6, name:"Toxic and infectious substances",    bg:["#FFFFFF"], sym:"skull"},
+ {n:7, name:"Radioactive material",               bg:["#F7D117","#FFFFFF"], sym:"trefoil"},
+ {n:8, name:"Corrosives",                         bg:["#FFFFFF","#141414"], sym:"corr", numInk:"#fff"},
+ {n:9, name:"Miscellaneous dangerous goods",      bg:["class9"], sym:null, note:"Class 9 covers lithium batteries, dry ice and magnetized material. Lithium batteries also have their own Class 9 label with a battery drawing."}
+];
+function placardSvg(pc){
+  const D = "60,4 116,60 60,116 4,60", ink = "#141414";
+  const id = "hz" + (++svgSeqS);
+  let bg = "";
+  if (pc.bg[0] === "stripes") bg = `<g clip-path="url(#${id})"><rect x="0" y="0" width="120" height="120" fill="#fff"/>${[0,1,2,3,4,5,6].map(i => `<rect x="${8 + i*15}" y="0" width="7.5" height="120" fill="#D9262C"/>`).join("")}</g>`;
+  else if (pc.bg[0] === "class9") bg = `<g clip-path="url(#${id})"><rect x="0" y="0" width="120" height="120" fill="#fff"/>${[0,1,2,3,4,5,6].map(i => `<rect x="${26 + i*10}" y="0" width="5" height="60" fill="${ink}"/>`).join("")}</g>`;
+  else if (pc.bg.length === 2) bg = `<g clip-path="url(#${id})"><rect x="0" y="0" width="120" height="60" fill="${pc.bg[0]}"/><rect x="0" y="60" width="120" height="60" fill="${pc.bg[1]}"/></g>`;
+  else bg = `<polygon points="${D}" fill="${pc.bg[0]}"/>`;
+  const num = pc.num || String(pc.n);
+  return `<svg viewBox="0 0 120 120" class="hz" role="img" aria-label="Hazard placard"><defs><clipPath id="${id}"><polygon points="${D}"/></clipPath></defs>${bg}
+    <polygon points="${D}" fill="none" stroke="${ink}" stroke-width="1.2"/><polygon points="60,10 110,60 60,110 10,60" fill="none" stroke="${ink}" stroke-width="1.6" opacity=".9"/>
+    ${pc.sym ? HZ_SYM[pc.sym](ink) : ""}
+    ${pc.bg[0] === "stripes" ? `<rect x="49" y="88" width="22" height="18" rx="3" fill="#fff"/>` : ""}
+    <text x="60" y="103" text-anchor="middle" font-family="Figtree, system-ui, sans-serif" font-weight="700" font-size="${num.length > 1 ? 15 : 19}" fill="${pc.numInk || ink}">${num}</text></svg>`;
+}
+let svgSeqS = 0;
+
+// ---------- safety track ----------
+// General familiarization only: equipment types, fire and smoke, decompression, US rules and dangerous goods.
+// Commands, procedures and equipment locations are carrier-specific and come from each airline's FAA-approved manual.
+const EQUIP = [
+ {k:"halon", name:"Halon extinguisher", grp:"fire", use:"Fires of every common class: paper, fuel or grease, and electrical",
+  facts:["Works on Class A, B and C fires by interrupting the chemical reaction of the fire.","Has a pressure gauge, a safety pin and a squeeze handle. Aim at the base of the fire.","At least two of an airliner's required extinguishers must be Halon 1211 or equivalent (14 CFR 121.309)."]},
+ {k:"water", name:"Water extinguisher", grp:"fire", use:"Class A fires only: paper, fabric, wood, upholstery",
+  facts:["Never use it on electrical or grease fires.","Usually has antifreeze added. Typically you twist the handle to charge it, then squeeze.","Also used to cool a lithium battery once the flames are out."]},
+ {k:"pbe", name:"PBE (smoke hood)", grp:"fire", use:"Protecting your eyes and lungs from smoke while you fight a fire",
+  facts:["Supplies at least 15 minutes of breathing gas (14 CFR 121.337).","One is required within 3 feet of each required cabin fire extinguisher.","Leave the fire area before taking it off."]},
+ {k:"o2", name:"Portable oxygen bottle", grp:"med", use:"First-aid oxygen for someone ill, or for crew moving around after a decompression",
+  facts:["First-aid outlets deliver at least 4 liters a minute (14 CFR 25.1443).","Keep it away from flames, oil and grease. No smoking nearby.","Has a pressure gauge, an on/off valve and one or more outlets for the mask."]},
+ {k:"aed", name:"AED", grp:"med", use:"Analyzing heart rhythm and delivering a shock in cardiac arrest",
+  facts:["Required along with an emergency medical kit on aircraft that need a flight attendant and carry more than 7,500 lb of payload (14 CFR 121.803).","Stored in the passenger cabin.","It talks you through each step; it only shocks if it detects a shockable rhythm."]},
+ {k:"mega", name:"Megaphone", grp:"evac", use:"Being heard during an evacuation",
+  facts:["61 to 99 seats: one megaphone at the back of the cabin.","More than 99 seats: two, one at the front and one at the back (14 CFR 121.309)."]},
+ {k:"firstaid", name:"First aid kit", grp:"med", use:"Minor injuries: cuts, burns, sprains and splinting",
+  facts:["Number required by seats: 1 for up to 50, 2 for 51–150, 3 for 151–250, 4 above 250 (Part 121 Appendix A).","Separate from the emergency medical kit, which holds drugs and is meant for medical professionals."]},
+ {k:"torch", name:"Flashlight", grp:"evac", use:"Seeing and signaling in a dark or smoky cabin",
+  facts:["Every crewmember must have a working flashlight readily available on every flight (14 CFR 121.549).","Usually mounted near your jumpseat; check it during preflight."]},
+ {k:"axe", name:"Crash axe", grp:"fire", use:"Opening panels to reach a hidden fire, or prying a jammed exit",
+  facts:["Every airliner must carry one (14 CFR 121.309).","Normally stowed on the flight deck, out of passengers' reach."]},
+ {k:"vest", name:"Life vest", grp:"evac", use:"Flotation after a water landing",
+  facts:["Inflate it only after you're out of the aircraft. An inflated vest can trap you in a flooding cabin.","Pull the tabs to inflate; blow into the tubes to top it up.","Crew vests are often a different color from passenger vests."]},
+ {k:"mask", name:"Passenger oxygen mask", grp:"med", use:"Breathing after a decompression until the aircraft descends",
+  facts:["Drops automatically before the cabin reaches 15,000 feet (14 CFR 25.1447).","Pulling the mask toward you starts the oxygen flow.","Put your own mask on before helping anyone else."]}
+];
+const EQ_BY = Object.fromEntries(EQUIP.map(e => [e.k, e]));
+const SDECKS = [
+ {id:"smix",    name:"Mixed",          hint:"A bit of everything in this track."},
+ {id:"sequip",  name:"Equipment",      hint:"Spot each piece of emergency equipment from its drawing, and know what it's for."},
+ {id:"sfire",   name:"Fire & smoke",   hint:"Fire classes, which extinguisher, lithium battery fires and smoke hoods."},
+ {id:"sdecomp", name:"Decompression",  hint:"Time of useful consciousness, hypoxia, and oxygen masks."},
+ {id:"sregs",   name:"Regulations",    hint:"FAA rules you'll be checked on: sterile cockpit, exit rows, equipment counts, rest."},
+ {id:"shaz",    name:"Hazmat",         hint:"The nine hazard classes and what passengers can and can't bring."},
+ {id:"srev",    name:"Today's review", hint:"Cards from this track due today."}];
+let sdeckSel = "smix";
+
+// Hand-written fact cards. ans first; wrong holds three decoys. typed: Expert accepts a typed number.
+const SFACTS = [
+ // fire & smoke
+ {deck:"sfire", id:"classA", ask:"A Class A fire is burning…", ans:"Paper, fabric, wood or plastic", wrong:["Fuel, oil or grease","Electrical equipment","Burning metals"], why:"Class A is ordinary combustibles. Halon or water both work."},
+ {deck:"sfire", id:"classB", ask:"A Class B fire is burning…", ans:"Fuel, oil or grease", wrong:["Paper, fabric, wood or plastic","Electrical equipment","Burning metals"], why:"Class B is flammable liquids and grease. Use halon; water spreads it."},
+ {deck:"sfire", id:"classC", ask:"A Class C fire is burning…", ans:"Electrical equipment", wrong:["Paper, fabric, wood or plastic","Fuel, oil or grease","Burning metals"], why:"Class C is energized electrical equipment. Use halon, never water."},
+ {deck:"sfire", id:"nowater", ask:"Which fire should never get a water extinguisher?", ans:"An oven or other electrical fire", wrong:["A burning seat cushion","A trash bin full of paper","A smoldering blanket"], eq:"water", why:"Water conducts electricity and spreads grease. Water extinguishers are for Class A fires only."},
+ {deck:"sfire", id:"li1", ask:"A laptop bursts into flames. First step?", ans:"Put the flames out with a halon or water extinguisher", wrong:["Pick it up and carry it to the galley","Cover it with a blanket","Pack it in ice"], why:"FAA guidance: extinguish the flames with halon, a halon replacement or water first."},
+ {deck:"sfire", id:"li2", ask:"The flames are out, but the device is still smoking. Next?", ans:"Douse it with water or another non-alcoholic liquid", wrong:["Leave it to cool on its own","Move it into a lavatory","Seal it in a plastic bag"], why:"Cooling keeps more battery cells from going into thermal runaway and reigniting (FAA SAFO 09013)."},
+ {deck:"sfire", id:"li3", ask:"Why not cover a hot battery with ice?", ans:"Ice insulates it, so more cells overheat", wrong:["Melting ice causes a short circuit","Ice cracks the screen","It works; ice is the preferred method"], why:"Ice or anything covering the device traps heat, which makes thermal runaway in the other cells more likely."},
+ {deck:"sfire", id:"li4", ask:"Should you pick up a smoking device to move it away?", ans:"No; don't pick up or move a smoking or burning device", wrong:["Yes, to the nearest lavatory","Yes, into a trash bin","Yes, but only with oven mitts"], why:"Moving it can injure you and spread the fire. Fight it where it is."},
+ {deck:"sfire", id:"pbe15", ask:"How long does a PBE supply breathing gas, at minimum?", ans:"15 minutes", wrong:["5 minutes","30 minutes","60 minutes"], typed:["15"], eq:"pbe", why:"14 CFR 121.337 requires at least 15 minutes of breathing gas."},
+ {deck:"sfire", id:"pbe3ft", ask:"How close to each required cabin extinguisher must a PBE be?", ans:"Within 3 feet", wrong:["Within 10 feet","In the same cabin zone","At the nearest jumpseat"], eq:"pbe", why:"14 CFR 121.337 requires one PBE within 3 feet of each required hand fire extinguisher."},
+ {deck:"sfire", id:"hidden", ask:"How do you check a panel for a hidden fire?", ans:"Feel it with the back of your hand for heat", wrong:["Open it right away","Spray water behind it first","Knock on it and listen"], why:"Heat on a sidewall, ceiling or galley panel can show a fire behind it. Using the back of your hand protects your palm."},
+ {deck:"sfire", id:"smoke", ask:"Can anyone disable a lavatory smoke detector?", ans:"No; tampering with one is prohibited by FAA rule", wrong:["Yes, the captain can","Yes, to allow vaping","Only on the ground"], why:"14 CFR 121.317 prohibits tampering with, disabling or destroying any lavatory smoke detector."},
+ // decompression
+ {deck:"sdecomp", id:"tuc250", ask:"Time of useful consciousness at 25,000 feet?", ans:"3 to 5 minutes", wrong:["30 to 60 seconds","10 minutes","20 to 30 minutes"], why:"FAA averages: 3 to 5 minutes at FL250. A rapid decompression roughly halves it."},
+ {deck:"sdecomp", id:"tuc350", ask:"Time of useful consciousness at 35,000 feet?", ans:"30 to 60 seconds", wrong:["3 to 5 minutes","1 to 2 minutes","15 to 20 seconds"], why:"FAA averages: 30 to 60 seconds at FL350, and as little as 15 to 30 seconds after a rapid decompression."},
+ {deck:"sdecomp", id:"tuc400", ask:"Time of useful consciousness at 40,000 feet?", ans:"15 to 20 seconds", wrong:["30 to 60 seconds","1 to 2 minutes","5 seconds"], why:"FAA averages: 15 to 20 seconds at FL400. That's why you put your own mask on immediately."},
+ {deck:"sdecomp", id:"tuc300", ask:"Time of useful consciousness at 30,000 feet?", ans:"1 to 2 minutes", wrong:["3 to 5 minutes","15 to 20 seconds","10 minutes"], why:"FAA averages: 1 to 2 minutes at FL300."},
+ {deck:"sdecomp", id:"rapid", ask:"What does a rapid decompression do to time of useful consciousness?", ans:"Cuts it roughly in half", wrong:["Doubles it","No change","Cuts it to zero"], why:"The FAA's rapid-decompression figures are about half the normal-ascent ones at every altitude."},
+ {deck:"sdecomp", id:"cabin8k", ask:"Normal maximum cabin altitude on an airliner?", ans:"8,000 feet", wrong:["4,000 feet","12,000 feet","15,000 feet"], typed:["8000"], why:"Transport-category aircraft must keep cabin altitude at or below 8,000 feet in normal operation (14 CFR 25.841)."},
+ {deck:"sdecomp", id:"drop", ask:"Passenger masks drop automatically before the cabin reaches…", ans:"15,000 feet", wrong:["8,000 feet","10,000 feet","25,000 feet"], typed:["15000"], eq:"mask", why:"14 CFR 25.1447 requires the masks to be presented automatically before cabin altitude exceeds 15,000 feet."},
+ {deck:"sdecomp", id:"pull", ask:"What starts the oxygen flowing in a passenger mask?", ans:"Pulling the mask down toward you", wrong:["Breathing in hard","A button on the armrest","The flight deck turns it on"], eq:"mask", why:"Pulling the mask releases a pin that starts the oxygen. The bag may not inflate even when oxygen is flowing."},
+ {deck:"sdecomp", id:"first", ask:"After a decompression, whose mask goes on first?", ans:"Your own", wrong:["The nearest child's","The person in the aisle seat","Whoever looks most unwell"], eq:"mask", why:"With seconds to minutes of useful consciousness, you can't help anyone once you're impaired."},
+ {deck:"sdecomp", id:"hyp", ask:"Which is a sign of hypoxia?", ans:"Euphoria, tingling and blue lips or fingernails", wrong:["Ear pain and a runny nose","Hunger and shivering","A sudden urge to sleep at the gate"], why:"Hypoxia often feels pleasant at first. Other signs: slowed thinking, poor judgment, headache, blurred vision."},
+ {deck:"sdecomp", id:"fog", ask:"Why can fog fill the cabin in a rapid decompression?", ans:"The air cools suddenly and moisture condenses", wrong:["The oxygen generators smoke","A fire has started","The air conditioning fails"], why:"Rapid decompression often brings a loud noise, fog, a sharp temperature drop and flying debris."},
+ {deck:"sdecomp", id:"smell", ask:"Passenger oxygen generators are running and smell like burning. This means…", ans:"Normal: the chemical generators get hot", wrong:["There's a fire; discharge halon","The masks are failing","The pilots have descended"], why:"Chemical oxygen generators produce heat, and a burning smell is normal. Don't touch the hot canisters."},
+ // regulations
+ {deck:"sregs", id:"sterile", ask:"Sterile cockpit applies below what altitude?", ans:"10,000 feet", wrong:["18,000 feet","5,000 feet","2,500 feet"], typed:["10000"], why:"14 CFR 121.542: no non-essential contact with the flight deck during taxi, takeoff, landing, and any flight below 10,000 feet except cruise."},
+ {deck:"sregs", id:"exitage", ask:"Minimum age to sit in an exit row?", ans:"15", wrong:["12","16","18"], typed:["15"], why:"14 CFR 121.585: exit-seat passengers must be at least 15 and able and willing to perform the exit functions."},
+ {deck:"sregs", id:"exitwhy", ask:"An exit-row passenger asks to move. Must they say why?", ans:"No; the airline can't require a reason", wrong:["Yes, in writing","Yes, to the captain","Only if the flight is full"], why:"14 CFR 121.585: the airline must reseat them promptly and may not require them to disclose the reason."},
+ {deck:"sregs", id:"exitkids", ask:"Which passenger can't sit in an exit row?", ans:"One traveling with a small child they care for", wrong:["A 16-year-old traveling alone","Someone wearing glasses","A passenger in a business suit"], why:"Responsibilities like caring for small children can prevent someone from performing the exit functions (14 CFR 121.585)."},
+ {deck:"sregs", id:"deplane", ask:"During deplaning, the required flight attendants can drop to…", ans:"Half, rounded down, but never fewer than one", wrong:["Zero once the door is open","One, regardless of size","No change; all must stay"], why:"14 CFR 121.394, with engines shut down and a floor-level exit open."},
+ {deck:"sregs", id:"ext", ask:"Cabin fire extinguishers required with 150 passenger seats?", ans:"3", wrong:["2","4","5"], typed:["3"], why:"14 CFR 121.309: 61–200 seats need 3, 201–300 need 4, 301–400 need 5."},
+ {deck:"sregs", id:"ext250", ask:"Cabin fire extinguishers required with 250 passenger seats?", ans:"4", wrong:["3","5","6"], typed:["4"], why:"14 CFR 121.309: 201–300 seats need 4."},
+ {deck:"sregs", id:"fak", ask:"First aid kits required with 180 passenger seats?", ans:"3", wrong:["1","2","4"], typed:["3"], eq:"firstaid", why:"Part 121 Appendix A: 151–250 seats need 3 first aid kits."},
+ {deck:"sregs", id:"mega", ask:"Megaphones required with more than 99 passenger seats?", ans:"2", wrong:["1","3","4"], typed:["2"], eq:"mega", why:"14 CFR 121.309: two megaphones, at the front and the back of the cabin."},
+ {deck:"sregs", id:"rest", ask:"Minimum rest between duty periods for flight attendants?", ans:"10 consecutive hours", wrong:["8 consecutive hours","9 consecutive hours","12 consecutive hours"], typed:["10"], why:"The FAA's 2022 rule raised it from 9 to 10 consecutive hours. Your contract may give more."},
+ {deck:"sregs", id:"booze", ask:"Can passengers drink alcohol they brought themselves?", ans:"No; only alcohol served by the airline", wrong:["Yes, if it's under 3.4 oz","Yes, in premium cabins","Only on international flights"], why:"14 CFR 121.575. Crew also may not serve anyone who appears intoxicated."},
+ {deck:"sregs", id:"lap", ask:"Up to what age may a child fly on an adult's lap?", ans:"Under 2", wrong:["Under 3","Under 1","Under 5"], why:"Children under 2 may be held on an adult's lap. Everyone 2 and older needs their own seat and seat belt (14 CFR 121.311)."},
+ {deck:"sregs", id:"stow", ask:"When must all carry-on bags be stowed?", ans:"Taxi, takeoff and landing", wrong:["Takeoff only","Only when the seat belt sign is on","Only on the ground"], why:"14 CFR 121.589: bags must be properly stowed before the aircraft moves, takes off or lands."},
+ {deck:"sregs", id:"demo", ask:"The certification evacuation demo has to be done in…", ans:"90 seconds, with half the exits", wrong:["60 seconds, with all exits","2 minutes, with half the exits","90 seconds, with all exits"], why:"14 CFR 25.803 and Appendix J."},
+ {deck:"sregs", id:"light", ask:"Who must have a working flashlight on every flight?", ans:"Every crewmember", wrong:["Only the lead flight attendant","Only the pilots","Only on night flights"], eq:"torch", why:"14 CFR 121.549 requires each crewmember to have a flashlight in good working order readily available."},
+ // hazmat: passenger rules (FAA PackSafe)
+ {deck:"shaz", id:"spare", ask:"Spare lithium batteries and power banks go…", ans:"In carry-on only, never in checked bags", wrong:["In checked bags only","Either, if under 100 Wh","Only in the overhead bin with the airline's approval"], why:"Spares must ride in the cabin, where crew can reach a fire. That includes bags checked at the gate."},
+ {deck:"shaz", id:"wh160", ask:"A spare lithium battery rated 140 Wh is…", ans:"Allowed with the airline's approval, two at most", wrong:["Allowed without limit","Forbidden","Checked bags only"], why:"Up to 100 Wh: allowed. 101–160 Wh: airline approval, two spares at most. Over 160 Wh: forbidden."},
+ {deck:"shaz", id:"wh200", ask:"A spare lithium battery rated 200 Wh is…", ans:"Forbidden", wrong:["Allowed with the airline's approval","Allowed in carry-on","Allowed if taped"], why:"Anything over 160 Wh is forbidden for passengers."},
+ {deck:"shaz", id:"term", ask:"How must spare batteries be packed?", ans:"Terminals protected from short circuits", wrong:["Fully charged","Wrapped in foil","With the device switched on"], why:"Original packaging, tape over the terminals or a separate pouch keeps them from shorting."},
+ {deck:"shaz", id:"vape", ask:"E-cigarettes and vapes go…", ans:"In carry-on only, and can't be used or charged on board", wrong:["In checked bags only","Anywhere, if switched off","Only in the crew's care"], why:"FAA PackSafe: allowed in the cabin only."},
+ {deck:"shaz", id:"lighter", ask:"Which lighter may a passenger carry?", ans:"One common lighter, on their person or in carry-on", wrong:["One torch lighter","Any number in checked bags","A lighter plus spare butane"], why:"Torch lighters and spare lighter fuel are forbidden."},
+ {deck:"shaz", id:"match", ask:"Which matches are forbidden?", ans:"Strike-anywhere matches", wrong:["One book of safety matches","Matches in a carry-on","Matches on your person"], why:"One book of safety matches is allowed on your person or in carry-on."},
+ {deck:"shaz", id:"dryice", ask:"How much dry ice may a passenger bring to keep perishables cold?", ans:"Up to 5.5 lb (2.5 kg), in a vented package", wrong:["Up to 1 lb","Up to 25 lb","None"], why:"FAA PackSafe, and many airlines require approval."},
+ {deck:"shaz", id:"abv", ask:"Alcoholic drinks above what strength are forbidden?", ans:"70% alcohol (140 proof)", wrong:["24% alcohol (48 proof)","40% alcohol (80 proof)","50% alcohol (100 proof)"], why:"Drinks over 70% ABV are forbidden. At 70% or below they must be in unopened retail packaging."},
+ {deck:"shaz", id:"aerosol", ask:"Which aerosol is forbidden in passenger bags?", ans:"Spray paint", wrong:["Hairspray","Shaving cream","Spray deodorant"], why:"Toiletry and medicinal aerosols are allowed within limits; spray paint, air freshener and cooking spray are not."},
+ {deck:"shaz", id:"stove", ask:"A passenger has a camping stove. It may travel only if…", ans:"It's completely purged of fuel and vapors", wrong:["It's in a checked bag","The fuel canister is half empty","It's wrapped in plastic"], why:"Equipment that has held fuel must be fully purged, and airlines may restrict it further."}
+];
+
+function safetyCards(){
+  const cards = [], names = EQUIP.map(e => e.name), uses = EQUIP.map(e => e.use);
+  const near = (e, field) => lvl => {
+    const same = EQUIP.filter(x => x !== e && x.grp === e.grp).map(x => x[field]);
+    const rest = EQUIP.filter(x => x !== e && x.grp !== e.grp).map(x => x[field]);
+    const pool = lvl === "adv" ? same.concat(shuffle(rest)) : shuffle(same.concat(rest));
+    return shuffle([e[field], ...pool.slice(0, 3)]);
+  };
+  EQUIP.forEach(e => {
+    cards.push({id:`eqs:${e.k}`, deck:"sequip", eq:e.k, q:"What is this?", draw:true, ans:e.name, opts:near(e, "name")});
+    cards.push({id:`equ:${e.k}`, deck:"sequip", eq:e.k, q:"What is it for?", big:e.name, ans:e.use, long:true, opts:near(e, "use")});
+  });
+  SFACTS.forEach(f => cards.push({id:`sf:${f.id}`, deck:f.deck, eq:f.eq || null, q:SDECKS.find(d => d.id === f.deck).name, big:f.ask, bigSmall:true,
+    ans:f.ans, why:f.why, long:f.ans.length > 22, typed:f.typed ? {accept:f.typed, max:6} : null,
+    opts:() => shuffle([f.ans, ...f.wrong])}));
+  PLACARDS.forEach(p => {
+    cards.push({id:`hz:${p.n}`, deck:"shaz", q:"Which hazard class is this?", placard:p, ans:p.name,
+      opts: lvl => shuffle([p.name, ...(lvl === "adv" ? PLACARDS.filter(x => x !== p).sort((a,b) => Math.abs(a.n-p.n) - Math.abs(b.n-p.n)).slice(0,3) : shuffle(PLACARDS.filter(x => x !== p)).slice(0,3)).map(x => x.name)])});
+    cards.push({id:`hzn:${p.n}`, deck:"shaz", q:"Which class number?", big:p.name, bigSmall:true, ans:String(p.n), short:true, placard:p, typed:{accept:[String(p.n)], max:1},
+      opts: () => shuffle([String(p.n), ...shuffle(PLACARDS.filter(x => x !== p)).slice(0,3).map(x => String(x.n))])});
+  });
+  return cards;
+}
+const ssrs = () => (store.ssrs = store.ssrs || {});
+function sDue(id){ const r = ssrs()[id]; return !!r && r.d <= today(); }
+function sStatus(id){ const r = ssrs()[id]; if (!r) return "un"; if (r.b >= MASTER_BOX) return "mast"; if (r.b === 0) return "bad"; return "learn"; }
+function srecord(id, right){
+  const S = ssrs(), r = S[id] || {b:0, d:0};
+  if (right) { r.b = Math.min(INTERVALS.length-1, r.b+1); r.d = today() + INTERVALS[r.b]; } else { r.b = 0; r.d = today(); }
+  S[id] = r;
+  if (store.daily.day !== today()) store.daily = {day:today(), count:0};
+  store.daily.count++;
+  if (store.daily.count === GOAL) { const t = today(); if (store.streak.last === t-1) store.streak.n++; else if (store.streak.last !== t) store.streak.n = 1; store.streak.last = t; }
+  save();
+}
+
+function startSafety(){
+  const all = safetyCards();
+  let pool;
+  if (sdeckSel === "srev") { pool = all.filter(c => sDue(c.id)); pool.sort((x,y) => ssrs()[x.id].b - ssrs()[y.id].b);
+    if (pool.length < GOAL) pool = pool.concat(shuffle(all.filter(c => !ssrs()[c.id])).slice(0, GOAL - pool.length)); }
+  else {
+    pool = sdeckSel === "smix" ? all : all.filter(c => c.deck === sdeckSel);
+    if (sdeckSel === "smix") {   // keep mixed rounds balanced across decks
+      const by = {}; pool.forEach(c => (by[c.deck] = by[c.deck] || []).push(c));
+      pool = Object.values(by).flatMap(list => shuffle(list.filter(c=>sDue(c.id))).concat(shuffle(list.filter(c=>!sDue(c.id)))).slice(0, 3));
+    } else { const due = shuffle(pool.filter(c=>sDue(c.id))), rest = shuffle(pool.filter(c=>!sDue(c.id))); pool = due.concat(rest); }
+    pool = shuffle(pool.slice(0, 15));
+  }
+  const queue = pool.slice(0, 15).map(card => ({card, tries:0}));
+  if (!queue.length) return;
+  savePrefs();
+  G = { safety:true, queue, idx:0, score:0, streak:0, bestStreak:0, firstRight:0, unique:queue.length, missed:new Map(), clock:$("clockOn").checked, level:levelSel };
+  $("hDeck").textContent = `Safety · ${SDECKS.find(d=>d.id===sdeckSel).name}` + ({adv:" · Advanced", exp:" · Expert"}[levelSel] || "");
+  show("play"); safetyNext(true);
+}
+
+function safetyNext(first){
+  cancelAnimationFrame(raf);
+  if (!first) G.idx++;
+  if (G.idx >= G.queue.length) return finish();
+  const item = G.queue[G.idx], c = item.card;
+  item.view = (G.level === "exp" && c.typed) ? "type" : "pick"; item.answered = false;
+  $("hCard").textContent = G.idx+1; $("hLeft").textContent = G.queue.length - G.idx - 1;
+  $("hStreak").textContent = G.streak; $("hScore").textContent = G.score.toLocaleString();
+  $("reveal").hidden = true; $("quitBtn").hidden = false; $("pTrip").hidden = true;
+  $("pQ").textContent = (item.tries === 1 ? "Second look. " : "") + c.q;
+  $("pTiles").innerHTML = "";
+  $("pCity").hidden = false;
+  if (c.draw) $("pCity").innerHTML = `<div class="eq eqdraw">${eqSvg(c.eq)}</div>`;
+  else if (c.placard && c.id.startsWith("hz:")) $("pCity").innerHTML = `<div class="hzdraw">${placardSvg(c.placard)}</div>`;
+  else $("pCity").innerHTML = `<span class="${c.bigSmall ? "cdef" : ""}">${c.big}</span>`;
+  if (item.view === "type") {
+    $("opts").className = "opts";
+    $("opts").innerHTML = `<form class="typer" id="typeForm" autocomplete="off"><input id="typeIn" type="text" inputmode="numeric" autocorrect="off" spellcheck="false" maxlength="${c.typed.max}" placeholder="___" aria-label="Your answer"><button class="btn" type="submit">Check</button></form>`;
+    const inp = $("typeIn");
+    inp.addEventListener("input", () => { inp.value = inp.value.replace(/[^0-9]/g,"").slice(0, c.typed.max); });
+    $("typeForm").addEventListener("submit", e => { e.preventDefault(); if (inp.value.trim()) safetyTyped(inp.value); });
+    inp.addEventListener("keydown", e => { if (e.key==="Enter") e.stopPropagation(); });
+    setTimeout(() => inp.focus({preventScroll:true}), 30);
+  } else {
+    item.opts = c.opts(G.level);
+    const short = item.opts.every(o => o.length <= 4);
+    $("opts").className = short ? "opts codes" : "opts";
+    $("opts").innerHTML = item.opts.map((o,i) => `<button class="opt" data-i="${i}"><span class="k">${i+1}</span><span class="t"><b${c.long || o.length > 22 ? ' style="font-size:14.5px;font-weight:600"' : ""}>${o}</b></span></button>`).join("");
+  }
+  G.t0 = performance.now();
+  $("clock").style.visibility = G.clock ? "visible" : "hidden"; $("clock").classList.remove("low"); $("clockBar").style.transform = "scaleX(1)";
+  if (G.clock) tick();
+}
+function safetyAnswer(i){
+  const item = G.queue[G.idx]; if (!item || item.answered) return;
+  const c = item.card, right = i >= 0 && item.opts[i] === c.ans;
+  [...$("opts").children].forEach((b,k) => { b.disabled = true; if (item.opts[k] === c.ans) b.classList.add("right"); else if (k === i) b.classList.add("wrong"); else b.classList.add("dim"); });
+  safetySettle(item, right, i < 0);
+}
+function safetyTyped(val){
+  const item = G.queue[G.idx]; if (!item || item.answered) return;
+  const c = item.card, norm = String(val).replace(/[^0-9]/g,""), right = norm !== "" && c.typed.accept.includes(norm);
+  const inp = $("typeIn"); if (inp) { inp.disabled = true; inp.blur(); }
+  const sub = $("typeForm") && $("typeForm").querySelector("button"); if (sub) sub.disabled = true;
+  safetySettle(item, right, !val, (!right && val) ? `You typed ${val}. The answer is ${c.ans}.` : "");
+}
+function safetyExplain(c){
+  if (c.placard) { const p = c.placard;
+    return `<div class="hzrow"><div class="hzmini">${placardSvg(p)}</div><div><b>Class ${p.n}</b>: ${p.name}.${p.note ? `<div class="hint">${p.note}</div>` : ""}</div></div>`; }
+  if (c.eq && (c.id.startsWith("eqs:") || c.id.startsWith("equ:"))) { const e = EQ_BY[c.eq];
+    return `<div class="hzrow"><div class="eq hzmini">${eqSvg(e.k)}</div><div><b>${e.name}</b>: ${e.use.charAt(0).toLowerCase() + e.use.slice(1)}.</div></div><div class="note"><span class="label">Know it</span>${e.facts.join(" ")}</div>`; }
+  return `<div>${c.why}</div>`;
+}
+function safetySettle(item, right, timedOut, extra=""){
+  item.answered = true; cancelAnimationFrame(raf);
+  const c = item.card, firstTry = item.tries === 0;
+  if (firstTry) srecord(c.id, right);
+  const lvl = {adv:1.5, exp:2}[G.level] || 1;
+  if (right) {
+    const speed = G.clock ? Math.round(50*Math.max(0, 1 - (performance.now()-G.t0)/clockMs())) : 0;
+    G.streak++; G.bestStreak = Math.max(G.bestStreak, G.streak);
+    const mult = Math.min(2, 1 + 0.1*(G.streak-1)), pts = Math.round((item.tries===1 ? 40 : (100+speed)*mult) * lvl);
+    G.score += pts; if (firstTry) G.firstRight++;
+    $("verdict").className = "verdict ok"; $("verdict").textContent = `Cleared · +${pts}${mult>1 && item.tries!==1 ? ` (×${mult.toFixed(1)})` : ""}`;
+  } else {
+    G.streak = 0; G.missed.set(c.id, c);
+    if (item.tries === 0) G.queue.splice(Math.min(G.queue.length, G.idx + 4), 0, {card:c, tries:1});
+    $("verdict").className = "verdict bad"; $("verdict").textContent = timedOut ? "Out of time" : (c.ans.length > 24 ? "Not quite" : `Not quite · it's ${c.ans}`);
+  }
+  const r = ssrs()[c.id];
+  const srsLine = firstTry && r ? (right ? (r.b >= MASTER_BOX ? `Mastered. Next review in ${INTERVALS[r.b]} days.` : `Next review in ${INTERVALS[r.b]} day${INTERVALS[r.b]===1?"":"s"}.`) : "Back in tomorrow's review.") : "";
+  $("revealBody").innerHTML = (extra ? `<div class="hint">${extra}</div>` : "") + safetyExplain(c) +
+    `<div class="hint">${[srsLine, (!right && item.tries===0) ? "It also comes back later in this round." : ""].filter(Boolean).join(" ")}</div>`;
+  $("hStreak").textContent = G.streak; $("hScore").textContent = G.score.toLocaleString(); $("hLeft").textContent = G.queue.length - G.idx - 1;
+  $("reveal").hidden = false; $("nextBtn").focus({preventScroll:true});
+  $("nextBtn").firstElementChild.textContent = G.idx >= G.queue.length-1 ? "See results" : "Next card";
+}
+
+// Safety locker: every piece of equipment, colored by how well its cards are known
+let lockerSel = null;
+function eqStatus(k, cards){
+  const st = cards.filter(c => c.eq === k).map(c => sStatus(c.id));
+  return !st.some(x => x !== "un") ? "un" : st.includes("bad") ? "bad" : st.every(x => x === "mast") ? "mast" : "learn";
+}
+function renderLocker(){
+  const cards = safetyCards(), s = EQUIP.map(e => eqStatus(e.k, cards));
+  $("lockerSub").textContent = `${s.filter(x => x === "mast").length} of ${EQUIP.length} mastered`;
+  $("locker").innerHTML = EQUIP.map((e, i) => `<button class="stand ${s[i]}" data-eq="${e.k}" aria-pressed="${lockerSel === e.k}"><span class="eq sthumb">${eqSvg(e.k)}</span><b>${e.name}</b></button>`).join("");
+  const e = EQ_BY[lockerSel];
+  $("lInfo").innerHTML = e ? `<h3>${e.name}</h3><div class="eq lbig">${eqSvg(e.k)}</div><dl class="facts"><dt>Use</dt><dd>${e.use}</dd>${e.facts.map((f, i) => `<dt>${i ? "" : "Know it"}</dt><dd>${f}</dd>`).join("")}</dl>`
+    : `<span class="hint">Tap any item to see what it's for. Where each one is stowed differs by airline and aircraft; your airline's manual and preflight checks cover that.</span>`;
+}
+$("locker").addEventListener("click", e => { const b = e.target.closest("[data-eq]"); if (!b) return; lockerSel = lockerSel === b.dataset.eq ? null : b.dataset.eq; renderLocker(); if (lockerSel) $("lInfo").scrollIntoView({block:"nearest"}); });
+$("sdecks").addEventListener("click", e => { const b = e.target.closest("[data-sdeck]"); if (!b) return; sdeckSel = b.dataset.sdeck; renderTrack(); });
+
 // ---------- track switch ----------
 function renderTrack(){
-  if (!["air","fleet","codes"].includes(store.track)) store.track = "air";
-  const fleet = store.track === "fleet", codes = store.track === "codes", airT = store.track === "air";
-  $("tabAir").setAttribute("aria-selected", airT); $("tabFleet").setAttribute("aria-selected", fleet); $("tabCodes").setAttribute("aria-selected", codes);
-  $("airFields").hidden = !airT; $("fleetFields").hidden = !fleet; $("codesFields").hidden = !codes;
-  if (!$("setup").hidden) { $("mapCard").hidden = !airT; $("hangarCard").hidden = !fleet; $("boardCard").hidden = !codes; }
+  if (!["air","fleet","codes","safety"].includes(store.track)) store.track = "air";
+  const fleet = store.track === "fleet", codes = store.track === "codes", airT = store.track === "air", safety = store.track === "safety";
+  $("tabAir").setAttribute("aria-selected", airT); $("tabFleet").setAttribute("aria-selected", fleet); $("tabCodes").setAttribute("aria-selected", codes); $("tabSafety").setAttribute("aria-selected", safety);
+  $("airFields").hidden = !airT; $("fleetFields").hidden = !fleet; $("codesFields").hidden = !codes; $("safetyFields").hidden = !safety;
+  if (!$("setup").hidden) { $("mapCard").hidden = !airT; $("hangarCard").hidden = !fleet; $("boardCard").hidden = !codes; $("lockerCard").hidden = !safety; }
   // Hero tiles: the airline's main hub on the airport track, its most common aircraft (IATA type code) on the aircraft track.
   const HERO = {
     dl:{hub:"ATL", hubCap:"Atlanta · Delta's largest hub", ac:"739", acCap:"Boeing 737-900ER · Delta's most common aircraft"},
@@ -2289,6 +2804,24 @@ function renderTrack(){
   const tiles = (fleet ? HERO.ac : codes ? me.icao : HERO.hub).split("");
   [...$("heroTiles").children].forEach((el,i)=> el.textContent = tiles[i]);
   $("heroCap").textContent = fleet ? HERO.acCap : codes ? `${me.name} · code ${me.iata} · callsign “${me.call}”` : HERO.hubCap;
+  if (safety) {
+    [..."PBE"].forEach((ch, i) => $("heroTiles").children[i].textContent = ch);
+    $("heroCap").textContent = "Protective breathing equipment · at least 15 minutes of breathing gas";
+    $("heroH").textContent = "Know your equipment before you need it";
+    $("heroP").textContent = "Emergency equipment, fire and smoke, decompression, the FAA rules you'll be checked on, and dangerous goods. General familiarization: your airline's FAA-approved manual sets the commands, procedures and where everything is stowed.";
+    const cards = safetyCards();
+    const n = id => id==="smix" ? cards.length : id==="srev" ? cards.filter(c=>sDue(c.id)).length : cards.filter(c=>c.deck===id).length;
+    $("sdecks").innerHTML = SDECKS.map(d => `<button class="chip" data-sdeck="${d.id}" aria-pressed="${d.id===sdeckSel}">${d.name}<em>${n(d.id)}${d.id==="srev"?" due":""}</em></button>`).join("");
+    $("sdeckHint").textContent = SDECKS.find(d=>d.id===sdeckSel).hint;
+    $("levelHint").textContent = {
+      std: "Four choices, spread out.",
+      adv: "Close decoys: equipment from the same family, neighboring hazard classes. Worth 1.5× points.",
+      exp: "Type the number where the answer is a number: altitudes, ages, minutes, counts and hazard classes. Worth 2× points."
+    }[levelSel];
+    $("dDue").textContent = cards.filter(c=>sDue(c.id)).length;
+    renderLocker();
+    return;
+  }
   if (codes) {
     $("heroH").textContent = "Spell it so the whole crew hears it";
     $("heroP").textContent = "The phonetic alphabet, your stations spelled out, airline codes and callsigns, 24-hour and Zulu time, and the words you'll hear on the line. Same ten-a-day goal and spaced review as the other tracks.";
@@ -2330,7 +2863,7 @@ document.querySelector(".seg").addEventListener("click", e => {
   const b = e.target.closest("[data-track]"); if (!b) return;
   store.track = b.dataset.track; save(); renderSetup();
 });
-try { const p = JSON.parse(localStorage.getItem(KEY+"-prefs")||"{}"); if (p.fdeck && FDECKS.some(d=>d.id===p.fdeck)) fdeckSel = p.fdeck; if (p.cdeck && CDECKS.some(d=>d.id===p.cdeck)) cdeckSel = p.cdeck; } catch(e){}
+try { const p = JSON.parse(localStorage.getItem(KEY+"-prefs")||"{}"); if (p.fdeck && FDECKS.some(d=>d.id===p.fdeck)) fdeckSel = p.fdeck; if (p.cdeck && CDECKS.some(d=>d.id===p.cdeck)) cdeckSel = p.cdeck; if (p.sdeck && SDECKS.some(d=>d.id===p.sdeck)) sdeckSel = p.sdeck; } catch(e){}
 
 // ---------- logo ----------
 const FLAPS = " ABCDEFGHIJKLMNOPQRSTUVWXYZ";
@@ -2418,5 +2951,5 @@ renderLanding();
 if (store.airline) { show("setup"); } else { show("landing"); }
 runSplash(() => { if (store.airline) flipLogo(); });
 </script>
-
-</body></html>
+</body>
+</html>
