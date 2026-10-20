@@ -320,11 +320,25 @@ header.top { display: flex; align-items: center; justify-content: space-between;
 .hchips .chip { padding: 6px 11px; font-size: 13px; }
 
 /* Track switch */
-.seg { display: grid; grid-template-columns: 1fr 1fr; gap: 4px; padding: 4px; background: var(--chip); border: 1px solid var(--line); border-radius: 12px; }
-.seg button { font: 800 16px/1 var(--f-display); text-transform: uppercase; letter-spacing: .05em; padding: 11px 8px; border: 0; border-radius: 9px; background: transparent; color: var(--muted); cursor: pointer; }
+.seg { display: grid; grid-template-columns: 1fr 1fr 1fr; gap: 4px; padding: 4px; background: var(--chip); border: 1px solid var(--line); border-radius: 12px; }
+.seg button { font: 800 15px/1.1 var(--f-display); text-transform: uppercase; letter-spacing: .05em; padding: 11px 8px; border: 0; border-radius: 9px; background: transparent; color: var(--muted); cursor: pointer; }
 .seg button[aria-selected="true"] { background: var(--tile); color: var(--sign); box-shadow: 0 1px 0 rgba(0,0,0,.25); }
 
 /* Hangar: one stand per aircraft type */
+.board { display: grid; grid-template-columns: repeat(auto-fill, minmax(96px, 1fr)); gap: 6px; }
+.bl { display: grid; gap: 1px; padding: 8px 10px; border: 1px solid var(--line); border-radius: 10px; background: var(--card); }
+.bl b { font: 800 22px/1 var(--f-display); letter-spacing: .04em; }
+.bl span { font-weight: 700; font-size: 14px; }
+.bl small { font-size: 11px; color: var(--muted); letter-spacing: .02em; }
+.bl.learn { border-color: var(--sign); box-shadow: inset 3px 0 0 color-mix(in srgb, var(--sign) 45%, transparent); }
+.bl.mast { background: color-mix(in srgb, var(--sign) 22%, var(--card)); border-color: var(--sign); }
+.bl.bad { background: var(--bad-bg); border-color: var(--bad); }
+.bl.num { border-style: dashed; }
+.legend .sw { width: 12px; height: 12px; border-radius: 3px; border: 1px solid var(--line); background: var(--card); }
+.legend .sw.learn { border-color: var(--sign); box-shadow: inset 3px 0 0 color-mix(in srgb, var(--sign) 45%, transparent); }
+.legend .sw.mast { background: color-mix(in srgb, var(--sign) 22%, var(--card)); border-color: var(--sign); }
+.legend .sw.bad { background: var(--bad-bg); border-color: var(--bad); }
+.city .cdef { font-size: 17px; font-weight: 600; line-height: 1.35; display: block; }
 .hangar { display: grid; grid-template-columns: repeat(auto-fill, minmax(150px, 1fr)); gap: 8px; }
 .stand { text-align: left; font: inherit; color: var(--ink); background: var(--card); border: 1px solid var(--line); border-left-width: 5px; border-radius: 10px; padding: 10px 12px; cursor: pointer; display: grid; gap: 3px; min-width: 0; }
 .stand b { font-family: var(--f-display); font-weight: 800; font-size: 20px; line-height: 1; text-transform: uppercase; letter-spacing: .02em; }
@@ -368,7 +382,7 @@ header.top { display: flex; align-items: center; justify-content: space-between;
     <div class="sec land-hero">
       <span class="label">Welcome aboard</span>
       <h1>Let's Takeoff</h1>
-      <p>Pick your airline. Your training is built around it: its stations first, then its fleet. You can switch any time.</p>
+      <p>Pick your airline. Your training is built around it: its stations, its fleet, and the radio alphabet and codes crews use. You can switch any time.</p>
     </div>
     <div class="perf"></div>
     <div class="sec stack">
@@ -378,7 +392,7 @@ header.top { display: flex; align-items: center; justify-content: space-between;
         <div class="tracks">
           <span class="track live">Airport codes <em>Live</em></span>
           <span class="track live">Aircraft <em>Live</em></span>
-          <span class="track">Phonetics &amp; codes <em>Soon</em></span>
+          <span class="track live">Phonetics &amp; codes <em>Live</em></span>
         </div>
       </div>
     </div>
@@ -391,6 +405,7 @@ header.top { display: flex; align-items: center; justify-content: space-between;
       <div class="seg" role="tablist" aria-label="Track">
         <button role="tab" data-track="air" id="tabAir">Airport codes</button>
         <button role="tab" data-track="fleet" id="tabFleet">Aircraft</button>
+        <button role="tab" data-track="codes" id="tabCodes">Phonetics &amp; codes</button>
       </div>
       <div class="daily" id="dailyBar">
         <span>Today <b id="dToday">0/10</b></span>
@@ -424,6 +439,13 @@ header.top { display: flex; align-items: center; justify-content: space-between;
           <span class="label">Study</span>
           <div class="chips" id="fdecks"></div>
           <span class="hint" id="fdeckHint"></span>
+        </div>
+      </div>
+      <div class="stack" id="codesFields" hidden>
+        <div class="field">
+          <span class="label">Study</span>
+          <div class="chips" id="cdecks"></div>
+          <span class="hint" id="cdeckHint"></span>
         </div>
       </div>
       <div class="field">
@@ -462,6 +484,19 @@ header.top { display: flex; align-items: center; justify-content: space-between;
       <div class="hangar" id="hangar"></div>
       <div class="legend" id="hLegend"></div>
       <div class="hinfo" id="hInfo"><span class="hint">Tap an aircraft to see its cabins, exits and recognition cues.</span></div>
+    </div>
+  </section>
+
+  <!-- PHONETIC BOARD -->
+  <section id="boardCard" class="pass" hidden>
+    <div class="sec stack">
+      <div class="maphead">
+        <h2>Phonetic alphabet</h2>
+        <span class="label" id="boardSub"></span>
+      </div>
+      <div class="board" id="board"></div>
+      <div class="legend"><span><i class="sw"></i>New</span><span><i class="sw learn"></i>Learning</span><span><i class="sw mast"></i>Mastered</span><span><i class="sw bad"></i>Missed</span></div>
+      <span class="hint">ICAO pronunciation, stress in capitals. Numbers are said digit by digit: flight 1593 is "one fife niner tree".</span>
     </div>
   </section>
 
@@ -985,11 +1020,12 @@ let G = null, raf = 0;
 
 function startRound(){
   if (store.track === "fleet") return startFleet();
+  if (store.track === "codes") return startCodes();
   const deck = deckById(deckSel);
   let pool = DATA.filter(deck.f);
   const netDeck = deckSel==="review" ? homeDeck() : deck;
   const net = DATA.filter(netDeck.f);
-  try { localStorage.setItem(KEY+"-prefs", JSON.stringify({deck:deckSel, mode:modeSel, level:levelSel, clock:$("clockOn").checked})); } catch(e){}
+  try { localStorage.setItem(KEY+"-prefs", JSON.stringify({deck:deckSel, fdeck:fdeckSel, cdeck:cdeckSel, mode:modeSel, level:levelSel, clock:$("clockOn").checked})); } catch(e){}
   let queue;
   if (modeSel === "pair") {
     const air = AIRLINES[netDeck.id];
@@ -1025,8 +1061,9 @@ function startRound(){
 
 function show(id){
   ["landing","setup","play","results"].forEach(s=>$(s).hidden = s!==id);
-  $("mapCard").hidden = id !== "setup" || store.track === "fleet";
+  $("mapCard").hidden = id !== "setup" || store.track !== "air";
   $("hangarCard").hidden = id !== "setup" || store.track !== "fleet";
+  $("boardCard").hidden = id !== "setup" || store.track !== "codes";
   window.scrollTo({top:0});
 }
 
@@ -1036,6 +1073,7 @@ function setTiles(str, flip){
 
 function nextCard(first){
   if (G && G.fleet) return fleetNext(first);
+  if (G && G.codes) return codesNext(first);
   cancelAnimationFrame(raf);
   if (!first) G.idx++;
   if (G.idx >= G.queue.length) return finish();
@@ -1130,6 +1168,7 @@ function tick(){
 
 function answer(i){
   if (G.fleet) return fleetAnswer(i);
+  if (G.codes) return codesAnswer(i);
   const item = G.queue[G.idx];
   if (!item || item.answered) return;
   const t = item.a;
@@ -1149,6 +1188,7 @@ function answer(i){
 
 function answerTyped(val){
   if (G.fleet) return fleetTyped(val);
+  if (G.codes) return codesTyped(val);
   const item = G.queue[G.idx];
   if (!item || item.answered) return;
   const t = item.a;
@@ -1221,7 +1261,9 @@ function finish(){
   $("rDaily").innerHTML = `<span>Today <b>${tc}/${GOAL}</b></span><span>Streak <b>${st} day${st===1?"":"s"}</b></span><span>${tc >= GOAL ? "Daily goal met" : `${GOAL-tc} more to keep the streak`}</span>`;
   const m = [...G.missed.values()];
   $("rMissLbl").textContent = m.length ? `Missed this round · ${m.length} added to tomorrow's review` : "Clean round. Nothing missed.";
-  $("rMiss").innerHTML = G.fleet
+  $("rMiss").innerHTML = G.codes
+    ? m.map(c=>`<li><code>${c.tiles || (c.ans.length <= 4 ? c.ans : "··")}</code><span>${c.tiles ? c.q : (c.big || c.q)}<small>${c.ans}</small></span></li>`).join("")
+    : G.fleet
     ? m.map(c=>`<li><code>${c.kind==="fplan" ? OUT.planExitCount(OUT.byKey[c.okey]) : c.num ?? "✈"}</code><span>${c.kind==="fspot" ? FLEET_T[c.tk].n : c.big}<small>${c.kind==="fspot" ? "Spot the plane" : c.kind==="feng" ? answerText(c) : c.kind==="fplan" ? "Find the exits · " + c.sub : c.q}</small></span></li>`).join("")
     : m.map(a=>`<li><code>${a.code}</code><span>${a.city}, ${a.name}${NOTES[a.code]?`<small>${NOTES[a.code]}</small>`:""}</span></li>`).join("");
   $("rMiss").hidden = !m.length;
@@ -1741,7 +1783,7 @@ function startFleet(){
   }
   const queue = pool.slice(0, 15).map(card => ({card, kind:"std", tries:0}));
   if (!queue.length) return;
-  try { localStorage.setItem(KEY+"-prefs", JSON.stringify({deck:deckSel, fdeck:fdeckSel, mode:modeSel, level:levelSel, clock:$("clockOn").checked})); } catch(e){}
+  try { localStorage.setItem(KEY+"-prefs", JSON.stringify({deck:deckSel, fdeck:fdeckSel, cdeck:cdeckSel, mode:modeSel, level:levelSel, clock:$("clockOn").checked})); } catch(e){}
   G = { fleet:true, all, queue, idx:0, score:0, streak:0, bestStreak:0, firstRight:0, unique:queue.length, missed:new Map(),
         clock:$("clockOn").checked, level:levelSel };
   const d = FDECKS.find(x=>x.id===fdeckSel);
@@ -1950,12 +1992,292 @@ let hangarCfg = 0;
 $("hangar").addEventListener("click", e => { const b = e.target.closest("[data-k]"); if (!b) return; hangarSel = hangarSel===b.dataset.k ? null : b.dataset.k; hangarCfg = 0; renderHangar(); if (hangarSel) $("hInfo").scrollIntoView({block:"nearest"}); });
 $("hInfo").addEventListener("click", e => { const b = e.target.closest("[data-hcfg]"); if (!b) return; hangarCfg = +b.dataset.hcfg; renderHangar(); });
 
+// ---------- phonetics & codes track ----------
+// ICAO/NATO spelling alphabet with ICAO pronunciation guides
+const NATO = [["A","Alfa","AL-fah"],["B","Bravo","BRAH-voh"],["C","Charlie","CHAR-lee"],["D","Delta","DELL-tah"],["E","Echo","ECK-oh"],
+ ["F","Foxtrot","FOKS-trot"],["G","Golf","GOLF"],["H","Hotel","hoh-TELL"],["I","India","IN-dee-ah"],["J","Juliett","JEW-lee-ett"],
+ ["K","Kilo","KEY-loh"],["L","Lima","LEE-mah"],["M","Mike","MIKE"],["N","November","no-VEM-ber"],["O","Oscar","OSS-cah"],
+ ["P","Papa","pah-PAH"],["Q","Quebec","keh-BECK"],["R","Romeo","ROW-me-oh"],["S","Sierra","see-AIR-rah"],["T","Tango","TANG-go"],
+ ["U","Uniform","YOU-nee-form"],["V","Victor","VIK-tah"],["W","Whiskey","WISS-key"],["X","X-ray","ECKS-ray"],["Y","Yankee","YANG-key"],["Z","Zulu","ZOO-loo"]];
+const NATO_BY = Object.fromEntries(NATO.map(([l,w]) => [l, w]));
+const WORD_ALT = {Alfa:["ALPHA"], Juliett:["JULIET"], "X-ray":["XRAY"]};   // common spellings accepted when typing
+// Letters people mix up over a radio or on a page, used for close decoys
+const CONFUSE = {B:"DPV",D:"BPT",P:"BDT",V:"BFW",M:"N",N:"M",F:"SV",S:"FX",E:"IA",I:"EY",A:"EH",C:"GKS",G:"CJ",J:"GY",K:"CQ",Q:"KO",O:"QU",U:"OW",T:"DP",Y:"IJ",R:"LW",L:"R",H:"A",W:"UV",X:"SZ",Z:"SX"};
+
+// Radio numbers that differ from everyday speech
+const RADIO_NUM = [
+ {d:"3", ans:"Tree", opts:["Tree","Three","Free","Trey"], why:"ICAO says TREE so the TH sound can't be lost in static."},
+ {d:"5", ans:"Fife", opts:["Fife","Five","Fiver","Fyve"], why:"ICAO says FIFE so 5 can't be mistaken for 9."},
+ {d:"9", ans:"Niner", opts:["Niner","Nine","Nina","Nein"], why:"NINER keeps 9 from sounding like the German 'nein' (no) or like 5."}];
+
+// Airline codes as of Oct 2026. Spirit (stopped flying May 2026) and Hawaiian's HA (replaced by AS) are left out on purpose.
+const CARRIERS = [
+ {iata:"DL", icao:"DAL", call:"DELTA", name:"Delta Air Lines", kind:"major"},
+ {iata:"UA", icao:"UAL", call:"UNITED", name:"United Airlines", kind:"major"},
+ {iata:"AA", icao:"AAL", call:"AMERICAN", name:"American Airlines", kind:"major"},
+ {iata:"WN", icao:"SWA", call:"SOUTHWEST", name:"Southwest Airlines", kind:"major"},
+ {iata:"AS", icao:"ASA", call:"ALASKA", name:"Alaska Airlines", kind:"major", note:"Hawaiian Airlines flights now use AS too."},
+ {iata:"B6", icao:"JBU", call:"JETBLUE", name:"JetBlue", kind:"major"},
+ {iata:"F9", icao:"FFT", call:"FRONTIER FLIGHT", name:"Frontier Airlines", kind:"major"},
+ {iata:"G4", icao:"AAY", call:"ALLEGIANT", name:"Allegiant Air", kind:"major"},
+ {iata:"9E", icao:"EDV", call:"ENDEAVOR", name:"Endeavor Air", kind:"regional", note:"Flies Delta Connection."},
+ {iata:"OO", icao:"SKW", call:"SKYWEST", name:"SkyWest Airlines", kind:"regional", note:"Flies for Delta, United, American and Alaska."},
+ {iata:"YX", icao:"RPA", call:"BRICKYARD", name:"Republic Airways", kind:"regional", note:"Based in Indianapolis, hence BRICKYARD. Flies for Delta, United and American."},
+ {iata:"MQ", icao:"ENY", call:"ENVOY", name:"Envoy Air", kind:"regional", note:"Flies American Eagle."},
+ {iata:"OH", icao:"JIA", call:"BLUE STREAK", name:"PSA Airlines", kind:"regional", note:"Flies American Eagle."},
+ {iata:"PT", icao:"PDT", call:"PIEDMONT", name:"Piedmont Airlines", kind:"regional", note:"Flies American Eagle."},
+ {iata:"QX", icao:"QXE", call:"HORIZON", name:"Horizon Air", kind:"regional", note:"Flies for Alaska."},
+ {iata:"AC", icao:"ACA", call:"AIR CANADA", name:"Air Canada", kind:"intl"},
+ {iata:"WS", icao:"WJA", call:"WESTJET", name:"WestJet", kind:"intl"},
+ {iata:"AM", icao:"AMX", call:"AEROMEXICO", name:"Aeroméxico", kind:"intl"},
+ {iata:"BA", icao:"BAW", call:"SPEEDBIRD", name:"British Airways", kind:"intl"},
+ {iata:"AF", icao:"AFR", call:"AIRFRANS", name:"Air France", kind:"intl"},
+ {iata:"KL", icao:"KLM", call:"KLM", name:"KLM", kind:"intl"},
+ {iata:"LH", icao:"DLH", call:"LUFTHANSA", name:"Lufthansa", kind:"intl"},
+ {iata:"VS", icao:"VIR", call:"VIRGIN", name:"Virgin Atlantic", kind:"intl"},
+ {iata:"KE", icao:"KAL", call:"KOREANAIR", name:"Korean Air", kind:"intl"},
+ {iata:"JL", icao:"JAL", call:"JAPANAIR", name:"Japan Airlines", kind:"intl"},
+ {iata:"QF", icao:"QFA", call:"QANTAS", name:"Qantas", kind:"intl"}];
+
+// Crew vocabulary: everyday terms on the line
+const LINGO = [
+ ["Deadhead", "Riding as a passenger on company business, usually to get to or from a trip."],
+ ["RON", "Remain overnight: the city where the crew lays over between days of a trip."],
+ ["Pairing", "A trip: a sequence of flights that starts and ends at your base."],
+ ["Base", "Your home airport, where your trips start and end. Also called domicile."],
+ ["Commuter", "A crew member who lives away from base and flies in to work."],
+ ["Reserve", "On-call status: no set trips, you can be called out to cover flying."],
+ ["Turn", "A trip that flies out and back to base the same day."],
+ ["Sit", "The time on the ground between two flights in a duty day."],
+ ["Block time", "From pushback (block out) to parking at the gate (block in)."],
+ ["Duty day", "The time from report to release, the limit that rest rules are built around."],
+ ["Show time", "When you must report for a trip. Also called report time."],
+ ["Cross-check", "Confirming the crew member opposite you has armed or disarmed their door."],
+ ["All-call", "A chime or call for every flight attendant to report from their station."],
+ ["Sterile cockpit", "No non-essential contact with the flight deck below 10,000 feet or during taxi."],
+ ["Jumpseat", "A fold-down crew seat, usually beside a door."],
+ ["Pax", "Passengers."],
+ ["Souls on board", "Everyone on the aircraft, passengers and crew."],
+ ["Tail number", "The aircraft's registration, painted on the tail or rear fuselage."],
+ ["Equipment swap", "A change to a different aircraft for a scheduled flight."],
+ ["Junior assignment", "Being required to work an extra trip on a day off, assigned by reverse seniority."],
+ ["Bid line", "A monthly schedule of trips that crew bid for by seniority."],
+ ["Galley", "The aircraft kitchen."],
+ ["Purser", "The lead flight attendant on the flight. Also called the lead or A position."],
+ ["PIC", "Pilot in command: the captain, who has final authority over the flight."]];
+
+// 24-hour clock and Zulu (UTC) practice
+const fmt12 = m => { m = ((m % 1440) + 1440) % 1440; const h = Math.floor(m/60), mm = String(m%60).padStart(2,"0"); return `${h % 12 === 0 ? 12 : h % 12}:${mm} ${h < 12 ? "AM" : "PM"}`; };
+const fmt24 = m => { m = ((m % 1440) + 1440) % 1440; return String(Math.floor(m/60)).padStart(2,"0") + String(m%60).padStart(2,"0"); };
+const toMin = hhmm => +hhmm.slice(0,2)*60 + +hhmm.slice(2);
+const CLOCK24 = ["0545","0905","1200","1215","1330","1435","1645","1910","2155","0000","0030","2340"];
+const CLOCK12 = [[400,"6:40 AM"],[730,"12:10 PM"],[925,"3:25 PM"],[1430,"11:50 PM"],[20,"12:20 AM"],[1260,"9:00 PM"],[525,"8:45 AM"],[1085,"6:05 PM"]];
+const ZULU = [["1430","Chicago","daylight time",-5],["2200","Denver","daylight time",-6],["0130","Los Angeles","daylight time",-7],["1800","New York","daylight time",-4],
+ ["0900","Honolulu","no daylight time",-10],["1600","Phoenix","no daylight time",-7],["2330","Atlanta","standard time",-5],["1215","Dallas","standard time",-6]];
+
+const CDECKS = [
+ {id:"cmix",   name:"Mixed",             hint:"A bit of everything in this track."},
+ {id:"cnato",  name:"Phonetic alphabet", hint:"Alfa to Zulu both ways, plus TREE, FIFE and NINER."},
+ {id:"cspell", name:"Spell it out",      hint:"Read your airline's station codes in phonetics, and decode them back."},
+ {id:"cair",   name:"Airline codes",     hint:"Two-letter codes, three-letter ICAO codes and radio callsigns."},
+ {id:"cclock", name:"24-hour & Zulu",    hint:"Convert crew times and turn Zulu into local time."},
+ {id:"clingo", name:"Crew lingo",        hint:"Words you'll hear on the line from day one."},
+ {id:"crev",   name:"Today's review",    hint:"Cards from this track due today."}];
+let cdeckSel = "cmix";
+
+const spellOut = code => code.split("").map(ch => NATO_BY[ch] || ch).join(" ");
+function nearCodes(code, n){   // codes one confusable letter away
+  const out = new Set();
+  for (let tries = 0; out.size < n && tries < 60; tries++) {
+    const i = Math.floor(Math.random()*code.length), alt = (CONFUSE[code[i]] || "ABCDEFGHIJKLMNOPQRSTUVWXYZ").replace(code[i], "");
+    const c = code.slice(0,i) + alt[Math.floor(Math.random()*alt.length)] + code.slice(i+1);
+    if (c !== code) out.add(c);
+  }
+  return [...out];
+}
+const pickN = (arr, n, not) => shuffle(arr.filter(x => x !== not)).slice(0, n);
+
+function codesCards(){
+  const cards = [];
+  // phonetic alphabet, both directions
+  NATO.forEach(([L, W, say], idx) => {
+    cards.push({id:`nato:${L}`, deck:"cnato", q:"Phonetic word?", tiles:L, ans:W, say,
+      opts: lvl => lvl === "adv" ? shuffle([W, ...((CONFUSE[L] || "").split("").map(x => NATO_BY[x]).concat(NATO.slice(Math.max(0,idx-2), idx+3).map(x=>x[1])).filter((w,i,a) => w !== W && a.indexOf(w) === i).slice(0,3))]) : shuffle([W, ...pickN(NATO.map(x=>x[1]), 3, W)]),
+      typed: {accept: [W.toUpperCase().replace(/[^A-Z]/g,""), ...(WORD_ALT[W] || [])], max:9}});
+    cards.push({id:`natow:${L}`, deck:"cnato", q:"Which letter?", big:W, sub:say, ans:L, short:true,
+      opts: lvl => shuffle([L, ...(lvl === "adv" ? (CONFUSE[L] || "").split("").concat(pickN("ABCDEFGHIJKLMNOPQRSTUVWXYZ".split(""), 3, L)).filter((x,i,a)=>x!==L && a.indexOf(x)===i).slice(0,3) : pickN("ABCDEFGHIJKLMNOPQRSTUVWXYZ".split(""), 3, L))]),
+      typed: {accept:[L], max:1}});
+  });
+  RADIO_NUM.forEach(r => cards.push({id:`num:${r.d}`, deck:"cnato", q:"How is it said on the radio?", tiles:r.d, ans:r.ans, why:r.why, opts: () => shuffle(r.opts.slice())}));
+  // spell your airline's stations
+  const air = AIRLINES[store.airline];
+  const stations = air ? [...air.set] : DATA.filter(a => a.tier === 1).map(a => a.code);
+  stations.forEach(code => {
+    const a = BY[code]; if (!a) return;
+    cards.push({id:`spell:${code}`, deck:"cspell", q:"Say it in phonetics", tiles:code, sub:`${a.city} · ${a.name}`, ans:spellOut(code), apt:a,
+      opts: () => shuffle([spellOut(code), ...nearCodes(code, 3).map(spellOut)])});
+    cards.push({id:`decode:${code}`, deck:"cspell", q:"Which code is this?", big:spellOut(code), ans:code, short:true, apt:a,
+      opts: lvl => shuffle([code, ...(lvl === "adv" ? nearCodes(code, 3) : decoys(a).map(x=>x.code))]), typed:{accept:[code], max:3}});
+  });
+  // airline codes and callsigns
+  CARRIERS.forEach(c => {
+    const same = CARRIERS.filter(x => x.kind === c.kind && x !== c);
+    const names = lvl => shuffle([c.name, ...pickN((lvl === "adv" ? same : CARRIERS.filter(x => x !== c)).map(x=>x.name), 3)]);
+    cards.push({id:`iata:${c.iata}`, deck:"cair", q:"Which airline uses this code?", tiles:c.iata, ans:c.name, carrier:c, opts:names});
+    cards.push({id:`aname:${c.iata}`, deck:"cair", q:"Its two-letter code?", big:c.name, ans:c.iata, short:true, carrier:c,
+      opts: lvl => shuffle([c.iata, ...pickN((lvl === "adv" ? same : CARRIERS).map(x=>x.iata), 3, c.iata)]), typed:{accept:[c.iata], max:2}});
+    cards.push({id:`icao:${c.icao}`, deck:"cair", q:"Which airline is this ICAO code?", tiles:c.icao, ans:c.name, carrier:c, opts:names});
+    if (c.call.replace(/\s/g,"") !== c.name.toUpperCase().replace(/[^A-Z]/g,"") && !c.name.toUpperCase().includes(c.call))
+      cards.push({id:`call:${c.icao}`, deck:"cair", q:"Whose radio callsign is this?", big:`“${c.call}”`, ans:c.name, carrier:c, opts:names});
+  });
+  // clock
+  CLOCK24.forEach(t => { const m = toMin(t), ans = fmt12(m);
+    cards.push({id:`t24:${t}`, deck:"cclock", q:"In 12-hour time?", big:t, sub:"24-hour clock", ans,
+      opts: () => shuffle([ans, ...[fmt12(m + 720), fmt12(m - 60), fmt12(m + 120), fmt12(m - 120)].filter((x,i,a)=>x!==ans && a.indexOf(x)===i).slice(0,3)])}); });
+  CLOCK12.forEach(([m, s]) => { const ans = fmt24(m);
+    cards.push({id:`t12:${m}`, deck:"cclock", q:"In 24-hour time?", big:s, ans, short:true,
+      opts: () => shuffle([ans, ...[fmt24(m + 720), fmt24(m + 60), fmt24(m - 60), fmt24(m + 1200)].filter((x,i,a)=>x!==ans && a.indexOf(x)===i).slice(0,3)]), typed:{accept:[ans], max:4}}); });
+  ZULU.forEach(([z, city, dst, off]) => { const m = toMin(z), local = m + off*60, ans = fmt12(local), prev = local < 0;
+    cards.push({id:`zulu:${z}${city}`, deck:"cclock", q:"What's the local time?", big:`${z}Z`, sub:`${city} · ${dst} (UTC${off < 0 ? "−" : "+"}${Math.abs(off)})`, ans,
+      why:`${z}Z ${off < 0 ? "minus" : "plus"} ${Math.abs(off)} hours is ${fmt24(local)} local, ${ans}${prev ? " on the previous day" : ""}.`,
+      opts: () => shuffle([ans, ...[fmt12(m - off*60), fmt12(local + 60), fmt12(local - 60), fmt12(local + 720)].filter((x,i,a)=>x!==ans && a.indexOf(x)===i).slice(0,3)])}); });
+  // lingo, both directions
+  LINGO.forEach(([term, def]) => {
+    cards.push({id:`lingo:${term}`, deck:"clingo", q:"What does it mean?", big:term, ans:def, long:true, opts: () => shuffle([def, ...pickN(LINGO.map(x=>x[1]), 3, def)])});
+    cards.push({id:`lingor:${term}`, deck:"clingo", q:"Which term is this?", big:def, bigSmall:true, ans:term, opts: () => shuffle([term, ...pickN(LINGO.map(x=>x[0]), 3, term)])});
+  });
+  return cards;
+}
+const csrs = () => (store.csrs = store.csrs || {});
+function cDue(id){ const r = csrs()[id]; return !!r && r.d <= today(); }
+function cStatus(id){ const r = csrs()[id]; if (!r) return "un"; if (r.b >= MASTER_BOX) return "mast"; if (r.b === 0) return "bad"; return "learn"; }
+function crecord(id, right){
+  const S = csrs(), r = S[id] || {b:0, d:0};
+  if (right) { r.b = Math.min(INTERVALS.length-1, r.b+1); r.d = today() + INTERVALS[r.b]; } else { r.b = 0; r.d = today(); }
+  S[id] = r;
+  if (store.daily.day !== today()) store.daily = {day:today(), count:0};
+  store.daily.count++;
+  if (store.daily.count === GOAL) { const t = today(); if (store.streak.last === t-1) store.streak.n++; else if (store.streak.last !== t) store.streak.n = 1; store.streak.last = t; }
+  save();
+}
+
+function startCodes(){
+  const all = codesCards();
+  let pool;
+  if (cdeckSel === "crev") { pool = all.filter(c => cDue(c.id)); pool.sort((x,y) => csrs()[x.id].b - csrs()[y.id].b);
+    if (pool.length < GOAL) pool = pool.concat(shuffle(all.filter(c => !csrs()[c.id])).slice(0, GOAL - pool.length)); }
+  else {
+    pool = cdeckSel === "cmix" ? all : all.filter(c => c.deck === cdeckSel);
+    if (cdeckSel === "cmix") {   // keep mixed rounds balanced across decks
+      const by = {}; pool.forEach(c => (by[c.deck] = by[c.deck] || []).push(c));
+      pool = Object.values(by).flatMap(list => shuffle(list.filter(c=>cDue(c.id))).concat(shuffle(list.filter(c=>!cDue(c.id)))).slice(0, 3));
+    } else { const due = shuffle(pool.filter(c=>cDue(c.id))), rest = shuffle(pool.filter(c=>!cDue(c.id))); pool = due.concat(rest); }
+    pool = shuffle(pool.slice(0, 15));
+  }
+  const queue = pool.slice(0, 15).map(card => ({card, tries:0}));
+  if (!queue.length) return;
+  try { localStorage.setItem(KEY+"-prefs", JSON.stringify({deck:deckSel, fdeck:fdeckSel, cdeck:cdeckSel, mode:modeSel, level:levelSel, clock:$("clockOn").checked})); } catch(e){}
+  const air = AIRLINES[store.airline];
+  G = { codes:true, poolSet: new Set(air ? air.set : DATA.map(a=>a.code)), queue, idx:0, score:0, streak:0, bestStreak:0, firstRight:0, unique:queue.length, missed:new Map(), clock:$("clockOn").checked, level:levelSel };
+  $("hDeck").textContent = `Phonetics & codes · ${CDECKS.find(d=>d.id===cdeckSel).name}` + ({adv:" · Advanced", exp:" · Expert"}[levelSel] || "");
+  show("play"); codesNext(true);
+}
+
+function codesNext(first){
+  cancelAnimationFrame(raf);
+  if (!first) G.idx++;
+  if (G.idx >= G.queue.length) return finish();
+  const item = G.queue[G.idx], c = item.card;
+  item.view = (G.level === "exp" && c.typed) ? "type" : "pick"; item.answered = false;
+  $("hCard").textContent = G.idx+1; $("hLeft").textContent = G.queue.length - G.idx - 1;
+  $("hStreak").textContent = G.streak; $("hScore").textContent = G.score.toLocaleString();
+  $("reveal").hidden = true; $("quitBtn").hidden = false; $("pTrip").hidden = true;
+  $("pQ").textContent = (item.tries === 1 ? "Second look. " : "") + c.q;
+  if (c.tiles) { setTiles(c.tiles, true); } else $("pTiles").innerHTML = "";
+  $("pCity").hidden = !(c.big || c.sub);
+  $("pCity").innerHTML = c.big ? `<span class="${c.bigSmall ? "cdef" : ""}">${c.big}</span>${c.sub ? `<small>${c.sub}</small>` : ""}` : (c.sub ? `<small>${c.sub}</small>` : "");
+  if (item.view === "type") {
+    $("opts").className = "opts";
+    $("opts").innerHTML = `<form class="typer" id="typeForm" autocomplete="off"><input id="typeIn" type="text" autocapitalize="characters" autocorrect="off" spellcheck="false" maxlength="${c.typed.max}" placeholder="${"_".repeat(Math.min(c.typed.max, 4))}" aria-label="Your answer"><button class="btn" type="submit">Check</button></form>`;
+    const inp = $("typeIn");
+    inp.addEventListener("input", () => { inp.value = inp.value.toUpperCase().replace(/[^A-Z0-9 -]/g,"").slice(0, c.typed.max); });
+    $("typeForm").addEventListener("submit", e => { e.preventDefault(); if (inp.value.trim()) codesTyped(inp.value); });
+    inp.addEventListener("keydown", e => { if (e.key==="Enter") e.stopPropagation(); });
+    setTimeout(() => inp.focus({preventScroll:true}), 30);
+  } else {
+    item.opts = c.opts(G.level);
+    const short = item.opts.every(o => o.length <= 4);
+    $("opts").className = short ? "opts codes" : "opts";
+    $("opts").innerHTML = item.opts.map((o,i) => `<button class="opt" data-i="${i}"><span class="k">${i+1}</span><span class="t"><b${c.long ? ' style="font-size:14.5px;font-weight:600"' : ""}>${o}</b></span></button>`).join("");
+  }
+  G.t0 = performance.now();
+  $("clock").style.visibility = G.clock ? "visible" : "hidden"; $("clock").classList.remove("low"); $("clockBar").style.transform = "scaleX(1)";
+  if (G.clock) tick();
+}
+function codesAnswer(i){
+  const item = G.queue[G.idx]; if (!item || item.answered) return;
+  const c = item.card, right = i >= 0 && item.opts[i] === c.ans;
+  [...$("opts").children].forEach((b,k) => { b.disabled = true; if (item.opts[k] === c.ans) b.classList.add("right"); else if (k === i) b.classList.add("wrong"); else b.classList.add("dim"); });
+  codesSettle(item, right, i < 0);
+}
+function codesTyped(val){
+  const item = G.queue[G.idx]; if (!item || item.answered) return;
+  const c = item.card, norm = val.toUpperCase().replace(/[^A-Z0-9]/g,""), right = c.typed.accept.some(a => a.replace(/[^A-Z0-9]/g,"") === norm);
+  const inp = $("typeIn"); if (inp) { inp.disabled = true; inp.blur(); }
+  const sub = $("typeForm") && $("typeForm").querySelector("button"); if (sub) sub.disabled = true;
+  codesSettle(item, right, !val, (!right && val) ? `You typed ${val.toUpperCase()}.` : "");
+}
+function codesExplain(c){
+  if (c.say) return `<div><b>${c.tiles}</b> is <b>${c.ans}</b>, said ${c.say}.</div>`;
+  if (c.deck === "cnato" && c.why) return `<div><b>${c.tiles}</b> is said <b>${c.ans.toUpperCase()}</b>.</div><div class="hint">${c.why}</div>`;
+  if (c.deck === "cnato") { const w = NATO_BY[c.ans]; return `<div><b>${c.big}</b> is the letter <b>${c.ans}</b>${w ? "" : ""}.</div>`; }
+  if (c.apt) return `<div><b>${c.apt.code}</b> is ${c.apt.city}, ${c.apt.name}: <b>${spellOut(c.apt.code)}</b>.</div>`;
+  if (c.carrier) { const k = c.carrier; return `<div><b>${k.name}</b> · code <b>${k.iata}</b> · ICAO <b>${k.icao}</b> · callsign <b>${k.call}</b></div>${k.note ? `<div class="hint">${k.note}</div>` : ""}`; }
+  if (c.deck === "cclock") return c.why ? `<div>${c.why}</div>` : `<div><b>${c.big}</b> is <b>${c.ans}</b>.</div><div class="hint">Hours 13 to 23 are PM: subtract 12. 0000 is midnight and 1200 is noon.</div>`;
+  if (c.deck === "clingo") { const row = LINGO.find(x => x[0] === c.ans || x[1] === c.ans); return row ? `<div><b>${row[0]}</b>: ${row[1]}</div>` : ""; }
+  return "";
+}
+function codesSettle(item, right, timedOut, extra=""){
+  item.answered = true; cancelAnimationFrame(raf);
+  const c = item.card, firstTry = item.tries === 0;
+  if (firstTry) crecord(c.id, right);
+  const lvl = {adv:1.5, exp:2}[G.level] || 1;
+  if (right) {
+    const speed = G.clock ? Math.round(50*Math.max(0, 1 - (performance.now()-G.t0)/clockMs())) : 0;
+    G.streak++; G.bestStreak = Math.max(G.bestStreak, G.streak);
+    const mult = Math.min(2, 1 + 0.1*(G.streak-1)), pts = Math.round((item.tries===1 ? 40 : (100+speed)*mult) * lvl);
+    G.score += pts; if (firstTry) G.firstRight++;
+    $("verdict").className = "verdict ok"; $("verdict").textContent = `Cleared · +${pts}${mult>1 && item.tries!==1 ? ` (×${mult.toFixed(1)})` : ""}`;
+  } else {
+    G.streak = 0; G.missed.set(c.id, c);
+    if (item.tries === 0) G.queue.splice(Math.min(G.queue.length, G.idx + 4), 0, {card:c, tries:1});
+    $("verdict").className = "verdict bad"; $("verdict").textContent = timedOut ? "Out of time" : (c.long || c.ans.length > 28 ? "Not quite" : `Not quite · it's ${c.ans}`);
+  }
+  const r = csrs()[c.id];
+  const srsLine = firstTry && r ? (right ? (r.b >= MASTER_BOX ? `Mastered. Next review in ${INTERVALS[r.b]} days.` : `Next review in ${INTERVALS[r.b]} day${INTERVALS[r.b]===1?"":"s"}.`) : "Back in tomorrow's review.") : "";
+  $("revealBody").innerHTML = (extra ? `<div class="hint">${extra}</div>` : "") + codesExplain(c) +
+    `<div class="hint">${[srsLine, (!right && item.tries===0) ? "It also comes back later in this round." : ""].filter(Boolean).join(" ")}</div>`;
+  $("hStreak").textContent = G.streak; $("hScore").textContent = G.score.toLocaleString(); $("hLeft").textContent = G.queue.length - G.idx - 1;
+  $("reveal").hidden = false; $("nextBtn").focus({preventScroll:true});
+  $("nextBtn").firstElementChild.textContent = G.idx >= G.queue.length-1 ? "See results" : "Next card";
+}
+
+// Reference board: the alphabet, colored by how well each letter is known
+function renderBoard(){
+  const st = L => { const a = cStatus(`nato:${L}`), b = cStatus(`natow:${L}`); return a === "mast" && b === "mast" ? "mast" : (a === "bad" || b === "bad") ? "bad" : (a === "un" && b === "un") ? "un" : "learn"; };
+  const s = NATO.map(([L]) => st(L));
+  $("boardSub").textContent = `${s.filter(x=>x==="mast").length} of 26 letters mastered`;
+  $("board").innerHTML = NATO.map(([L, W, say], i) => `<div class="bl ${s[i]}"><b>${L}</b><span>${W}</span><small>${say}</small></div>`).join("") +
+    RADIO_NUM.map(r => `<div class="bl num"><b>${r.d}</b><span>${r.ans}</span><small>${r.ans.toUpperCase()}</small></div>`).join("");
+}
+
 // ---------- track switch ----------
 function renderTrack(){
-  const fleet = store.track === "fleet";
-  $("tabAir").setAttribute("aria-selected", !fleet); $("tabFleet").setAttribute("aria-selected", fleet);
-  $("airFields").hidden = fleet; $("fleetFields").hidden = !fleet;
-  if (!$("setup").hidden) { $("mapCard").hidden = fleet; $("hangarCard").hidden = !fleet; }
+  if (!["air","fleet","codes"].includes(store.track)) store.track = "air";
+  const fleet = store.track === "fleet", codes = store.track === "codes", airT = store.track === "air";
+  $("tabAir").setAttribute("aria-selected", airT); $("tabFleet").setAttribute("aria-selected", fleet); $("tabCodes").setAttribute("aria-selected", codes);
+  $("airFields").hidden = !airT; $("fleetFields").hidden = !fleet; $("codesFields").hidden = !codes;
+  if (!$("setup").hidden) { $("mapCard").hidden = !airT; $("hangarCard").hidden = !fleet; $("boardCard").hidden = !codes; }
   // Hero tiles: the airline's main hub on the airport track, its most common aircraft (IATA type code) on the aircraft track.
   const HERO = {
     dl:{hub:"ATL", hubCap:"Atlanta · Delta's largest hub", ac:"739", acCap:"Boeing 737-900ER · Delta's most common aircraft"},
@@ -1963,9 +2285,26 @@ function renderTrack(){
     aa:{hub:"DFW", hubCap:"Dallas/Fort Worth · American's largest hub", ac:"738", acCap:"Boeing 737-800 · American's most common aircraft"},
     wn:{hub:"DEN", hubCap:"Denver · Southwest's busiest airport", ac:"7M8", acCap:"Boeing 737 MAX 8 · Southwest's most common aircraft"}
   }[store.airline] || {hub:"ATL", hubCap:"Atlanta · the busiest airport in the US", ac:"738", acCap:"Boeing 737-800 · the most common jet across the four majors"};
-  const tiles = (fleet ? HERO.ac : HERO.hub).split("");
+  const me = CARRIERS.find(c => c.iata === ({dl:"DL",ua:"UA",aa:"AA",wn:"WN"}[store.airline] || "DL"));
+  const tiles = (fleet ? HERO.ac : codes ? me.icao : HERO.hub).split("");
   [...$("heroTiles").children].forEach((el,i)=> el.textContent = tiles[i]);
-  $("heroCap").textContent = fleet ? HERO.acCap : HERO.hubCap;
+  $("heroCap").textContent = fleet ? HERO.acCap : codes ? `${me.name} · code ${me.iata} · callsign “${me.call}”` : HERO.hubCap;
+  if (codes) {
+    $("heroH").textContent = "Spell it so the whole crew hears it";
+    $("heroP").textContent = "The phonetic alphabet, your stations spelled out, airline codes and callsigns, 24-hour and Zulu time, and the words you'll hear on the line. Same ten-a-day goal and spaced review as the other tracks.";
+    const cards = codesCards();
+    const n = id => id==="cmix" ? cards.length : id==="crev" ? cards.filter(c=>cDue(c.id)).length : cards.filter(c=>c.deck===id).length;
+    $("cdecks").innerHTML = CDECKS.map(d => `<button class="chip" data-cdeck="${d.id}" aria-pressed="${d.id===cdeckSel}">${d.name}<em>${n(d.id)}${d.id==="crev"?" due":""}</em></button>`).join("");
+    $("cdeckHint").textContent = CDECKS.find(d=>d.id===cdeckSel).hint;
+    $("levelHint").textContent = {
+      std: "Four choices, spread out.",
+      adv: "Close decoys: letters that sound alike, codes one letter off, airlines of the same kind. Worth 1.5× points.",
+      exp: "Type the answer where it's short: the phonetic word, the letter, the code or the 24-hour time. Worth 2× points."
+    }[levelSel];
+    $("dDue").textContent = cards.filter(c=>cDue(c.id)).length;
+    renderBoard();
+    return;
+  }
   $("heroH").textContent = fleet ? "Know the aircraft before you board it" : "Learn the board before you work the cabin";
   $("heroP").textContent = fleet
     ? "Seats, cabins, exits and crew minimums for every aircraft your airline flies, with drawings and cabin plans. Same ten-a-day goal and spaced review as airport codes; three correct reviews in a row masters a card."
@@ -1985,12 +2324,13 @@ function renderTrack(){
     renderHangar();
   }
 }
+$("cdecks").addEventListener("click", e => { const b = e.target.closest("[data-cdeck]"); if (!b) return; cdeckSel = b.dataset.cdeck; renderTrack(); });
 $("fdecks").addEventListener("click", e => { const b = e.target.closest("[data-fdeck]"); if (!b) return; fdeckSel = b.dataset.fdeck; renderTrack(); });
 document.querySelector(".seg").addEventListener("click", e => {
   const b = e.target.closest("[data-track]"); if (!b) return;
   store.track = b.dataset.track; save(); renderSetup();
 });
-try { const p = JSON.parse(localStorage.getItem(KEY+"-prefs")||"{}"); if (p.fdeck && FDECKS.some(d=>d.id===p.fdeck)) fdeckSel = p.fdeck; } catch(e){}
+try { const p = JSON.parse(localStorage.getItem(KEY+"-prefs")||"{}"); if (p.fdeck && FDECKS.some(d=>d.id===p.fdeck)) fdeckSel = p.fdeck; if (p.cdeck && CDECKS.some(d=>d.id===p.cdeck)) cdeckSel = p.cdeck; } catch(e){}
 
 // ---------- logo ----------
 const FLAPS = " ABCDEFGHIJKLMNOPQRSTUVWXYZ";

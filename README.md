@@ -1,11 +1,12 @@
 # Jumpseat
 
-Flashcard training for new flight attendants. Pick your airline, then learn its airport codes and its aircraft.
+Flashcard training for new flight attendants. Pick your airline, then learn its airport codes, its aircraft, and the radio alphabet and codes crews use.
 
 ## What's inside
 
 - **Airport codes:** your airline's stations, with spaced daily review, pairings practice and a mastery map.
 - **Aircraft:** seat counts, premium cabins, exits, FAA crew minimums, Spot the Plane drawings, engines, and Find the Exits on top-down cabin plans built from each airline's configurations.
+- **Phonetics & codes:** the ICAO phonetic alphabet (with TREE, FIFE, NINER), your airline's stations spelled out, airline codes and radio callsigns, 24-hour and Zulu time, and crew lingo.
 - **Levels:** Standard, Advanced (tighter decoys) and Expert (type the answer).
 
 ## Running it
@@ -21,6 +22,6 @@ Progress (streaks, reviews, mastery) is saved in each player's browser with `loc
 
 ## Data
 
-Fleet, seat and exit data is compiled from airline websites, airline fleet fact sheets, Wikipedia fleet pages, AeroLOPA and FAA/EASA type certificate data, as of October 2026. Aircraft outlines were measured from published side-view references and drawn by Jumpseat's own generator.
+Airline codes and callsigns are current as of October 2026. Fleet, seat and exit data is compiled from airline websites, airline fleet fact sheets, Wikipedia fleet pages, AeroLOPA and FAA/EASA type certificate data, as of October 2026. Aircraft outlines were measured from published side-view references and drawn by Jumpseat's own generator.
 
 This is general familiarization, not training of record. Exit operation, crew positions and procedures come from each carrier's FAA-approved manuals.
